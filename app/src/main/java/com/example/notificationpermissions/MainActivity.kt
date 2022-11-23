@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
         var sliderView= findViewById<SliderView>(R.id.slider)
         var images= arrayOf(
-            R.drawable.donatelove,
             R.drawable.donate2,
             R.drawable.donate3,
             R.drawable.donate4,

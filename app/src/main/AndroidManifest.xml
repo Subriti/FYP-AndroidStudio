@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.notificationpermissions">
 
-   <!-- <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />-->
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -12,8 +10,8 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_baseline_circle_notifications_24"
-        android:roundIcon="@drawable/ic_baseline_circle_notifications_24"
+        android:icon="@drawable/donate4"
+        android:roundIcon="@drawable/donate4"
         android:supportsRtl="true"
         android:theme="@style/Theme.NotificationPermissions"
         tools:targetApi="32">
