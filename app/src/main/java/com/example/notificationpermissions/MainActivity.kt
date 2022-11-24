@@ -18,8 +18,7 @@ class MainActivity : AppCompatActivity() {
         var images= arrayOf(
             R.drawable.donate2,
             R.drawable.donate3,
-            R.drawable.donate4,
-            R.drawable.donate5
+            R.drawable.donate4
         )
 
         val sliderAdapter= SliderAdapter(images)
