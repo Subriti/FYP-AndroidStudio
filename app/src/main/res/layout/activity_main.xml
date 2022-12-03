@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
     android:background="@color/whitisPurple"
+    android:padding="25dp"
     tools:context=".MainActivity">
 
     <ImageView
@@ -13,8 +13,8 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="144dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/donate" />
 
@@ -85,8 +85,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Login "
-        android:textStyle="bold"
         android:textColor="@color/roseEbony"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@id/registerBtn"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView5"

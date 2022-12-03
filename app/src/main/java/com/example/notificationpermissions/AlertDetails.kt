@@ -15,6 +15,7 @@ import java.net.URL
 class AlertDetails : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.dashboard_activity)
 
         val builder = this?.let { it1 -> AlertDialog.Builder(it1) }
         val dialogView = layoutInflater.inflate(R.layout.confirmation_prompt, null)
