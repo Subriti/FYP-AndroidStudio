@@ -17,7 +17,7 @@ class AlertDetails : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dashboard_activity)
 
-        val builder = this?.let { it1 -> AlertDialog.Builder(it1) }
+        val builder = this.let { it1 -> AlertDialog.Builder(it1) }
         val dialogView = layoutInflater.inflate(R.layout.confirmation_prompt, null)
 
         if (builder != null) {
