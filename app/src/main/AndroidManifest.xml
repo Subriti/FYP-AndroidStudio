@@ -11,29 +11,25 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/donate4"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:roundIcon="@drawable/donate4"
         android:supportsRtl="true"
         android:theme="@style/Theme.NotificationPermissions"
         android:usesCleartextTraffic="true"
         tools:targetApi="32">
-        <activity
-            android:name=".DashboardActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
 
         <activity
+            android:name=".DashboardActivity"
+            android:exported="false"/>
+
+        <activity
             android:name=".NotificationActivity"
             android:exported="false"
             android:label="@string/title_activity_notification"
             android:theme="@style/Theme.NotificationPermissions.NoActionBar" />
+
         <activity
             android:name=".SignUpPageActivity"
             android:exported="false" />
