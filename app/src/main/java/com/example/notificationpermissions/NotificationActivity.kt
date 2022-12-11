@@ -23,6 +23,12 @@ class NotificationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notification)
 
+        val loginBtn= findViewById<Button>(R.id.loginBtn)
+        loginBtn.setOnClickListener{
+            val intent= Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+        }
+
         /* var hasNotificationPermission = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_NOTIFICATION_POLICY

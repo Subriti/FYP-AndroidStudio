@@ -17,8 +17,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="32">
         <activity
-            android:name=".OTPverificationActivity"
-            android:exported="false">
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
