@@ -5,15 +5,18 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager.BackStackEntry
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class DashboardActivity : AppCompatActivity() {
 
+class DashboardActivity : AppCompatActivity() {
+    //assigned in each fragment to know the current fragment and to manage the appBar accordingly
+    lateinit var currentFragment: Fragment
     lateinit var toolbar: androidx.appcompat.widget.Toolbar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +33,7 @@ class DashboardActivity : AppCompatActivity() {
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.homeFragment, R.id.chatFragment, R.id.historyFragment, R.id.profileFragment
+                R.id.homeFragment, R.id.chatFragment, R.id.addPostFragment, R.id.historyFragment, R.id.profileFragment
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -44,6 +47,36 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.appbar_nav, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        /* val currentFragment= supportFragmentManager.fragments.last()?.childFragmentManager?.fragments?.get(0)
+
+
+             println(AddPostFragment::class.java)*/
+        /*if (currentFragment == AddPostFragment::class || shareVisible == SocFragment::class.java.toString() || shareVisible == DevFragment::class.java.toString()) {
+*/      println(currentFragment)
+        if (currentFragment::class.java == AddPostFragment::class.java) {
+            val item = menu.findItem(R.id.nav_search)
+            val item1=menu.findItem(R.id.nav_notifications)
+            item.isVisible = false
+            item1.isVisible=false
+
+            /* //removing existing appBar and adding new
+             val frag= AddPostFragment()
+             val toolbar: Toolbar = frag.requireView().findViewById(R.id.addPost_toolbar)
+                 supportActionBar!!.hide()
+                 setSupportActionBar(toolbar)*/
+        }
+        if (currentFragment::class.java != AddPostFragment::class.java) {
+            val item = menu.findItem(R.id.nav_search)
+            val item1=menu.findItem(R.id.nav_notifications)
+            item.isVisible = true
+            item1.isVisible=true
+
+            supportActionBar!!.show()
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

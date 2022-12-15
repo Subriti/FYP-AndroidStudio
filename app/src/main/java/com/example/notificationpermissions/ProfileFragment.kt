@@ -24,6 +24,8 @@ class ProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view= inflater.inflate(R.layout.fragment_profile, container, false)
+        (activity as DashboardActivity?)!!.currentFragment = this
+
 
         imgGallery= view.findViewById<ImageView>(R.id.profile_image)
         imgButton= view.findViewById<Button>(R.id.btnGallery)

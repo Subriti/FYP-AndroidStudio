@@ -1,7 +1,5 @@
 <resources>
     <string name="default_notification_channel_id">1</string>
-
-
     <string name="app_name">Gracias</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
@@ -24,4 +22,15 @@
     <string name="tagline">... Reviving the nature lover within you. \n... Donating of clothes simplified. \n... Giving our pre-loved items a second life. \n... Donating of clothes simplified \n... Help make a difference</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="descriptionDetails">Detailed Description regarding condition of clothes, availability of delivery and locations</string>
+    <string name="description">Write a Description</string>
+
+
+    <string-array name="clothCategory_array">
+        <item>Unisex Clothing</item>
+        <item>Women\'s Clothing</item>
+        <item>Baby\'s Clothing</item>
+        <item>Men\'s Clothing</item>
+    </string-array>
+
 </resources>

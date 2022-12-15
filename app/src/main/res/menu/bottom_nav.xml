@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_baseline_chat_24"
         android:title="Chat" />
     <item
+        android:id="@+id/addPostFragment"
+        android:icon="@drawable/ic_baseline_add_box_24"
+        android:title="Add Post" />
+    <item
         android:id="@+id/historyFragment"
         android:icon="@drawable/ic_baseline_history_24"
         android:title="History" />

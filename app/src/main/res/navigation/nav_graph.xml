@@ -16,6 +16,11 @@
         android:label="Chat Zone"
         tools:layout="@layout/fragment_chat" />
     <fragment
+        android:id="@+id/addPostFragment"
+        android:name="com.example.notificationpermissions.AddPostFragment"
+        android:label="Add New Post"
+        tools:layout="@layout/fragment_add_post" />
+    <fragment
         android:id="@+id/historyFragment"
         android:name="com.example.notificationpermissions.HistoryFragment"
         android:label="Donation History"
