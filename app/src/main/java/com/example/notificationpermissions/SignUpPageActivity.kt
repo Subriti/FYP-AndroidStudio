@@ -1,16 +1,25 @@
 package com.example.notificationpermissions
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.app.ProgressDialog
 import android.content.Intent
+import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.notificationpermissions.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.appcheck.FirebaseAppCheck
@@ -23,11 +32,13 @@ import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import com.hbb20.CountryCodePicker
 import com.squareup.okhttp.*
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.dialogs.SettingsDialog
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class SignUpPageActivity : AppCompatActivity() {
+class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     lateinit var name: EditText
     lateinit var email: EditText
@@ -36,6 +47,8 @@ class SignUpPageActivity : AppCompatActivity() {
     lateinit var repassword: EditText
     var randomNum = 123456
 
+    val PERMISSION_LOCATION_REQUEST_CODE = 1
+
     lateinit var phonecode: CountryCodePicker
 
     lateinit var mAuth: FirebaseAuth
@@ -43,10 +56,19 @@ class SignUpPageActivity : AppCompatActivity() {
     // string for storing our verification ID
     lateinit var verificationId: String
 
+    private lateinit var findLocation: ImageView
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+
     private lateinit var createSpinner: ProgressBar
 
-    private lateinit var signupbtn:Button
+    private lateinit var signupbtn: Button
 
+    lateinit var number: String
+    lateinit var locationTxt: TextView
+    lateinit var birthDate: TextView
+
+    @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,15 +92,44 @@ class SignUpPageActivity : AppCompatActivity() {
         phone = findViewById<EditText>(R.id.phoneText)
         password = findViewById<EditText>(R.id.passwordText)
         repassword = findViewById<EditText>(R.id.repasswordText)
-
         phonecode = findViewById<CountryCodePicker>(R.id.ccp)
 
         val indicatorText = findViewById<TextView>(R.id.passwordIndicatorText)
         indicatorText.visibility = View.GONE
 
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        locationTxt = findViewById<TextView>(R.id.locationText)
+        findLocation = findViewById(R.id.findLocation)
+        findLocation.setOnClickListener {
+            if (hasLocationPermissions()) {
+                val progressDialog = ProgressDialog(this)
+                progressDialog.setTitle("Finding your Current Location")
+                progressDialog.show()
+
+                fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                    val geoCoder = Geocoder(this)
+                    val currentLocation =
+                        geoCoder.getFromLocation(location.latitude, location.longitude, 1)
+
+                    if (currentLocation.first().subLocality == null) {
+                        locationTxt.text = currentLocation.first().locality
+                    } else {
+                        locationTxt.text =
+                            currentLocation.first().subLocality + ", " + currentLocation.first().locality
+                    }
+                    progressDialog.dismiss()
+                    Log.d("LOCATION", currentLocation.first().countryCode)
+                    Log.d("LOCATION", currentLocation.first().locality)
+                }
+            } else {
+                requestLocationPermission()
+            }
+        }
+
         val pickDatebtn = findViewById<ImageView>(R.id.pickDatebtn)
-        val birthDate = findViewById<TextView>(R.id.dateText)
+        birthDate = findViewById<TextView>(R.id.dateText)
 
         pickDatebtn.setOnClickListener {
             val c = Calendar.getInstance()
@@ -89,7 +140,7 @@ class SignUpPageActivity : AppCompatActivity() {
             val datepickerdialog =
                 DatePickerDialog(
                     this, { view, mYear, mMonth, mDay ->
-                        birthDate.text= ""+ mDay + "/" + (mMonth + 1) + "/" + mYear
+                        birthDate.text = "" + mDay + "/" + (mMonth + 1) + "/" + mYear
                     }, year, month, day
                 )
 
@@ -103,11 +154,11 @@ class SignUpPageActivity : AppCompatActivity() {
         signupbtn.setOnClickListener {
             if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
                 indicatorText.visibility = View.VISIBLE
-                indicatorText.text = "Password Match"
+                indicatorText.text = "Password Matched"
                 indicatorText.setTextColor(getColor(R.color.darkgreen))
 
                 val selectedCode = phonecode.selectedCountryCodeAsInt
-                val number = "+$selectedCode${phone.text}"
+                number = "+$selectedCode${phone.text}"
 
                 enableSpinner(true)
                 sendVerificationCode(number)
@@ -125,6 +176,38 @@ class SignUpPageActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun hasLocationPermissions() =
+        EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)
+
+    private fun requestLocationPermission() {
+        EasyPermissions.requestPermissions(
+            this,
+            "This application cannot work without location permission.",
+            PERMISSION_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms.first())) {
+            SettingsDialog.Builder(this).build().show()
+        } else {
+            requestLocationPermission()
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
+        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
     }
 
     fun enableSpinner(enable: Boolean) {
@@ -147,21 +230,63 @@ class SignUpPageActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // if the code is correct and the task is successful
-                    // we are sending our user to new activity.
-                    val i = Intent(this@SignUpPageActivity, LoginActivity::class.java)
-                    startActivity(i)
-                    finish()
+
+                    //storing the user details into the database
+                    AuthService.registerUser(
+                        name.text.toString(),
+                        email.text.toString(),
+                        password.text.toString(),
+                        birthDate.text.toString(),
+                        number,
+                        locationTxt.text.toString(),
+                        Calendar.getInstance().time
+                    ) { createSuccess ->
+                        if (createSuccess) {
+                            AuthService.loginUser(
+                                email.text.toString(),
+                                password.text.toString()
+                            ) { loginSuccess ->
+                                if (loginSuccess) {
+
+                                    //broadcasting ki ahh user creation success vayo to other activities
+                                    val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                                    LocalBroadcastManager.getInstance(this)
+                                        .sendBroadcast(userDataChange)
+
+                                    // we are sending our user to new activity.
+                                    val i = Intent(
+                                        this@SignUpPageActivity,
+                                        DashboardActivity::class.java
+                                    )
+                                    startActivity(i)
+                                    finish()
+
+                                    enableSpinner(false)
+                                    finish()
+                                } else {
+                                    errorToast()
+                                }
+                            }
+                        } else {
+                            errorToast()
+                        }
+                    }
                 } else {
-                    // if the code is not correct then we are
-                    // displaying an error message to the user.
                     Toast.makeText(
-                        this@SignUpPageActivity,
-                        task.exception?.message,
+                        this,
+                        "Make sure all the fields are filled in.",
                         Toast.LENGTH_LONG
-                    )
-                        .show()
+                    ).show()
+                    enableSpinner(false)
                 }
+
             }
+    }
+
+
+    fun errorToast() {
+        Toast.makeText(this, "Something went wrong, please try again.", Toast.LENGTH_LONG).show()
+        enableSpinner(false)
     }
 
     private fun sendVerificationCode(phone: String) {
@@ -191,6 +316,7 @@ class SignUpPageActivity : AppCompatActivity() {
                 // contains a unique id which
                 // we are storing in our string
                 // which we have already created.
+                println("onCodeSent")
                 verificationId = s
             }
 
@@ -198,6 +324,7 @@ class SignUpPageActivity : AppCompatActivity() {
             // receive OTP from Firebase.
             override fun onVerificationCompleted(phoneAuthCredential: PhoneAuthCredential) {
                 enableSpinner(false)
+                println("onVerificationCompleted")
                 //show OTP verification box
                 showAlertDialog(phoneAuthCredential)
             }
@@ -227,6 +354,11 @@ class SignUpPageActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.otp_verification_layout, null)
 
+        val resendOTP = dialogView.findViewById<TextView>(R.id.tvResendBtn)
+        resendOTP.setOnClickListener {
+            sendVerificationCode(number)
+        }
+
         fun View?.removeSelf() {
             this ?: return
             val parentView = parent as? ViewGroup ?: return
@@ -236,20 +368,20 @@ class SignUpPageActivity : AppCompatActivity() {
         if (builder != null) {
             builder.setView(dialogView)
                 .setPositiveButton("Verify") { _, i ->
-                    val digit1= dialogView.findViewById<EditText>(R.id.etC1)
-                    val digit2= dialogView.findViewById<EditText>(R.id.etC2)
-                    val digit3= dialogView.findViewById<EditText>(R.id.etC3)
-                    val digit4= dialogView.findViewById<EditText>(R.id.etC4)
-                    val digit5= dialogView.findViewById<EditText>(R.id.etC5)
-                    val digit6= dialogView.findViewById<EditText>(R.id.etC6)
+                    val digit1 = dialogView.findViewById<EditText>(R.id.etC1)
+                    val digit2 = dialogView.findViewById<EditText>(R.id.etC2)
+                    val digit3 = dialogView.findViewById<EditText>(R.id.etC3)
+                    val digit4 = dialogView.findViewById<EditText>(R.id.etC4)
+                    val digit5 = dialogView.findViewById<EditText>(R.id.etC5)
+                    val digit6 = dialogView.findViewById<EditText>(R.id.etC6)
 
                     val verifyOTP =
-                            digit1.text.toString()+
-                            digit2.text.toString()+
-                            digit3.text.toString()+
-                            digit4.text.toString()+
-                            digit5.text.toString()+
-                            digit6.text.toString()
+                        digit1.text.toString() +
+                                digit2.text.toString() +
+                                digit3.text.toString() +
+                                digit4.text.toString() +
+                                digit5.text.toString() +
+                                digit6.text.toString()
 
                     if (verifyOTP == "") {
                         //removing previously set dialog to bring an new one
@@ -260,8 +392,7 @@ class SignUpPageActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                         builder.setView(dialogView).show()
-                    }
-                    else {
+                    } else {
                         // below line is used for getting OTP code
                         // which is sent in phone auth credentials.
                         val code = phoneAuthCredential.smsCode
