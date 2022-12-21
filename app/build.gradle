@@ -76,5 +76,10 @@ dependencies {
     //noinspection OutdatedLibrary
     implementation 'com.google.firebase:firebase-appcheck-safetynet:16.1.0'
 
+    //for storing images in firebase
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
+
+    implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
+
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 }
