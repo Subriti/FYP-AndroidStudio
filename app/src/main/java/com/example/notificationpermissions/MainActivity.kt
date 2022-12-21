@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         val login= findViewById<TextView>(R.id.loginBtn)
         login.setOnClickListener{
-            val intent= Intent(this,NotificationActivity::class.java)
+            val intent= Intent(this,LoginActivity::class.java)
             startActivity(intent)
         }
     }

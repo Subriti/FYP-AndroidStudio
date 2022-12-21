@@ -13,10 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.google.android.gms.tasks.OnCompleteListener
+import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import java.io.IOException
 import java.util.*
 
@@ -143,7 +145,7 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             .toString() + "?alt=media&token="
                                 + task.result.getQueryParameters("token")[0])
                         Log.v(TAG, "downloadURL: $downloadURL")
-                        
+
                         //save the downloadURL to the database
                         println("Final download URL: $downloadURL")
                     }

@@ -1,27 +1,22 @@
 package com.example.notificationpermissions
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 
 
-class NotificationActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_notification)
+        setContentView(R.layout.activity_login)
 
         val loginBtn= findViewById<Button>(R.id.loginBtn)
         loginBtn.setOnClickListener{
@@ -69,10 +64,10 @@ class NotificationActivity : AppCompatActivity() {
         }*/
 
 
-        var notif = findViewById<Button>(R.id.showNotifications)
+        /*var notif = findViewById<Button>(R.id.showNotifications)
         notif.setOnClickListener {
             ShowNotification()
-        }
+        }*/
     }
 
 

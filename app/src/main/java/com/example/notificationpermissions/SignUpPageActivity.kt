@@ -1,7 +1,6 @@
 package com.example.notificationpermissions
 
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -24,7 +23,6 @@ import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import com.hbb20.CountryCodePicker
 import com.squareup.okhttp.*
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -150,7 +148,7 @@ class SignUpPageActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // if the code is correct and the task is successful
                     // we are sending our user to new activity.
-                    val i = Intent(this@SignUpPageActivity, NotificationActivity::class.java)
+                    val i = Intent(this@SignUpPageActivity, LoginActivity::class.java)
                     startActivity(i)
                     finish()
                 } else {
