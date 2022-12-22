@@ -23,7 +23,8 @@ object AuthService {
         birth_date: String,
         phone_number: String,
         location: String,
-        signup_date: Date,
+        signup_date: String,
+        profile_picture: String,
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
@@ -34,17 +35,23 @@ object AuthService {
         jsonBody.put("phone_number", phone_number)
         jsonBody.put("location", location)
         jsonBody.put("signup_date", signup_date)
+        jsonBody.put("profile_picture", profile_picture)
+
+        println(jsonBody)
 
         val requestBody = jsonBody.toString()
+        print(requestBody)
 
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
-                println("Create User Response " +response)
+                println("Create User Response $response")
                 complete(true)
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not register User: $error")
                 complete(false)
-            }) {
+            })
+
+            {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -124,7 +131,7 @@ object AuthService {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
 
                     isFound = true
-
+                    println("is found: $isFound")
                     complete(true)
 
                 } catch (e: JSONException) {

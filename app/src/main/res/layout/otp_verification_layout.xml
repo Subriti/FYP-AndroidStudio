@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/otpVerificationView"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <TextView
@@ -154,9 +154,9 @@
         android:id="@+id/tvResendBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:foreground="?attr/selectableItemBackground"
-        android:text="RESEND OTP"
+        android:text="RESEND"
         android:textColor="@color/roseEbony"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/textView7"
@@ -165,10 +165,4 @@
         app:layout_constraintStart_toEndOf="@+id/textView7"
         app:layout_constraintTop_toTopOf="@+id/textView7" />
 
-    <ProgressBar
-        android:id="@+id/progressBarVerify"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
 </androidx.constraintlayout.widget.ConstraintLayout>

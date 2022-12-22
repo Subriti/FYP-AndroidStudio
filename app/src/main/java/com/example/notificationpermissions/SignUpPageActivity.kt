@@ -4,11 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -17,9 +20,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.appcheck.FirebaseAppCheck
@@ -30,10 +35,14 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.hbb20.CountryCodePicker
 import com.squareup.okhttp.*
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -42,31 +51,34 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
     lateinit var name: EditText
     lateinit var email: EditText
-    lateinit var phone: EditText
     lateinit var password: EditText
     lateinit var repassword: EditText
-    var randomNum = 123456
-
-    val PERMISSION_LOCATION_REQUEST_CODE = 1
+    lateinit var locationTxt: TextView
+    lateinit var birthDate: TextView
 
     lateinit var phonecode: CountryCodePicker
-
-    lateinit var mAuth: FirebaseAuth
-
-    // string for storing our verification ID
-    lateinit var verificationId: String
-
-    private lateinit var findLocation: ImageView
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-
-    private lateinit var createSpinner: ProgressBar
+    lateinit var phone: EditText
+    lateinit var number: String
 
     private lateinit var signupbtn: Button
 
-    lateinit var number: String
-    lateinit var locationTxt: TextView
-    lateinit var birthDate: TextView
+    lateinit var mAuth: FirebaseAuth
+    // string for storing our verification ID
+    lateinit var verificationId: String
+
+    lateinit var img: ImageView
+    lateinit var imgURL: String
+    private var galleryRequestCode = 1000
+    private var filePath: Uri? = null
+    private lateinit var storage: FirebaseStorage
+    private lateinit var storageReference: StorageReference
+    private var downloadURL: String= ""
+
+    val PERMISSION_LOCATION_REQUEST_CODE = 1
+    private lateinit var findLocation: ImageView
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private lateinit var createSpinner: ProgressBar
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.M)
@@ -96,6 +108,22 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
         val indicatorText = findViewById<TextView>(R.id.passwordIndicatorText)
         indicatorText.visibility = View.GONE
+
+        img = findViewById(R.id.profile_picture)
+        imgURL="https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fprofile_picture.png?alt=media&token=3c31f157-a0a5-42e8-83b4-d27bcac83be6"
+        Glide.with(this).load(imgURL).into(img)
+
+        img.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "image/*"
+            startActivityForResult(
+                Intent.createChooser(intent, "Select your profile picture"),
+                galleryRequestCode
+            )
+        }
+
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage.reference
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -177,6 +205,98 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
         }
     }
+    // UploadImage method
+    private fun uploadImage() {
+        if (filePath != null) {
+            // Code for showing progressDialog while uploading
+            val progressDialog = ProgressDialog(this)
+            progressDialog.setTitle("Uploading...")
+            progressDialog.show()
+
+            // Defining the child of storageReference
+            val ref = storageReference
+                .child(
+                    "images/"
+                            + UUID.randomUUID().toString()
+                )
+
+            // adding listeners on upload
+            // or failure of image
+            ref.putFile(filePath!!)
+                .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
+                    // Dismiss dialog
+                    progressDialog.dismiss()
+                    Toast
+                        .makeText(
+                            this,
+                            "Image Uploaded!!",
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+
+                    val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
+                    downloadUrl.addOnCompleteListener { task ->
+                        Log.v(ContentValues.TAG, "Media is uploaded")
+                        downloadURL = ("https://" + task.result.encodedAuthority
+                                + task.result.encodedPath
+                            .toString() + "?alt=media&token="
+                                + task.result.getQueryParameters("token")[0])
+                        Log.v(ContentValues.TAG, "downloadURL: $downloadURL")
+
+                        //save the downloadURL to the database
+                        println("Final download URL: $downloadURL")
+                        imgURL= downloadURL
+                        println("Final imgURL: $imgURL")
+                    }
+                }
+                .addOnFailureListener { e -> // Error, Image not uploaded
+                    progressDialog.dismiss()
+                    Toast
+                        .makeText(
+                            this,
+                            "Failed " + e.message,
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                }
+                .addOnProgressListener { taskSnapshot ->
+
+                    // Progress Listener for loading
+                    // percentage on the dialog box
+                    val progress = (100.0
+                            * taskSnapshot.bytesTransferred
+                            / taskSnapshot.totalByteCount)
+                    progressDialog.setMessage(
+                        "Uploaded "
+                                + progress.toInt() + "%"
+                    )
+                }
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == galleryRequestCode) {
+                //for gallery
+                if (data != null) {
+                    //img.setImageURI(data.data)
+                    filePath = data.data!!
+                    println("OnActivityResult: filePath is : $filePath")
+                    try {
+                        val bitmap = MediaStore.Images.Media.getBitmap(
+                            this.contentResolver,
+                            filePath
+                        )
+                        img.setImageBitmap(bitmap)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                }
+            }
+        }
+    }
 
     private fun hasLocationPermissions() =
         EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -211,12 +331,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     }
 
     fun enableSpinner(enable: Boolean) {
-        println(enable)
         if (enable) {
             createSpinner.visibility = View.VISIBLE
-            println("if true spinner visible")
         } else {
-            println("if false spinner invisible")
             createSpinner.visibility = View.INVISIBLE
         }
         signupbtn.isEnabled = !enable
@@ -226,26 +343,42 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private fun signInWithCredential(credential: PhoneAuthCredential) {
         // inside this method we are checking if
         // the code entered is correct or not.
+
+        println("signInWithCredential")
+
+        println("Download URL is $downloadURL")
+        println("filePath is $filePath")
+
+        if (filePath!=null){
+            uploadImage()
+            println("ImageUploaded")
+        }
+        println("Download URL is $downloadURL")
+
+
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // if the code is correct and the task is successful
-
                     //storing the user details into the database
                     AuthService.registerUser(
                         name.text.toString(),
                         email.text.toString(),
                         password.text.toString(),
-                        birthDate.text.toString(),
+                        SimpleDateFormat("yyyy-MM-dd").format(SimpleDateFormat("dd/MM/yyyy").parse(birthDate.text.toString())),
                         number,
                         locationTxt.text.toString(),
-                        Calendar.getInstance().time
-                    ) { createSuccess ->
+                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
+                        imgURL
+                    )
+                    { createSuccess ->
+                        println("User Creation success: $createSuccess")
                         if (createSuccess) {
                             AuthService.loginUser(
                                 email.text.toString(),
                                 password.text.toString()
                             ) { loginSuccess ->
+                                println(loginSuccess)
                                 if (loginSuccess) {
 
                                     //broadcasting ki ahh user creation success vayo to other activities
@@ -290,10 +423,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     }
 
     private fun sendVerificationCode(phone: String) {
-        // this method is used for getting
-        // OTP on user phone number.
-        // this method is used for getting
-        // OTP on user phone number.
+        // this method is used for getting OTP on user phone number.
         println(phone)
         val options = PhoneAuthOptions.newBuilder(mAuth)
             .setPhoneNumber(phone) // Phone number to verify
@@ -301,7 +431,10 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             .setActivity(this) // Activity (for callback binding)
             .setCallbacks(mCallBack) // OnVerificationStateChangedCallbacks
             .build()
+
+        println("sendVerificationCode")
         PhoneAuthProvider.verifyPhoneNumber(options)
+        println("verifyPhoneNumber")
     }
 
     // below method is use to verify code from Firebase.
@@ -310,18 +443,18 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private val mCallBack: OnVerificationStateChangedCallbacks =
         object : OnVerificationStateChangedCallbacks() {
             // below method is used when OTP is sent from Firebase
+
             override fun onCodeSent(s: String, forceResendingToken: ForceResendingToken) {
                 super.onCodeSent(s, forceResendingToken)
-                // when we receive the OTP it
-                // contains a unique id which
-                // we are storing in our string
-                // which we have already created.
+                // when we receive the OTP it contains a unique id which we are storing in our string which we have already created.
                 println("onCodeSent")
                 verificationId = s
+
+                //another approach bcz code is sent but no VerificationCompleted or Failed is called
+                //showAlertDialog()
             }
 
-            // this method is called when user
-            // receive OTP from Firebase.
+            // this method is called when user receive OTP from Firebase.
             override fun onVerificationCompleted(phoneAuthCredential: PhoneAuthCredential) {
                 enableSpinner(false)
                 println("onVerificationCompleted")
@@ -333,6 +466,8 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             // sends our OTP code due to any error or issue.
             override fun onVerificationFailed(e: FirebaseException) {
                 // displaying error message with firebase exception.
+
+                println("onVerificationFailed")
                 Toast.makeText(this@SignUpPageActivity, e.message, Toast.LENGTH_LONG).show()
                 enableSpinner(false)
             }
@@ -342,6 +477,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private fun verifyCode(verifyOTP: String) {
         // below line is used for getting
         // credentials from our verification id and code.
+        enableSpinner(true)
+        println("VerifyCode")
+
         val credential = PhoneAuthProvider.getCredential(verificationId, verifyOTP)
 
         // after getting credential we are
@@ -349,6 +487,59 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         signInWithCredential(credential)
     }
 
+    private fun showAlertDialog() {
+        val builder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.otp_verification_layout, null)
+
+        val resendOTP = dialogView.findViewById<TextView>(R.id.tvResendBtn)
+        resendOTP.setOnClickListener {
+            sendVerificationCode(number)
+        }
+
+        fun View?.removeSelf() {
+            this ?: return
+            val parentView = parent as? ViewGroup ?: return
+            parentView.removeView(this)
+        }
+        println("Inside AlertDialog")
+        enableSpinner(false)
+
+        if (builder != null) {
+            builder.setView(dialogView)
+                .setPositiveButton("Verify") { _, i ->
+                    val digit1 = dialogView.findViewById<EditText>(R.id.etC1)
+                    val digit2 = dialogView.findViewById<EditText>(R.id.etC2)
+                    val digit3 = dialogView.findViewById<EditText>(R.id.etC3)
+                    val digit4 = dialogView.findViewById<EditText>(R.id.etC4)
+                    val digit5 = dialogView.findViewById<EditText>(R.id.etC5)
+                    val digit6 = dialogView.findViewById<EditText>(R.id.etC6)
+
+                    val verifyOTP =
+                        digit1.text.toString() +
+                                digit2.text.toString() +
+                                digit3.text.toString() +
+                                digit4.text.toString() +
+                                digit5.text.toString() +
+                                digit6.text.toString()
+
+                    if (verifyOTP == "") {
+                        //removing previously set dialog to bring an new one
+                        dialogView.removeSelf()
+                        Toast.makeText(
+                            this,
+                            "Please input the OTP",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        builder.setView(dialogView).show()
+                    }
+                    else {
+                        val credential = PhoneAuthProvider.getCredential(verificationId, verifyOTP)
+                        signInWithCredential(credential)
+                    }
+                }
+            }
+
+        }
 
     private fun showAlertDialog(phoneAuthCredential: PhoneAuthCredential) {
         val builder = AlertDialog.Builder(this)
@@ -364,6 +555,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             val parentView = parent as? ViewGroup ?: return
             parentView.removeView(this)
         }
+
+        println("Inside AlertDialog")
+        enableSpinner(false)
 
         if (builder != null) {
             builder.setView(dialogView)
@@ -396,7 +590,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         // below line is used for getting OTP code
                         // which is sent in phone auth credentials.
                         val code = phoneAuthCredential.smsCode
-
+                        println(code)
                         // checking if the code
                         // is null or not.
                         if (code != null) {

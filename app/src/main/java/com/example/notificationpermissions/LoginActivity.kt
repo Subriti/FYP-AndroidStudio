@@ -44,10 +44,10 @@ class LoginActivity : AppCompatActivity() {
                 AuthService.loginUser(email, password) { loginSuccess ->
                     if (loginSuccess) {
                         AuthService.findUser(this) { findSuccess ->
+                            println(findSuccess)
                             if (findSuccess) {
                                 //When success, it broadcasts to other activities as well that user was found and is logged in
                                 //this is done in authUser
-
                                 val intent= Intent(this, DashboardActivity::class.java)
                                 startActivity(intent)
 
@@ -59,7 +59,8 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
                     } else {
-                        errorToast()
+                        Toast.makeText(this, "Invalid Email or Password", Toast.LENGTH_LONG).show()
+                        enableSpinner(false)
                     }
                 }
             } else {
