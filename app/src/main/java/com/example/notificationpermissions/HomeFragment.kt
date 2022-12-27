@@ -18,7 +18,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
        /* //adding back the appbar
         (activity as DashboardActivity?)!!.supportActionBar!!.show()*/
 
-        val spinner: Spinner = view.findViewById(R.id.spinnerCategoryHome)
+        /*val spinner: Spinner = view.findViewById(R.id.spinnerCategoryHome)
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter.createFromResource(
             requireContext(),
@@ -32,9 +32,14 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             spinner.adapter = adapter
 
             spinner.onItemSelectedListener=this
-        }
+        }*/
         return view
     }
+
+
+
+
+
    /* override fun onPrepareOptionsMenu(menu: Menu) {
         *//*menu.clear()*//*
         val item: MenuItem = menu.findItem(R.id.nav_search)

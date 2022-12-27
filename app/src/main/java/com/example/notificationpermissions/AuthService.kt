@@ -4,13 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.Date
+import java.util.*
+
 
 object AuthService {
 
@@ -60,6 +62,11 @@ object AuthService {
                 return requestBody.toByteArray()
             }
         }
+        createRequest.retryPolicy = DefaultRetryPolicy(
+            10000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
         App.sharedPrefs.requestQueue.add(createRequest)
     }
 
@@ -68,29 +75,22 @@ object AuthService {
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
         jsonBody.put("password", password)
-        val requestBody =
-            jsonBody.toString() //bc volley takes byte array so string is easier to be later changed into bytearray
-
-        val loginRequest =
-            object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
-                //this is where we parse the json object
+        val requestBody = jsonBody.toString()       //bc volley takes byte array so string is easier to be later changed into bytearray
+        val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
+                    //this is where we parse the json object
                     response ->
-                println("Login Response " + response)
                 try {
                     App.sharedPrefs.userEmail= email
                     App.sharedPrefs.userID = response.getString("user_id")
                     App.sharedPrefs.authToken = response.getString("token")
                     App.sharedPrefs.isLoggedIn = true
-                    println("is logged in : " + App.sharedPrefs.isLoggedIn)
-
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)
                     complete(false)
                 }
-
             }, Response.ErrorListener {
-                //this is where we deal with our error
+                    //this is where we deal with our error
                     error ->
                 Log.d("ERROR", "Could not login user: $error")
                 complete(false)

@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import kotlin.system.exitProcess
 
 
 class ProfileFragment : Fragment() {
@@ -58,6 +59,12 @@ class ProfileFragment : Fragment() {
             startActivityForResult(intent, galleryRequestCode)
         }
 
+        val logoutBtn= view.findViewById<ImageView>(R.id.logoutBtn)
+        logoutBtn.setOnClickListener{
+            UserDataService.logout()
+            val intent= Intent(context, MainActivity::class.java)
+            startActivity(intent)
+        }
         return view
     }
 

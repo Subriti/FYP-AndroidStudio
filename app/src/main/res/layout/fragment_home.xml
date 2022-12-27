@@ -11,7 +11,7 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="50dp"
         app:cardBackgroundColor="#F3D7D7"
         app:cardCornerRadius="50sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,22 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="65dp"
             android:layout_marginTop="20dp"
-            android:text="Welcome, Subriti Aryal" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="300dp"
-            android:layout_marginTop="10dp"
-            android:text="Category: " />
-
-        <Spinner
-            android:id="@+id/spinnerCategoryHome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="300dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginRight="10dp" />
+            android:text="Welcome, User"
+            android:textStyle="bold" />
 
 
     </androidx.cardview.widget.CardView>

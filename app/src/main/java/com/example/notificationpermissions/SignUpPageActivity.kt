@@ -23,7 +23,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
@@ -135,11 +139,15 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 val progressDialog = ProgressDialog(this)
                 progressDialog.setTitle("Finding your Current Location")
                 progressDialog.show()
+                /*println("CurrentLocation is " +fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, object : CancellationToken() {
+                    override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
 
+                    override fun isCancellationRequested() = false
+                }))*/
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                    println(location)
                     val geoCoder = Geocoder(this)
-                    val currentLocation =
-                        geoCoder.getFromLocation(location.latitude, location.longitude, 1)
+                    val currentLocation = geoCoder.getFromLocation(location.latitude, location.longitude, 1)
 
                     if (currentLocation.first().subLocality == null) {
                         locationTxt.text = currentLocation.first().locality
@@ -359,8 +367,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // if the code is correct and the task is successful
-                    //storing the user details into the database
+                    // if the OTP code is correct and the task is successful, storing the user details into the database
                     AuthService.registerUser(
                         name.text.toString(),
                         email.text.toString(),
@@ -372,7 +379,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         imgURL
                     )
                     { createSuccess ->
-                        println("User Creation success: $createSuccess")
+                        println("Register User success: $createSuccess")
                         if (createSuccess) {
                             AuthService.loginUser(
                                 email.text.toString(),
@@ -380,20 +387,13 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                             ) { loginSuccess ->
                                 println(loginSuccess)
                                 if (loginSuccess) {
-
-                                    //broadcasting ki ahh user creation success vayo to other activities
                                     val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
                                     LocalBroadcastManager.getInstance(this)
                                         .sendBroadcast(userDataChange)
-
                                     // we are sending our user to new activity.
-                                    val i = Intent(
-                                        this@SignUpPageActivity,
-                                        DashboardActivity::class.java
-                                    )
+                                    val i = Intent(this@SignUpPageActivity,DashboardActivity::class.java)
                                     startActivity(i)
                                     finish()
-
                                     enableSpinner(false)
                                     finish()
                                 } else {
@@ -424,66 +424,46 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
     private fun sendVerificationCode(phone: String) {
         // this method is used for getting OTP on user phone number.
-        println(phone)
         val options = PhoneAuthOptions.newBuilder(mAuth)
             .setPhoneNumber(phone) // Phone number to verify
             .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
             .setActivity(this) // Activity (for callback binding)
             .setCallbacks(mCallBack) // OnVerificationStateChangedCallbacks
             .build()
-
-        println("sendVerificationCode")
         PhoneAuthProvider.verifyPhoneNumber(options)
-        println("verifyPhoneNumber")
     }
-
-    // below method is use to verify code from Firebase.
-    // callback method is called on Phone auth provider.
+    // below method is use to verify code from Firebase; // callback method is called on Phone auth provider.
     // initializing our callbacks for on verification callback method.
     private val mCallBack: OnVerificationStateChangedCallbacks =
         object : OnVerificationStateChangedCallbacks() {
-            // below method is used when OTP is sent from Firebase
 
+            // below method is used when OTP is sent from Firebase
             override fun onCodeSent(s: String, forceResendingToken: ForceResendingToken) {
                 super.onCodeSent(s, forceResendingToken)
                 // when we receive the OTP it contains a unique id which we are storing in our string which we have already created.
-                println("onCodeSent")
                 verificationId = s
-
-                //another approach bcz code is sent but no VerificationCompleted or Failed is called
-                //showAlertDialog()
             }
-
             // this method is called when user receive OTP from Firebase.
             override fun onVerificationCompleted(phoneAuthCredential: PhoneAuthCredential) {
                 enableSpinner(false)
-                println("onVerificationCompleted")
-                //show OTP verification box
+                //show OTP verification dialogBox
                 showAlertDialog(phoneAuthCredential)
             }
 
-            // this method is called when firebase doesn't
-            // sends our OTP code due to any error or issue.
+            // this method is called when firebase doesn't send our OTP code due to any error or issue.
             override fun onVerificationFailed(e: FirebaseException) {
                 // displaying error message with firebase exception.
-
-                println("onVerificationFailed")
                 Toast.makeText(this@SignUpPageActivity, e.message, Toast.LENGTH_LONG).show()
                 enableSpinner(false)
             }
         }
 
-
     private fun verifyCode(verifyOTP: String) {
-        // below line is used for getting
-        // credentials from our verification id and code.
+        // below line is used for getting credentials from our verification id and code.
         enableSpinner(true)
         println("VerifyCode")
-
         val credential = PhoneAuthProvider.getCredential(verificationId, verifyOTP)
-
-        // after getting credential we are
-        // calling sign in method.
+        // after getting credential we are calling sign in method.
         signInWithCredential(credential)
     }
 
