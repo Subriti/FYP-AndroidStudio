@@ -13,12 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 import java.io.IOException
 import java.util.*
 
@@ -29,6 +26,7 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var GalleryButton: Button
 
     private lateinit var postPicture: ImageView
+    private lateinit var cancelPost: ImageView
 
     private lateinit var filePath: Uri
 
@@ -36,8 +34,7 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var storageReference: StorageReference
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_post, container, false)
@@ -45,42 +42,18 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
         (activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
-        /* //works
-         setHasOptionsMenu(true);*/
-
-        //removing existing toolbar from Dashboard Activity
-        //val toolbar: androidx.appcompat.widget.Toolbar = view.findViewById(R.id.addPost_toolbar)
-
-        //(activity as DashboardActivity?)!!.setSupportActionBar(toolbar)
-
-
-        /*val ParentToolbar = requireActivity().findViewById<View>(R.id.toolbar) as androidx.appcompat.widget.Toolbar
-        println(ParentToolbar)
-        var menu= ParentToolbar.menu
-        println(menu)
-        menu.findItem(R.id.nav_notifications).isVisible = true
-        menu.findItem(R.id.nav_search).isVisible = false*/
-
-        //but aba place it back in other activities
-
-
         img = view.findViewById<ImageView>(R.id.picture_to_be_posted)
         GalleryButton = view.findViewById<Button>(R.id.btnGallery)
 
         GalleryButton.setOnClickListener {
-            //val intent= Intent(Intent.ACTION_PICK)
-            //intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             startActivityForResult(
-                Intent.createChooser(intent, "Select your profile picture"),
-                galleryRequestCode
+                Intent.createChooser(intent, "Select picture to post"), galleryRequestCode
             )
         }
 
         storage = FirebaseStorage.getInstance()
-        //storage = Firebase.storage
         storageReference = storage.reference
 
         //submit button for adding post
@@ -89,21 +62,138 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
             uploadImage()
         }
 
-        val spinner: Spinner = view.findViewById(R.id.spinnerCategory)
-        // Create an ArrayAdapter using the string array and a default spinner layout
+        cancelPost = view.findViewById(R.id.dont_post_picture)
+        cancelPost.setOnClickListener {
+            val intent = Intent(context, DashboardActivity::class.java)
+            startActivity(intent)
+        }
+
+        val spinnerCategory: Spinner = view.findViewById(R.id.spinnerCategory)
+        val categoryValues = ArrayList<String>()
+        PostService.getCategory { complete ->
+            if (complete) {
+                if (PostService.categories.isNotEmpty()) {
+                    for (categoryName in PostService.categories) {
+                        categoryValues.add(categoryName.category_name)
+                    }
+                }
+                // Create an ArrayAdapter using the string array and a default spinner layout
+                ArrayAdapter(
+                    requireContext(),
+                    //R.array.clothCategory_array, // esko satta bring database bata ig
+                    android.R.layout.simple_spinner_item, categoryValues
+                ).also { adapter ->
+                    // Specify the layout to use when the list of choices appears
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    // Apply the adapter to the spinner
+                    spinnerCategory.adapter = adapter
+                    spinnerCategory.setSelection(0)
+                    spinnerCategory.onItemSelectedListener =
+                        object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(
+                                parent: AdapterView<*>, view: View, position: Int, id: Long
+                            ) {
+                                //val item = parent.getItemAtPosition(position).toString()
+                                spinnerCategory.setSelection(position)
+                            }
+
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // do nothing
+                            }
+                        }
+                }
+            }
+        }
+
+        val spinnerItemCategory: Spinner = view.findViewById(R.id.spinnerItemCategory)
+        val itemCategoryValues = ArrayList<String>()
+        PostService.getItemCategory { complete ->
+            if (complete) {
+                if (PostService.itemcategory.isNotEmpty()) {
+                    for (categoryName in PostService.itemcategory) {
+                        itemCategoryValues.add(categoryName.category_name)
+                    }
+                }
+                // Create an ArrayAdapter using the string array and a default spinner layout
+                ArrayAdapter(
+                    requireContext(),
+                    //R.array.clothCategory_array, // esko satta bring database bata ig
+                    android.R.layout.simple_spinner_item, itemCategoryValues
+                ).also { adapter ->
+                    // Specify the layout to use when the list of choices appears
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    // Apply the adapter to the spinner
+                    spinnerItemCategory.adapter = adapter
+                    spinnerItemCategory.setSelection(0)
+                    spinnerItemCategory.onItemSelectedListener =
+                        object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(
+                                parent: AdapterView<*>, view: View, position: Int, id: Long
+                            ) {
+                                //val item = parent.getItemAtPosition(position).toString()
+                                spinnerItemCategory.setSelection(position)
+                            }
+
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // do nothing
+                            }
+                        }
+                }
+            }
+        }
+
+        val spinnerClothSize: Spinner = view.findViewById(R.id.spinnerClothSize)
         ArrayAdapter.createFromResource(
             requireContext(),
-            R.array.clothCategory_array,
+            R.array.clothSizes_array,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
             // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
+            spinnerClothSize.adapter = adapter
+            spinnerClothSize.setSelection(0)}
+            spinnerItemCategory.onItemSelectedListener = this
 
-            spinner.adapter = adapter
+        val spinnerClothCondition: Spinner = view.findViewById(R.id.spinnerClothCondition)
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.clothCondition_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerClothCondition.adapter = adapter
+            spinnerClothCondition.setSelection(0)}
+        spinnerClothCondition.onItemSelectedListener = this
 
-            spinner.onItemSelectedListener = this
-        }
+        val spinnerClothSeason: Spinner = view.findViewById(R.id.spinnerClothSeason)
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.clothSeason_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerClothSeason.adapter = adapter
+            spinnerClothSeason.setSelection(0)}
+        spinnerClothSeason.onItemSelectedListener = this
+
+        val spinnerClothDelivery: Spinner = view.findViewById(R.id.spinnerClothDelivery)
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.clothDelivery_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerClothDelivery.adapter = adapter
+            spinnerClothDelivery.setSelection(0)}
+        spinnerClothDelivery.onItemSelectedListener = this
+
         return view
     }
 
@@ -117,10 +207,8 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
             progressDialog.show()
 
             // Defining the child of storageReference
-            val ref = storageReference
-                .child(
-                    "images/"
-                            + UUID.randomUUID().toString()
+            val ref = storageReference.child(
+                    "images/" + UUID.randomUUID().toString()
                 )
 
             // adding listeners on upload
@@ -129,61 +217,40 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
                     // Dismiss dialog
                     progressDialog.dismiss()
-                    Toast
-                        .makeText(
-                            context,
-                            "Image Uploaded!!",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+                    Toast.makeText(
+                            context, "Image Uploaded!!", Toast.LENGTH_SHORT
+                        ).show()
 
                     val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
                     downloadUrl.addOnCompleteListener { task ->
                         Log.v(TAG, "Media is uploaded")
-                        val downloadURL = ("https://" + task.result.encodedAuthority
-                                + task.result.encodedPath
-                            .toString() + "?alt=media&token="
-                                + task.result.getQueryParameters("token")[0])
+                        val downloadURL =
+                            ("https://" + task.result.encodedAuthority + task.result.encodedPath.toString() + "?alt=media&token=" + task.result.getQueryParameters(
+                                "token"
+                            )[0])
                         Log.v(TAG, "downloadURL: $downloadURL")
 
                         //save the downloadURL to the database
                         println("Final download URL: $downloadURL")
                     }
-                }
-                .addOnFailureListener { e -> // Error, Image not uploaded
+                }.addOnFailureListener { e -> // Error, Image not uploaded
                     progressDialog.dismiss()
-                    Toast
-                        .makeText(
-                            context,
-                            "Failed " + e.message,
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                }
-                .addOnProgressListener { taskSnapshot ->
+                    Toast.makeText(
+                            context, "Failed " + e.message, Toast.LENGTH_SHORT
+                        ).show()
+                }.addOnProgressListener { taskSnapshot ->
 
                     // Progress Listener for loading
                     // percentage on the dialog box
-                    val progress = (100.0
-                            * taskSnapshot.bytesTransferred
-                            / taskSnapshot.totalByteCount)
+                    val progress =
+                        (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
                     progressDialog.setMessage(
-                        "Uploaded "
-                                + progress.toInt() + "%"
+                        "Uploaded " + progress.toInt() + "%"
                     )
                 }
         }
     }
 
-    //works
-    /*override fun onPrepareOptionsMenu(menu: Menu) {
-        *//*menu.clear()*//*
-        val item: MenuItem = menu.findItem(R.id.nav_search)
-        val item1: MenuItem = menu.findItem(R.id.nav_notifications)
-        if (item != null) item.isVisible = false
-        if (item1 != null) item1.setVisible(false)
-    }
-*/
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -197,8 +264,7 @@ class AddPostFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
                     try {
                         val bitmap = MediaStore.Images.Media.getBitmap(
-                            requireContext().contentResolver,
-                            filePath
+                            requireContext().contentResolver, filePath
                         )
                         img.setImageBitmap(bitmap)
                     } catch (e: IOException) {

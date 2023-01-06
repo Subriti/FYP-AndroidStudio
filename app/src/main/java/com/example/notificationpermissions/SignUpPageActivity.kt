@@ -23,11 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
@@ -222,32 +218,20 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             progressDialog.show()
 
             // Defining the child of storageReference
-            val ref = storageReference
-                .child(
-                    "images/"
-                            + UUID.randomUUID().toString()
-                )
+            val ref = storageReference.child("images/"+ UUID.randomUUID().toString())
 
-            // adding listeners on upload
-            // or failure of image
+            // adding listeners on upload or failure of image
             ref.putFile(filePath!!)
                 .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
                     // Dismiss dialog
                     progressDialog.dismiss()
-                    Toast
-                        .makeText(
-                            this,
-                            "Image Uploaded!!",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+                    Toast.makeText(this,"Image Uploaded!!",Toast.LENGTH_SHORT).show()
 
                     val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
                     downloadUrl.addOnCompleteListener { task ->
                         Log.v(ContentValues.TAG, "Media is uploaded")
                         downloadURL = ("https://" + task.result.encodedAuthority
-                                + task.result.encodedPath
-                            .toString() + "?alt=media&token="
+                                + task.result.encodedPath.toString() + "?alt=media&token="
                                 + task.result.getQueryParameters("token")[0])
                         Log.v(ContentValues.TAG, "downloadURL: $downloadURL")
 
