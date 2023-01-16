@@ -2,6 +2,7 @@ package com.example.notificationpermissions
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -12,6 +13,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlin.system.exitProcess
 
@@ -22,6 +25,8 @@ class ProfileFragment : Fragment() {
     private lateinit var imgButton: Button
 
     private lateinit var imgView: ImageView
+
+    lateinit var adapter: PostRecycleAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +43,7 @@ class ProfileFragment : Fragment() {
         imgGallery = view.findViewById<ImageView>(R.id.profile_image)
         imgButton = view.findViewById<Button>(R.id.btnGallery)
 
-        imgView.setOnClickListener {
+       /* imgView.setOnClickListener {
             val popupMenu = PopupMenu(requireContext(), imgView)
 
             // Inflating popup menu from popup_menu.xml file
@@ -51,7 +56,7 @@ class ProfileFragment : Fragment() {
             }
             // Showing the popup menu
             popupMenu.show()
-        }
+        }*/
 
         imgButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
@@ -65,6 +70,25 @@ class ProfileFragment : Fragment() {
             val intent= Intent(context, MainActivity::class.java)
             startActivity(intent)
         }
+
+        PostService.getUserPosts(App.sharedPrefs.userID){complete ->
+            if (complete) {
+                adapter= PostRecycleAdapter(requireContext(), PostService.posts){ product ->
+                    //on click open the post, show all details. likes everything else
+                }
+            }
+            }
+        var spanCount= 2
+        val orientation= resources.configuration.orientation
+        if (orientation== Configuration.ORIENTATION_LANDSCAPE){
+            spanCount=3
+        }
+
+        val layoutManager= GridLayoutManager(context,spanCount)
+        val postRV= view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+        postRV.layoutManager= layoutManager
+        postRV.adapter= adapter
+
         return view
     }
 
