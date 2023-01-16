@@ -74,7 +74,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private lateinit var storageReference: StorageReference
     private var downloadURL: String= ""
 
-    val PERMISSION_LOCATION_REQUEST_CODE = 1
+    private val PERMISSION_LOCATION_REQUEST_CODE = 1
     private lateinit var findLocation: ImageView
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 

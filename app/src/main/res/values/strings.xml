@@ -25,6 +25,20 @@
     <string name="descriptionDetails">Detailed Description regarding condition of clothes, availability of delivery and locations</string>
     <string name="description">Write a Description</string>
 
+    <string-array name="clothCategory_array">
+        <item>Unisex Clothing</item>
+        <item>Men\'s Clothing</item>
+        <item>Women\'s Clothing</item>
+        <item>Baby\'s Clothing</item>
+        <item>Children\'s Clothing</item>
+    </string-array>
+
+    <string-array name="itemCategory_array">
+        <item>Shirt</item>
+        <item>Pant</item>
+        <item>Jacket</item>
+        <item>T-shirt</item>
+    </string-array>
 
     <string-array name="clothSizes_array">
         <item>(XS) Extra Small</item>

@@ -5,10 +5,7 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
-import com.example.notificationpermissions.Utilities.URL_CREATE_POST
-import com.example.notificationpermissions.Utilities.URL_GET_CATEGORY
-import com.example.notificationpermissions.Utilities.URL_GET_ITEMCATEGORY
-import com.example.notificationpermissions.Utilities.URL_GET_USER_POSTS
+import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -20,7 +17,6 @@ object PostService {
 
     var categories = ArrayList<Category>()
     var itemcategory = ArrayList<Category>()
-    var donationStatus = ArrayList<String>()
 
 
     var clothId = ""
@@ -36,7 +32,12 @@ object PostService {
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
-        jsonBody.put("post_by", post_by) //, App.sharedPrefs.userID)
+        //bc it takes object of User
+        val user = JSONObject()
+        user.put("user_id", post_by)
+        jsonBody.put("post_by", user)
+
+        //jsonBody.put("post_by", post_by) //, App.sharedPrefs.userID)
         jsonBody.put("media_file", media_file)
         jsonBody.put("description", description)
         jsonBody.put("created_datetime", created_datetime)
@@ -52,8 +53,6 @@ object PostService {
         donationStatus.put("donation_status_id", donation_status)
         jsonBody.put("donation_status", donationStatus)
 
-        println(jsonBody)
-
         val requestBody = jsonBody.toString()
         print(requestBody)
 
@@ -61,6 +60,7 @@ object PostService {
             JsonObjectRequest(Method.POST, URL_CREATE_POST, null, Response.Listener { response ->
                 println("Create Post Response $response")
                 complete(true)
+
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not add Post: $error")
                 complete(false)
@@ -85,7 +85,6 @@ object PostService {
         )
         App.sharedPrefs.requestQueue.add(createRequest)
     }
-
 
     fun getUserPosts(userId: String, complete: (Boolean) -> Unit) {
         val getPostRequest = object :
@@ -142,7 +141,7 @@ object PostService {
 
     fun getCloth(userId: String, complete: (Boolean) -> Unit) {
         val getClothRequest = object :
-            JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
+            JsonArrayRequest(Method.GET, "$URL_GET_CLOTH", null, Response.Listener {
                 //this is where we parse the json object
                     response ->
                 try {
@@ -198,16 +197,26 @@ object PostService {
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
-        jsonBody.put("clothes_category", clothes_category_id)
-        jsonBody.put("item_category", item_category_id)
+
+        //bc it takes object of ClothCategory
+        val clothCategoryId = JSONObject()
+        clothCategoryId.put("category_id", clothes_category_id)
+        jsonBody.put("clothes_category_id", clothCategoryId)
+
+        //bc it takes object of ClothItemCategory
+        val clothItemCategoryId = JSONObject()
+        clothItemCategoryId.put("category_id", item_category_id)
+        jsonBody.put("item_category_id", clothItemCategoryId)
+
         jsonBody.put("cloth_size", cloth_size)
         jsonBody.put("cloth_condition", cloth_condition)
         jsonBody.put("cloth_season", cloth_season)
+
         val requestBody = jsonBody.toString()
         println(requestBody)
 
         val createChannel = object :
-            JsonObjectRequest(Method.POST, URL_CREATE_POST, null, Response.Listener { response ->
+            JsonObjectRequest(Method.POST, URL_ADD_CLOTH, null, Response.Listener { response ->
                 println("Add Cloth Response " + response)
                 clothId = response.getString("cloth_id")
                 complete(true)

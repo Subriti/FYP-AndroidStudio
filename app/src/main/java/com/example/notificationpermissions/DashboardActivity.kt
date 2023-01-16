@@ -25,7 +25,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class DashboardActivity : AppCompatActivity() {
     //assigned in each fragment to know the current fragment and to manage the appBar accordingly
     lateinit var currentFragment: Fragment
-    lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    lateinit var toolbar: Toolbar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
