@@ -81,6 +81,7 @@ object AuthService {
                 try {
                     App.sharedPrefs.userEmail= email
                     App.sharedPrefs.userID = response.getString("user_id")
+                    App.sharedPrefs.userName= response.getString("user_name")
                     App.sharedPrefs.profilePicture= response.getString("profile_picture")
                     App.sharedPrefs.authToken = response.getString("token")
                     App.sharedPrefs.isLoggedIn = true

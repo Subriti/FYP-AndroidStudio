@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -44,6 +45,17 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.homeFragment, R.id.chatFragment, R.id.addPostFragment, R.id.historyFragment, R.id.profileFragment
             )
         )
+
+        //changing label to user welcome
+       /* val destination: NavDestination? = findNavController(R.id.nav_fragment).graph.findNode(R.id.homeFragment)
+        destination!!.label = "Welcome, ${App.sharedPrefs.userName}"*/
+
+
+       /* val bundle = Bundle()
+        bundle.putString("label",  "Welcome, ${App.sharedPrefs.userName}")
+        findNavController(R.id.nav_fragment).navigate(R.id.homeFragment, bundle)
+*/
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         //mapping ig nav view with fragments
         bottomNavigationView.setupWithNavController(navController)

@@ -28,6 +28,6 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.notificationpermissions.ProfileFragment"
-        android:label="Edit Profile"
+        android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>

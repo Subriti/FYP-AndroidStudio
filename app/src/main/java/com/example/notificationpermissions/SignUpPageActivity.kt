@@ -360,7 +360,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         number,
                         locationTxt.text.toString(),
                         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
-                        imgURL
+                        downloadURL
                     )
                     { createSuccess ->
                         println("Register User success: $createSuccess")

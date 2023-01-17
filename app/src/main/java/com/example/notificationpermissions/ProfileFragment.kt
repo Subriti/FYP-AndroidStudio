@@ -36,9 +36,9 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
         (activity as DashboardActivity?)!!.currentFragment = this
 
-        imgView = view.findViewById(R.id.downloadImageView)
+        /*imgView = view.findViewById(R.id.downloadImageView)
         LoadImageFromFirebase("https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2F2e5039ed-2a1c-433f-8427-a47aee5a42c9?alt=media&token=fdc0ac76-9425-4a63-8db6-f6746f80dd6e")
-        //recycler view halna parcha
+        *///recycler view halna parcha
         //LoadImageFromFirebase(App.sharedPrefs.profilePicture)
 
         //user display picture
@@ -82,14 +82,14 @@ class ProfileFragment : Fragment() {
 
         PostService.getUserPosts(App.sharedPrefs.userID){complete ->
             if (complete) {
-
-                //feri page ma aauda feri get gariracha posts maybe check in PostService.posts is empty or full?
                 var imageUrlsList = mutableListOf<String>()
                 for (url in PostService.posts){
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter= PostRecycleAdapter(imageUrlsList)
+                adapter= PostRecycleAdapter(requireContext(), imageUrlsList){
+                    //do something on click; open full post details
+                }
                 var spanCount= 2
                 val orientation= resources.configuration.orientation
                 if (orientation== Configuration.ORIENTATION_LANDSCAPE){

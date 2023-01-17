@@ -12,6 +12,10 @@ import org.json.JSONObject
 
 object PostService {
     val posts = ArrayList<Post>()
+
+    val AllPosts = ArrayList<Post>()
+
+
     val clothes = ArrayList<Clothes>()
     var isUploaded = false
 
@@ -87,6 +91,9 @@ object PostService {
     }
 
     fun getUserPosts(userId: String, complete: (Boolean) -> Unit) {
+        if (posts.size > 0) {
+            complete(true)
+        } else {
         val getPostRequest = object :
             JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
                 //this is where we parse the json object
@@ -140,6 +147,73 @@ object PostService {
             30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getPostRequest)
+    }
+    }
+
+    fun getAllPosts(complete: (Boolean) -> Unit) {
+        if (AllPosts.size > 0) {
+            complete(true)
+        } else {
+            val getPostRequest = object :
+                JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
+                    //this is where we parse the json object
+                        response ->
+                    try {
+                        for (x in 0 until response.length()) {
+                            val post = response.getJSONObject(x)
+                            val postId = post.getString("post_id")
+                            val postBy = post.getString("post_by")
+
+                            val userJSONObject= JSONObject(postBy)
+                            val username= userJSONObject.getString("user_name")
+                            val profilePicture= userJSONObject.getString("profile_picture")
+
+                            val mediaFile = post.getString("media_file")
+                            val description = post.getString("description")
+                            val createdDatetime = post.getString("created_datetime")
+                            val location = post.getString("location")
+                            val clothId = post.getString("cloth_id")
+
+                            val donationStatus = post.getString("donation_status")
+
+                            val newPost = Post(
+                                postId,
+                                username,
+                                mediaFile,
+                                description,
+                                profilePicture,
+                                location,
+                                clothId,
+                                donationStatus
+                            )
+                            AllPosts.add(newPost)
+                        }
+                        complete(true)
+                    } catch (e: JSONException) {
+                        Log.d("JSON", "EXC: " + e.localizedMessage)
+                        complete(false)
+                    }
+                }, Response.ErrorListener {
+                    //this is where we deal with our error
+                        error ->
+                    Log.d("ERROR", "Could not retrieve posts: $error")
+                    complete(false)
+                }) {
+                override fun getBodyContentType(): String {
+                    return "application/json; charset=utf-8"
+                }
+
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                    return headers
+                }
+            }
+            getPostRequest.retryPolicy = DefaultRetryPolicy(
+                30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+            App.sharedPrefs.requestQueue.add(getPostRequest)
+        }
     }
 
     fun getCloth(userId: String, complete: (Boolean) -> Unit) {

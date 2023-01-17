@@ -1,11 +1,18 @@
 package com.example.notificationpermissions
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 
 class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
+
+    lateinit var adapter: FeedRecyclerAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -15,6 +22,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Inflate the layout for this fragment
         val view= inflater.inflate(R.layout.fragment_home, container, false)
 
+
+      /*  val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
+        welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"*/
        /* //adding back the appbar
         (activity as DashboardActivity?)!!.supportActionBar!!.show()*/
 
@@ -33,6 +43,24 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             spinner.onItemSelectedListener=this
         }*/
+        PostService.getAllPosts() { complete ->
+            if (complete) {
+                var imageUrlsList = mutableListOf<String>()
+                for (url in PostService.AllPosts) {
+                    imageUrlsList.add(url.media_file)
+                }
+
+                adapter = FeedRecyclerAdapter(requireContext(), imageUrlsList) {
+                    //do something on click; open full post details
+                }
+
+                val postRV = view.findViewById<RecyclerView>(R.id.feedRecyclerView)
+                val layoutManager= LinearLayoutManager(context)
+                postRV.layoutManager= layoutManager
+                postRV.adapter = adapter
+            }
+        }
+
         return view
     }
 

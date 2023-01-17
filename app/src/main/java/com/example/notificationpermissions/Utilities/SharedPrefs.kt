@@ -16,6 +16,7 @@ class SharedPrefs(context: Context) {
     val AUTH_TOKEN= "authToken"
     val USER_EMAIL= "userEmail"
     val USER_ID= "userID"
+    val USER_NAME= "userName"
     val PROFILE_PICTURE= "profilePicture"
 
     var isLoggedIn: Boolean
@@ -33,6 +34,10 @@ class SharedPrefs(context: Context) {
     var userID: String
         get() = prefs.getString(USER_ID, "")!!
         set(value) = prefs.edit().putString(USER_ID, value).apply()
+
+    var userName: String
+        get() = prefs.getString(USER_NAME, "")!!
+        set(value) = prefs.edit().putString(USER_NAME, value).apply()
 
     var profilePicture: String
         get() = prefs.getString(PROFILE_PICTURE, "")!!
