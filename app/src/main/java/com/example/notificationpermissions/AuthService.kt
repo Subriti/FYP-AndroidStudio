@@ -7,7 +7,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -82,6 +81,7 @@ object AuthService {
                 try {
                     App.sharedPrefs.userEmail= email
                     App.sharedPrefs.userID = response.getString("user_id")
+                    App.sharedPrefs.profilePicture= response.getString("profile_picture")
                     App.sharedPrefs.authToken = response.getString("token")
                     App.sharedPrefs.isLoggedIn = true
                     complete(true)
@@ -103,6 +103,13 @@ object AuthService {
                     return requestBody.toByteArray()
                 }
             }
+        loginRequest.setRetryPolicy(
+            DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+        )
         App.sharedPrefs.requestQueue.add(loginRequest)
     }
 

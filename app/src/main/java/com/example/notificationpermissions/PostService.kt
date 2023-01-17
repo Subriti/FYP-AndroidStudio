@@ -96,7 +96,7 @@ object PostService {
                         val post = response.getJSONObject(x)
                         val postId = post.getString("post_id")
                         val postBy = post.getString("post_by")
-                        val mediaFile = post.getString("mediaFile")
+                        val mediaFile = post.getString("media_file")
                         val description = post.getString("description")
                         val createdDatetime = post.getString("created_datetime")
                         val location = post.getString("location")
@@ -136,6 +136,9 @@ object PostService {
                 return headers
             }
         }
+        getPostRequest.retryPolicy = DefaultRetryPolicy(
+            30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
         App.sharedPrefs.requestQueue.add(getPostRequest)
     }
 

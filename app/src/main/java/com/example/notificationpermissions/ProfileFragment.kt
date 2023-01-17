@@ -26,7 +26,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var imgView: ImageView
 
-    lateinit var adapter: PostRecycleAdapter
+   lateinit var adapter: PostRecycleAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +38,17 @@ class ProfileFragment : Fragment() {
 
         imgView = view.findViewById(R.id.downloadImageView)
         LoadImageFromFirebase("https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2F2e5039ed-2a1c-433f-8427-a47aee5a42c9?alt=media&token=fdc0ac76-9425-4a63-8db6-f6746f80dd6e")
+        //recycler view halna parcha
+        //LoadImageFromFirebase(App.sharedPrefs.profilePicture)
 
-
+        //user display picture
         imgGallery = view.findViewById<ImageView>(R.id.profile_image)
+        context?.let {
+            Glide.with(it)
+                .load(App.sharedPrefs.profilePicture)
+                .into(imgGallery)
+        }
+
         imgButton = view.findViewById<Button>(R.id.btnGallery)
 
        /* imgView.setOnClickListener {
@@ -71,24 +79,29 @@ class ProfileFragment : Fragment() {
             startActivity(intent)
         }
 
+
         PostService.getUserPosts(App.sharedPrefs.userID){complete ->
             if (complete) {
-                adapter= PostRecycleAdapter(requireContext(), PostService.posts){ product ->
-                    //on click open the post, show all details. likes everything else
+
+                //feri page ma aauda feri get gariracha posts maybe check in PostService.posts is empty or full?
+                var imageUrlsList = mutableListOf<String>()
+                for (url in PostService.posts){
+                    imageUrlsList.add(url.media_file)
                 }
+
+                adapter= PostRecycleAdapter(imageUrlsList)
+                var spanCount= 2
+                val orientation= resources.configuration.orientation
+                if (orientation== Configuration.ORIENTATION_LANDSCAPE){
+                    spanCount=3
+                }
+
+                val layoutManager= GridLayoutManager(context,spanCount)
+                val postRV= view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                postRV.layoutManager= layoutManager
+                postRV.adapter= adapter
             }
             }
-        var spanCount= 2
-        val orientation= resources.configuration.orientation
-        if (orientation== Configuration.ORIENTATION_LANDSCAPE){
-            spanCount=3
-        }
-
-        val layoutManager= GridLayoutManager(context,spanCount)
-        val postRV= view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-        postRV.layoutManager= layoutManager
-        postRV.adapter= adapter
-
         return view
     }
 

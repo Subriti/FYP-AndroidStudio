@@ -24,6 +24,7 @@ object UserDataService {
         App.sharedPrefs.authToken=""
         App.sharedPrefs.userEmail=""
         App.sharedPrefs.userID= ""
+        App.sharedPrefs.profilePicture= ""
         App.sharedPrefs.isLoggedIn= false
 
         //PostService.clearPosts()
