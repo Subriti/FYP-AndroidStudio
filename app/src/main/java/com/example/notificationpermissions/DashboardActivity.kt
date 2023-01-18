@@ -51,6 +51,10 @@ class DashboardActivity : AppCompatActivity() {
         destination!!.label = "Welcome, ${App.sharedPrefs.userName}"*/
 
 
+        //changing label to user name in profile
+         val destination: NavDestination? = findNavController(R.id.nav_fragment).graph.findNode(R.id.profileFragment)
+         destination!!.label = "${App.sharedPrefs.userName}"
+
        /* val bundle = Bundle()
         bundle.putString("label",  "Welcome, ${App.sharedPrefs.userName}")
         findNavController(R.id.nav_fragment).navigate(R.id.homeFragment, bundle)

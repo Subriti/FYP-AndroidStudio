@@ -23,8 +23,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val view= inflater.inflate(R.layout.fragment_home, container, false)
 
 
-      /*  val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
-        welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"*/
+        val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
+        welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"
+
+
        /* //adding back the appbar
         (activity as DashboardActivity?)!!.supportActionBar!!.show()*/
 

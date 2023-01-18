@@ -72,7 +72,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private var filePath: Uri? = null
     private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
-    private var downloadURL: String= ""
+    private lateinit var imageUrl: String
 
     private val PERMISSION_LOCATION_REQUEST_CODE = 1
     private lateinit var findLocation: ImageView
@@ -195,6 +195,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 enableSpinner(true)
                 sendVerificationCode(number)
 
+                //sendVerification is correct: just trying this
+                //register()
+
             } else if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() != repassword.text.toString()) {
                 indicatorText.visibility = View.VISIBLE
                 indicatorText.text = "Password didn't match"
@@ -209,6 +212,107 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
         }
     }
+
+    //this method works
+    private fun register() {
+        if (filePath != null) {
+            // Code for showing progressDialog while uploading
+            val progressDialog = ProgressDialog(this)
+            progressDialog.setTitle("Uploading...")
+            progressDialog.show()
+
+            // Defining the child of storageReference
+            val ref = storageReference.child("images/"+ UUID.randomUUID().toString())
+
+            // adding listeners on upload or failure of image
+            ref.putFile(filePath!!)
+                .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
+                    // Dismiss dialog
+                    progressDialog.dismiss()
+                    Toast.makeText(this,"Image Uploaded!!",Toast.LENGTH_SHORT).show()
+
+                    val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
+                    downloadUrl.addOnCompleteListener { task ->
+                        Log.v(ContentValues.TAG, "Media is uploaded")
+                        imageUrl = ("https://" + task.result.encodedAuthority
+                                + task.result.encodedPath.toString() + "?alt=media&token="
+                                + task.result.getQueryParameters("token")[0])
+                        Log.v(ContentValues.TAG, "downloadURL: $imageUrl")
+
+                        //save the downloadURL to the database
+                        println("Final download URL: $imageUrl")
+                        imgURL= imageUrl
+                        println("Final imgURL: $imgURL")
+
+                        AuthService.registerUser(
+                            name.text.toString(),
+                            email.text.toString(),
+                            password.text.toString(),
+                            SimpleDateFormat("yyyy-MM-dd").format(SimpleDateFormat("dd/MM/yyyy").parse(birthDate.text.toString())),
+                            number,
+                            locationTxt.text.toString(),
+                            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
+                            imageUrl     //this is empty
+                        )
+                        { createSuccess ->
+                            println("Register User success: $createSuccess")
+                            if (createSuccess) {
+                                AuthService.loginUser(
+                                    email.text.toString(),
+                                    password.text.toString()
+                                ) { loginSuccess ->
+                                    println(loginSuccess)
+                                    if (loginSuccess) {
+                                        val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                                        LocalBroadcastManager.getInstance(this)
+                                            .sendBroadcast(userDataChange)
+                                        // we are sending our user to new activity.
+                                        val i = Intent(this@SignUpPageActivity, DashboardActivity::class.java)
+                                        startActivity(i)
+                                        finish()
+                                        enableSpinner(false)
+                                        finish()
+                                    } else {
+                                        errorToast()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    "Make sure all the fields are filled in.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                enableSpinner(false)
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener { e -> // Error, Image not uploaded
+                    progressDialog.dismiss()
+                    Toast
+                        .makeText(
+                            this,
+                            "Failed " + e.message,
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                }
+                .addOnProgressListener { taskSnapshot ->
+
+                    // Progress Listener for loading
+                    // percentage on the dialog box
+                    val progress = (100.0
+                            * taskSnapshot.bytesTransferred
+                            / taskSnapshot.totalByteCount)
+                    progressDialog.setMessage(
+                        "Uploaded "
+                                + progress.toInt() + "%"
+                    )
+                }
+        }
+
+    }
+
     // UploadImage method
     private fun uploadImage() {
         if (filePath != null) {
@@ -230,14 +334,14 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                     val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
                     downloadUrl.addOnCompleteListener { task ->
                         Log.v(ContentValues.TAG, "Media is uploaded")
-                        downloadURL = ("https://" + task.result.encodedAuthority
+                        imageUrl = ("https://" + task.result.encodedAuthority
                                 + task.result.encodedPath.toString() + "?alt=media&token="
                                 + task.result.getQueryParameters("token")[0])
-                        Log.v(ContentValues.TAG, "downloadURL: $downloadURL")
+                        Log.v(ContentValues.TAG, "downloadURL: $imageUrl")
 
                         //save the downloadURL to the database
-                        println("Final download URL: $downloadURL")
-                        imgURL= downloadURL
+                        println("Final download URL: $imageUrl")
+                        imgURL= imageUrl
                         println("Final imgURL: $imgURL")
                     }
                 }
@@ -336,23 +440,26 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         // inside this method we are checking if
         // the code entered is correct or not.
 
-        println("signInWithCredential")
+        /* println("signInWithCredential")
 
-        println("Download URL is $downloadURL")
+        println("Download URL is $imageUrl")
         println("filePath is $filePath")
 
         if (filePath!=null){
             uploadImage()
             println("ImageUploaded")
         }
-        println("Download URL is $downloadURL")
+        println("Download URL is $imageUrl")*/
 
 
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // if the OTP code is correct and the task is successful, storing the user details into the database
-                    AuthService.registerUser(
+
+                    register()
+
+                    /*AuthService.registerUser(
                         name.text.toString(),
                         email.text.toString(),
                         password.text.toString(),
@@ -360,7 +467,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         number,
                         locationTxt.text.toString(),
                         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
-                        downloadURL
+                        imageUrl     //this is empty
                     )
                     { createSuccess ->
                         println("Register User success: $createSuccess")
@@ -396,12 +503,13 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                     ).show()
                     enableSpinner(false)
                 }
-
+*/
+                }
             }
     }
 
 
-    fun errorToast() {
+    private fun errorToast() {
         Toast.makeText(this, "Something went wrong, please try again.", Toast.LENGTH_LONG).show()
         enableSpinner(false)
     }
