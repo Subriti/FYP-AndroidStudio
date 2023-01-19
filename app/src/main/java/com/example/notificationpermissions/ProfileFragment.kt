@@ -4,19 +4,18 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlin.system.exitProcess
 
 
 class ProfileFragment : Fragment() {
@@ -26,11 +25,10 @@ class ProfileFragment : Fragment() {
 
     private lateinit var imgView: ImageView
 
-   lateinit var adapter: PostRecycleAdapter
+    lateinit var adapter: PostRecycleAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
@@ -44,64 +42,76 @@ class ProfileFragment : Fragment() {
         //user display picture
         imgGallery = view.findViewById<ImageView>(R.id.profile_image)
         context?.let {
-            Glide.with(it)
-                .load(App.sharedPrefs.profilePicture)
-                .into(imgGallery)
+            Glide.with(it).load(App.sharedPrefs.profilePicture).into(imgGallery)
         }
 
-        imgButton = view.findViewById<Button>(R.id.btnGallery)
+        val location = view.findViewById<TextView>(R.id.UserLocation)
+        val phoneNumber = view.findViewById<TextView>(R.id.UserPhone)
+        val email = view.findViewById<TextView>(R.id.UserEmail)
 
-       /* imgView.setOnClickListener {
-            val popupMenu = PopupMenu(requireContext(), imgView)
+        email.text = "  ${App.sharedPrefs.userEmail}"
+        phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
+        location.text = "  ${App.sharedPrefs.location}"
 
-            // Inflating popup menu from popup_menu.xml file
-            popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
+        /* imgView.setOnClickListener {
+             val popupMenu = PopupMenu(requireContext(), imgView)
 
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                // Toast message on menu item clicked
-                Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT).show()
-                true
-            }
-            // Showing the popup menu
-            popupMenu.show()
-        }*/
+             // Inflating popup menu from popup_menu.xml file
+             popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
 
+             popupMenu.setOnMenuItemClickListener { menuItem ->
+                 // Toast message on menu item clicked
+                 Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT).show()
+                 true
+             }
+             // Showing the popup menu
+             popupMenu.show()
+         }*/
+
+
+        imgButton = view.findViewById<Button>(R.id.editProfile)
         imgButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            startActivityForResult(intent, galleryRequestCode)
-        }
-
-        val logoutBtn= view.findViewById<ImageView>(R.id.logoutBtn)
-        logoutBtn.setOnClickListener{
-            UserDataService.logout()
-            val intent= Intent(context, MainActivity::class.java)
-            startActivity(intent)
+            val editProfileFragment = EditProfileFragment()
+            val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
+            transaction.replace(R.id.profile_fragment, editProfileFragment)
+            transaction.addToBackStack("editProfileFragment")
+            transaction.commit()
+            imgButton.isVisible=false
         }
 
 
-        PostService.getUserPosts(App.sharedPrefs.userID){complete ->
+        //logout is fixed in navBar
+
+        /* val logoutBtn= view.findViewById<ImageView>(R.id.logoutBtn)
+         logoutBtn.setOnClickListener{
+             UserDataService.logout()
+             val intent= Intent(context, MainActivity::class.java)
+             startActivity(intent)
+         }*/
+
+
+        PostService.getUserPosts(App.sharedPrefs.userID) { complete ->
             if (complete) {
                 var imageUrlsList = mutableListOf<String>()
-                for (url in PostService.posts){
+                for (url in PostService.posts) {
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter= PostRecycleAdapter(requireContext(), imageUrlsList){
+                adapter = PostRecycleAdapter(requireContext(), imageUrlsList) {
                     //do something on click; open full post details
                 }
-                var spanCount= 2
-                val orientation= resources.configuration.orientation
-                if (orientation== Configuration.ORIENTATION_LANDSCAPE){
-                    spanCount=3
+                var spanCount = 2
+                val orientation = resources.configuration.orientation
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    spanCount = 3
                 }
 
-                val layoutManager= GridLayoutManager(context,spanCount)
-                val postRV= view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                postRV.layoutManager= layoutManager
-                postRV.adapter= adapter
+                val layoutManager = GridLayoutManager(context, spanCount)
+                val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                postRV.layoutManager = layoutManager
+                postRV.adapter = adapter
             }
-            }
+        }
         return view
     }
 
@@ -123,9 +133,7 @@ class ProfileFragment : Fragment() {
     private fun LoadImageFromFirebase(downloadURL: String) {
         println(downloadURL)
         context?.let {
-            Glide.with(it)
-                .load(downloadURL)
-                .into(imgView)
+            Glide.with(it).load(downloadURL).into(imgView)
         }
 
         //database bata take out all urls ani then store it in an array

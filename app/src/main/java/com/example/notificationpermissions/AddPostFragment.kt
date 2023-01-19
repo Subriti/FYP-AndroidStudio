@@ -167,7 +167,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 ) {
                     //val item = parent.getItemAtPosition(position).toString()
                     spinnerCategory.setSelection(position)
-                    category = position.toString()
+                    category = (position + 1).toString()
                     //category = spinnerCategory.selectedItem as String
                     //println("Selected category index: $position")
                     println("Selected category: $category")
@@ -209,7 +209,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         ) {
                             //val item = parent.getItemAtPosition(position).toString()
                             spinnerItemCategory.setSelection(position)
-                            itemCategory = (position + 5).toString()
+                            itemCategory = (position + 6).toString()
                             //spinnerItemCategory.selectedItem as String
                             println("Selected item Category: $itemCategory")
                         }

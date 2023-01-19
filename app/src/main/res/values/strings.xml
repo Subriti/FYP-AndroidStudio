@@ -29,7 +29,7 @@
         <item>Unisex Clothing</item>
         <item>Men\'s Clothing</item>
         <item>Women\'s Clothing</item>
-        <item>Baby\'s Clothing</item>
+        <item>Infant\'s Clothing</item>
         <item>Children\'s Clothing</item>
     </string-array>
 
@@ -38,6 +38,7 @@
         <item>Pant</item>
         <item>Jacket</item>
         <item>T-shirt</item>
+        <item>Sweater</item>
     </string-array>
 
     <string-array name="clothSizes_array">

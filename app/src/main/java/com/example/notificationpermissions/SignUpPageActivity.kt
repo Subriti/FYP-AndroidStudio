@@ -177,7 +177,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             }
         }
 
-        signupbtn = findViewById(R.id.signUp)
+        signupbtn = findViewById(R.id.saveChanges)
 
         signupbtn.setOnClickListener {
             if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {

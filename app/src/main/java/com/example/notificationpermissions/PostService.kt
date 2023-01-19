@@ -15,7 +15,6 @@ object PostService {
 
     val AllPosts = ArrayList<Post>()
 
-
     val clothes = ArrayList<Clothes>()
     var isUploaded = false
 
@@ -174,13 +173,30 @@ object PostService {
                             val location = post.getString("location")
                             val clothId = post.getString("cloth_id")
 
+                            val clothJSONObject= JSONObject(clothId)
+                            val clothSize= clothJSONObject.getString("cloth_size")
+                            val clothCondition= clothJSONObject.getString("cloth_condition")
+                            val clothSeason= clothJSONObject.getString("cloth_season")
+
+                            val clothCategory= clothJSONObject.getString("clothes_category_id")
+                            val categoryJSONObject= JSONObject(clothCategory)
+                            val category= categoryJSONObject.getString("category_name")
+
+                            val itemCategoryId= clothJSONObject.getString("item_category_id")
+                            val itemCategoryJSONObject= JSONObject(itemCategoryId)
+                            val itemCategory= itemCategoryJSONObject.getString("category_name")
+
                             val donationStatus = post.getString("donation_status")
+                            val donationJSONObject= JSONObject(donationStatus)
+                            val status= donationJSONObject.getString("donation_status")
+
+                            val customDescription="$description\n\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
 
                             val newPost = Post(
                                 postId,
                                 username,
                                 mediaFile,
-                                description,
+                                customDescription,
                                 profilePicture,
                                 location,
                                 clothId,

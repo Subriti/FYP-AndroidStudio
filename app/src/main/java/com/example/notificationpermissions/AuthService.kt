@@ -8,6 +8,7 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.example.notificationpermissions.Utilities.*
+import okhttp3.internal.notify
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -83,6 +84,9 @@ object AuthService {
                     App.sharedPrefs.userID = response.getString("user_id")
                     App.sharedPrefs.userName= response.getString("user_name")
                     App.sharedPrefs.profilePicture= response.getString("profile_picture")
+                    App.sharedPrefs.location=response.getString("location")
+                    App.sharedPrefs.phoneNumber=response.getString("phone_number")
+                    App.sharedPrefs.dateOfBirth=response.getString("birth_date")
                     App.sharedPrefs.authToken = response.getString("token")
                     App.sharedPrefs.isLoggedIn = true
                     complete(true)

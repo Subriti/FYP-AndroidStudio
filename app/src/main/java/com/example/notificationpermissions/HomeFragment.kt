@@ -18,10 +18,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as DashboardActivity?)!!.currentFragment = this
         // Inflate the layout for this fragment
         val view= inflater.inflate(R.layout.fragment_home, container, false)
-
+        (activity as DashboardActivity?)!!.currentFragment = this
 
         val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
         welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"

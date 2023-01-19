@@ -80,11 +80,14 @@ class DashboardActivity : AppCompatActivity() {
              println(AddPostFragment::class.java)*/
         /*if (currentFragment == AddPostFragment::class || shareVisible == SocFragment::class.java.toString() || shareVisible == DevFragment::class.java.toString()) {
 */      println(currentFragment)
+        val item = menu.findItem(R.id.nav_search)
+        val item1=menu.findItem(R.id.nav_notifications)
+        val item2= menu.findItem(R.id.nav_logout)
+
         if (currentFragment::class.java == AddPostFragment::class.java) {
-            val item = menu.findItem(R.id.nav_search)
-            val item1=menu.findItem(R.id.nav_notifications)
             item.isVisible = false
             item1.isVisible=false
+            item2.isVisible=false
 
             /* //removing existing appBar and adding new
              val frag= AddPostFragment()
@@ -92,14 +95,22 @@ class DashboardActivity : AppCompatActivity() {
                  supportActionBar!!.hide()
                  setSupportActionBar(toolbar)*/
         }
-        if (currentFragment::class.java != AddPostFragment::class.java) {
-            val item = menu.findItem(R.id.nav_search)
-            val item1=menu.findItem(R.id.nav_notifications)
-            item.isVisible = true
-            item1.isVisible=true
+        if (currentFragment::class.java == ProfileFragment::class.java) {
+            item.isVisible = false
+            item1.isVisible=false
+            item2.isVisible=true
 
             supportActionBar!!.show()
         }
+
+        if (currentFragment::class.java != AddPostFragment::class.java && currentFragment::class.java != ProfileFragment::class.java) {
+            item.isVisible = true
+            item1.isVisible=true
+            item2.isVisible=false
+
+            supportActionBar!!.show()
+        }
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -110,6 +121,11 @@ class DashboardActivity : AppCompatActivity() {
         else if (item.getItemId() == R.id.nav_notifications){
             Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show();
             ShowNotification()
+        }
+        else if(item.itemId==R.id.nav_logout){
+            UserDataService.logout()
+            val intent= Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
         return super.onOptionsItemSelected(item);
     }

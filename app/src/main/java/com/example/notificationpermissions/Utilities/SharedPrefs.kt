@@ -18,6 +18,9 @@ class SharedPrefs(context: Context) {
     val USER_ID= "userID"
     val USER_NAME= "userName"
     val PROFILE_PICTURE= "profilePicture"
+    val LOCATION= "location"
+    val PHONE_NUMBER= "phoneNumber"
+    val DATE_OF_BIRTH= "dateOfBirth"
 
     var isLoggedIn: Boolean
     get() = prefs.getBoolean(IS_LOGGED_IN, false)
@@ -42,6 +45,18 @@ class SharedPrefs(context: Context) {
     var profilePicture: String
         get() = prefs.getString(PROFILE_PICTURE, "")!!
         set(value) = prefs.edit().putString(PROFILE_PICTURE, value).apply()
+
+    var location: String
+        get() = prefs.getString(LOCATION, "")!!
+        set(value) = prefs.edit().putString(LOCATION, value).apply()
+
+    var phoneNumber: String
+        get() = prefs.getString(PHONE_NUMBER, "")!!
+        set(value) = prefs.edit().putString(PHONE_NUMBER, value).apply()
+
+    var dateOfBirth: String
+        get() = prefs.getString(DATE_OF_BIRTH, "")!!
+        set(value) = prefs.edit().putString(DATE_OF_BIRTH, value).apply()
 
     val requestQueue= Volley.newRequestQueue(context)
 }

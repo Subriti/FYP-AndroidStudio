@@ -25,7 +25,11 @@ object UserDataService {
         App.sharedPrefs.userEmail=""
         App.sharedPrefs.userID= ""
         App.sharedPrefs.profilePicture= ""
+        App.sharedPrefs.location=""
+        App.sharedPrefs.phoneNumber=""
+        App.sharedPrefs.dateOfBirth=""
         App.sharedPrefs.isLoggedIn= false
+        PostService.posts.clear()
 
         //PostService.clearPosts()
         //MessageService.clearMessages()
