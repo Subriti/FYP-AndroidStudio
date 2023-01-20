@@ -1,29 +1,17 @@
 package com.example.notificationpermissions
 
-import android.app.Activity.RESULT_OK
-import android.app.DatePickerDialog
-import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.hbb20.CountryCodePicker
-import org.w3c.dom.Text
-import java.util.*
-import kotlin.system.exitProcess
+import androidx.fragment.app.FragmentTransaction
 
 
 class ChangePasswordFragment : Fragment() {
@@ -39,32 +27,72 @@ class ChangePasswordFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_change_password, container, false)
         (activity as DashboardActivity?)!!.currentFragment = this
 
-        progressBar= view.findViewById(R.id.progressBar)
-        progressBar.visibility= View.INVISIBLE
+        progressBar = view.findViewById(R.id.progressBar)
+        progressBar.visibility = View.INVISIBLE
 
-        val currentPassword= view.findViewById<TextView>(R.id.currentPasswordText)
-        val password= view.findViewById<TextView>(R.id.passwordText)
-        val repassword= view.findViewById<TextView>(R.id.repasswordText)
-        val passwordIndicator= view.findViewById<TextView>(R.id.passwordIndicatorText)
+        val currentPassword = view.findViewById<TextView>(R.id.currentPasswordText)
+        val password = view.findViewById<TextView>(R.id.passwordText)
+        val repassword = view.findViewById<TextView>(R.id.repasswordText)
+        val passwordIndicator = view.findViewById<TextView>(R.id.passwordIndicatorText)
         passwordIndicator.visibility = View.GONE
 
-        val resetPassword= view.findViewById<TextView>(R.id.resetPassword)
-        saveChanges=view.findViewById(R.id.saveChanges)
+        val resetPassword = view.findViewById<TextView>(R.id.resetPassword)
+        saveChanges = view.findViewById(R.id.saveChanges)
 
 
         saveChanges.setOnClickListener {
-            if (currentPassword.text.toString()!="" && password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
+            if(currentPassword.text.toString() != "" && password.text.toString() != "" && currentPassword.text.toString() == password.text.toString()){
+                Toast.makeText(
+                    requireContext(),
+                    "Current Password and New Password cannot be the same",
+                    Toast.LENGTH_LONG
+                ).show()
+                enableSpinner(false)
+            }
+            else if (currentPassword.text.toString() != "" && password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
                 passwordIndicator.visibility = View.VISIBLE
                 passwordIndicator.text = "Password Matched"
-                passwordIndicator.setTextColor(getColor(requireContext(),R.color.darkgreen))
+                passwordIndicator.setTextColor(getColor(requireContext(), R.color.darkgreen))
 
                 enableSpinner(true)
                 //save updated details to the database
+                AuthService.changePassword(
+                    currentPassword.text.toString(),
+                    password.text.toString()
+                ) { changeSuccess ->
+                    println("Change Password success: $changeSuccess")
+                    if (changeSuccess) {
+                        val profileFragment = ProfileFragment()
+                        val transaction: FragmentTransaction =
+                            requireFragmentManager().beginTransaction()
+                        transaction.replace(R.id.profile_fragment, profileFragment)
+                        transaction.addToBackStack(null)
+                        transaction.commit()
+                        enableSpinner(false)
 
+                        saveChanges.isVisible=false
+
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Something went wrong. Password Change Unsuccessful",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        enableSpinner(false)
+                    }
+                }
             } else if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() != repassword.text.toString()) {
                 passwordIndicator.visibility = View.VISIBLE
                 passwordIndicator.text = "Password didn't match"
-                passwordIndicator.setTextColor(getColor(requireContext(),R.color.falured))
+                passwordIndicator.setTextColor(getColor(requireContext(), R.color.falured))
+            }
+            else{
+                Toast.makeText(
+                    requireContext(),
+                    "Make sure all the fields are filled in.",
+                    Toast.LENGTH_LONG
+                ).show()
+                enableSpinner(false)
             }
         }
 
@@ -75,6 +103,7 @@ class ChangePasswordFragment : Fragment() {
         return view
 
     }
+
     private fun enableSpinner(enable: Boolean) {
         if (enable) {
             progressBar.visibility = View.VISIBLE

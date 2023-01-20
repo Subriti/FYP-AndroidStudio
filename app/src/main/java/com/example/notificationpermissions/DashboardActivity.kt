@@ -27,6 +27,8 @@ class DashboardActivity : AppCompatActivity() {
     //assigned in each fragment to know the current fragment and to manage the appBar accordingly
     lateinit var currentFragment: Fragment
     lateinit var toolbar: Toolbar
+    var destination: NavDestination? =null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -52,7 +54,7 @@ class DashboardActivity : AppCompatActivity() {
 
 
         //changing label to user name in profile
-         val destination: NavDestination? = findNavController(R.id.nav_fragment).graph.findNode(R.id.profileFragment)
+         destination = findNavController(R.id.nav_fragment).graph.findNode(R.id.profileFragment)!!
          destination!!.label = "${App.sharedPrefs.userName}"
 
        /* val bundle = Bundle()

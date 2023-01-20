@@ -2,20 +2,22 @@ package com.example.notificationpermissions
 
 import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
+import android.content.ContentValues
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
+import com.google.android.gms.tasks.Task
+import com.google.firebase.storage.StorageReference
 import com.hbb20.CountryCodePicker
 import java.util.*
 
@@ -27,6 +29,11 @@ class EditProfileFragment : Fragment() {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var saveChanges: Button
+
+    private var filePath: Uri? =null
+    private var imgURL:String= ""
+
+    private lateinit var storageReference: StorageReference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,7 +102,77 @@ class EditProfileFragment : Fragment() {
         saveChanges.setOnClickListener {
             enableSpinner(true)
 
+            //upload image first
+            if (filePath!=null){
+                // Defining the child of storageReference
+                val ref = storageReference.child("images/" + UUID.randomUUID().toString())
+
+                // adding listeners on upload or failure of image
+                ref.putFile(filePath!!)
+                    .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
+                        Toast.makeText(requireContext(), "Image Uploaded!!", Toast.LENGTH_SHORT).show()
+
+                        val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
+                        downloadUrl.addOnCompleteListener { task ->
+                            Log.v(ContentValues.TAG, "Media is uploaded")
+                            imgURL =
+                                ("https://" + task.result.encodedAuthority + task.result.encodedPath.toString() + "?alt=media&token=" + task.result.getQueryParameters(
+                                    "token"
+                                )[0])
+                            Log.v(ContentValues.TAG, "downloadURL: $imgURL")
+                        }
+                    }
+            }
+            else{
+                imgURL=App.sharedPrefs.profilePicture
+            }
+
             //save updated details to the database
+            AuthService.updateUser(
+                name.text.toString(),
+                email.text.toString(),
+                dateOfBirth.text.toString(),
+                phoneNumber.text.toString(),
+                location.text.toString(),
+                imgURL
+            ) { updateSuccess ->
+                println("Update User success: $updateSuccess")
+                if (updateSuccess) {
+                    val profileFragment = ProfileFragment()
+                    val transaction: FragmentTransaction =
+                        requireFragmentManager().beginTransaction()
+                    transaction.replace(R.id.editProfileLayout, profileFragment)
+                    transaction.addToBackStack(null)
+                    transaction.setReorderingAllowed(true)
+                    transaction.commit()
+
+                    //App.shared.prefs ma ni update
+                    App.sharedPrefs.userName=name.text.toString()
+                    App.sharedPrefs.userEmail= email.text.toString()
+                    App.sharedPrefs.dateOfBirth=dateOfBirth.text.toString()
+                    App.sharedPrefs.phoneNumber=phoneNumber.text.toString()
+                    App.sharedPrefs.location=location.text.toString()
+                    App.sharedPrefs.profilePicture=imgURL
+
+                    imgButton.isVisible=false
+                    saveChanges.isVisible=false
+
+                    //changing label to user name in profile
+                    DashboardActivity().destination!!.label = "${App.sharedPrefs.userName}"
+
+                    HomeFragment().adapter.notifyDataSetChanged()
+                    ProfileFragment().adapter.notifyDataSetChanged()
+
+                    enableSpinner(false)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Make sure all the fields are filled in.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    enableSpinner(false)
+                }
+            }
         }
 
         changePassword.setOnClickListener {
@@ -129,6 +206,7 @@ class EditProfileFragment : Fragment() {
                 //for gallery
                 if (data != null) {
                     imgGallery.setImageURI(data.data)
+                    filePath=data.data
                 }
             }
         }
