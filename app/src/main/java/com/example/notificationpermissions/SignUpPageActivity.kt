@@ -123,7 +123,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         }
 
         storage = FirebaseStorage.getInstance()
+        println(storage)
         storageReference = storage.reference
+        println(storageReference)
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -142,7 +144,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                     val currentLocation =
                         geoCoder.getFromLocation(location.latitude, location.longitude, 1)
 
-                    if (currentLocation.first().subLocality == null) {
+                    if (currentLocation!!.first().subLocality == null) {
                         locationTxt.text = currentLocation.first().locality
                     } else {
                         locationTxt.text =
@@ -210,6 +212,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         if (filePath == null) {
             registerUser()
         }
+        println(filePath)
         if (filePath != null) {
             // Code for showing progressDialog while uploading
             val progressDialog = ProgressDialog(this)

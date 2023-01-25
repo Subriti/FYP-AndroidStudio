@@ -17,6 +17,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class LoginActivity : AppCompatActivity() {
@@ -51,6 +55,35 @@ class LoginActivity : AppCompatActivity() {
                                 val intent= Intent(this, DashboardActivity::class.java)
                                 startActivity(intent)
 
+                                //generate FirebaseCloudMessaging Token and save to firebase
+
+                                // realtime database reference
+                                val realtimeDatabase = Firebase.database
+
+                                // Retreving the FCM token
+                                    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+                                        if (!task.isSuccessful) {
+                                            return@OnCompleteListener
+                                        }
+
+                                        // fetching the token
+                                        val token = task.result
+                                        println(token)
+                                        // directory reference
+                                        val tokenDirRef = realtimeDatabase.getReference("Tokens")
+
+                                        // storing the value
+                                        tokenDirRef.setValue(token.toString())
+
+                                        // toast to show  message
+                                        Toast.makeText(
+                                            baseContext,
+                                            "Firebase Generated Successfully and saved to realtime database",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+
+                                    })
+
                                 enableSpinner(false)
                                 finish()
 
@@ -68,6 +101,7 @@ class LoginActivity : AppCompatActivity() {
                 enableSpinner(false)
             }
         }
+
 
         /* var hasNotificationPermission = ContextCompat.checkSelfPermission(
             this,

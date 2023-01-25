@@ -15,6 +15,8 @@ object PostService {
 
     val AllPosts = ArrayList<Post>()
 
+    val InterestedUsers= ArrayList<InterestedUsers>()
+
     val clothes = ArrayList<Clothes>()
     var isUploaded = false
 
@@ -424,4 +426,111 @@ object PostService {
             App.sharedPrefs.requestQueue.add(getItemCategoryRequest)
         }
     }
+
+    fun getInterestedUserByPosts(postId: String, complete: (Boolean) -> Unit) {
+        if (InterestedUsers.size > 0) {
+            complete(true)
+        } else {
+            val getInterestedUsersRequest = object :
+                JsonArrayRequest(Method.GET, "$URL_GET_INTERESTED_USERS_BY_POST$postId", null, Response.Listener {
+                    //this is where we parse the json object
+                        response ->
+                    try {
+                        for (x in 0 until response.length()) {
+                            val interestedUsers = response.getJSONObject(x)
+                            val userId = interestedUsers.getString("user_id")
+
+                            val userJSONObject= JSONObject(userId)
+                            val username= userJSONObject.getString("user_name")
+                            val profilePicture= userJSONObject.getString("profile_picture")
+
+                            val postId = interestedUsers.getString("post_id")
+                            val postJSONObject= JSONObject(postId)
+
+                            val user= postJSONObject.getString("post_by")
+                            val usernameJSONObject= JSONObject(user)
+                            val name= usernameJSONObject.getString("user_name")
+                            val profile= usernameJSONObject.getString("profile_picture")
+
+                            val newInterestedUser = InterestedUsers(
+                                userId,
+                                username,
+                                profilePicture,
+                                postId,
+                                name,
+                                profile
+                            )
+                            InterestedUsers.add(newInterestedUser)
+                        }
+                        complete(true)
+                    } catch (e: JSONException) {
+                        Log.d("JSON", "EXC: " + e.localizedMessage)
+                        complete(false)
+                    }
+                }, Response.ErrorListener {
+                    //this is where we deal with our error
+                        error ->
+                    Log.d("ERROR", "Could not retrieve interested users: $error")
+                    complete(false)
+                }) {
+                override fun getBodyContentType(): String {
+                    return "application/json; charset=utf-8"
+                }
+
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                    return headers
+                }
+            }
+            getInterestedUsersRequest.retryPolicy = DefaultRetryPolicy(
+                30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+            App.sharedPrefs.requestQueue.add(getInterestedUsersRequest)
+        }
+    }
+
+    fun addInterestedUser(
+        user_id: String,
+        post_id: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+
+        //bc it takes object of UserId
+        val userId = JSONObject()
+        userId.put("user_id", user_id)
+
+        //bc it takes object of PostId
+        val postId = JSONObject()
+        postId.put("post_id", post_id)
+
+        val requestBody = jsonBody.toString()
+        println(requestBody)
+
+        val addInterestedUsers = object :
+            JsonObjectRequest(Method.POST, URL_ADD_INTERESTED_USERS, null, Response.Listener { response ->
+                println("Add Interested User Response " + response)
+                complete(true)
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not add interested User: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(addInterestedUsers)
+    }
+
 }

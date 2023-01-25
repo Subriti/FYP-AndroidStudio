@@ -40,7 +40,7 @@ class ProfileFragment : Fragment() {
         //LoadImageFromFirebase(App.sharedPrefs.profilePicture)
 
         //user display picture
-        imgGallery = view.findViewById<ImageView>(R.id.profile_image)
+        imgGallery = view.findViewById(R.id.profile_image)
         context?.let {
             Glide.with(it).load(App.sharedPrefs.profilePicture).into(imgGallery)
         }
@@ -75,6 +75,7 @@ class ProfileFragment : Fragment() {
             val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
             transaction.replace(R.id.profile_fragment, editProfileFragment)
             transaction.addToBackStack("editProfileFragment")
+            transaction.setReorderingAllowed(true)
             transaction.commit()
             imgButton.isVisible=false
         }

@@ -108,11 +108,11 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 }))*/
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                     println(location)
-                    val geoCoder = Geocoder(context)
+                    val geoCoder = Geocoder(requireContext())
                     val currentLocation =
                         geoCoder.getFromLocation(location.latitude, location.longitude, 1)
 
-                    if (currentLocation.first().subLocality == null) {
+                    if (currentLocation!!.first().subLocality == null) {
                         locationTxt.text = currentLocation.first().locality
                     } else {
                         locationTxt.text =

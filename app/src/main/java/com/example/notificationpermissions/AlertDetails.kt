@@ -18,7 +18,7 @@ class AlertDetails : AppCompatActivity() {
 
         if (builder != null) {
             builder.setView(dialogView)
-                .setPositiveButton("Send") { _, i ->
+                .setPositiveButton("Send") { _, _ ->
 
                     val radioGroup =
                         dialogView.findViewById<RadioGroup>(R.id.confirmation_group)
@@ -46,7 +46,7 @@ class AlertDetails : AppCompatActivity() {
                         ).show()
                     }
                 }
-                .setNegativeButton("Cancel") { _, i -> //cancel and close the dialog
+                .setNegativeButton("Cancel") { _, _ -> //cancel and close the dialog
                 }
                 .show()
         }

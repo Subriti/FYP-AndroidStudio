@@ -17,8 +17,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.hbb20.CountryCodePicker
+import java.io.IOException
 import java.util.*
 
 
@@ -30,14 +32,13 @@ class EditProfileFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var saveChanges: Button
 
-    private var filePath: Uri? =null
-    private var imgURL:String= ""
-
+    private var filePath: Uri? = null
+    private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
+    private lateinit var imgURL: String
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_profile, container, false)
@@ -46,25 +47,26 @@ class EditProfileFragment : Fragment() {
         //user display picture
         imgGallery = view.findViewById<ImageView>(R.id.profile_picture)
         context?.let {
-            Glide.with(it)
-                .load(App.sharedPrefs.profilePicture)
-                .into(imgGallery)
+            Glide.with(it).load(App.sharedPrefs.profilePicture).into(imgGallery)
         }
 
-        progressBar= view.findViewById(R.id.progressBar)
-        progressBar.visibility= View.INVISIBLE
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage.reference
 
-        val name= view.findViewById<TextView>(R.id.nameText)
-        val email= view.findViewById<TextView>(R.id.emailText)
-        val dateOfBirth= view.findViewById<TextView>(R.id.dateText)
+        progressBar = view.findViewById(R.id.progressBar)
+        progressBar.visibility = View.INVISIBLE
+
+        val name = view.findViewById<TextView>(R.id.nameText)
+        val email = view.findViewById<TextView>(R.id.emailText)
+        val dateOfBirth = view.findViewById<TextView>(R.id.dateText)
         val location = view.findViewById<TextView>(R.id.locationText)
         val phoneNumber = view.findViewById<TextView>(R.id.phoneText)
-        saveChanges=view.findViewById(R.id.saveChanges)
-        val changePassword=view.findViewById<TextView>(R.id.changePassword)
+        saveChanges = view.findViewById(R.id.saveChanges)
+        val changePassword = view.findViewById<TextView>(R.id.changePassword)
 
-        name.text=App.sharedPrefs.userName
+        name.text = App.sharedPrefs.userName
         email.text = App.sharedPrefs.userEmail
-        dateOfBirth.text=(App.sharedPrefs.dateOfBirth).subSequence(0,10)
+        dateOfBirth.text = (App.sharedPrefs.dateOfBirth).subSequence(0, 10)
         phoneNumber.text = App.sharedPrefs.phoneNumber
         location.text = App.sharedPrefs.location
 
@@ -83,7 +85,7 @@ class EditProfileFragment : Fragment() {
             val day = c.get(Calendar.DAY_OF_MONTH)
 
             val datepickerdialog = DatePickerDialog(
-                requireContext(), { view, mYear, mMonth, mDay ->
+                requireContext(), { _, mYear, mMonth, mDay ->
                     dateOfBirth.text = "" + mDay + "/" + (mMonth + 1) + "/" + mYear
                 }, year, month, day
             )
@@ -93,24 +95,25 @@ class EditProfileFragment : Fragment() {
             }
         }
 
-        val phonecode= view.findViewById<CountryCodePicker>(R.id.ccp)
+        val phonecode = view.findViewById<CountryCodePicker>(R.id.ccp)
         phonecode.setOnCountryChangeListener {
             val selectedCode = phonecode.selectedCountryCodeAsInt
-            phoneNumber.text= "+$selectedCode"
+            phoneNumber.text = "+$selectedCode"
         }
 
         saveChanges.setOnClickListener {
             enableSpinner(true)
 
+            println(filePath)
             //upload image first
-            if (filePath!=null){
+            if (filePath != null) {
                 // Defining the child of storageReference
                 val ref = storageReference.child("images/" + UUID.randomUUID().toString())
 
                 // adding listeners on upload or failure of image
                 ref.putFile(filePath!!)
                     .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
-                        Toast.makeText(requireContext(), "Image Uploaded!!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Image Uploaded!!", Toast.LENGTH_SHORT).show()
 
                         val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
                         downloadUrl.addOnCompleteListener { task ->
@@ -119,59 +122,19 @@ class EditProfileFragment : Fragment() {
                                 ("https://" + task.result.encodedAuthority + task.result.encodedPath.toString() + "?alt=media&token=" + task.result.getQueryParameters(
                                     "token"
                                 )[0])
-                            Log.v(ContentValues.TAG, "downloadURL: $imgURL")
+                            println("downloadURL: $imgURL")
+
+                            //save updated details to the database
+                            updateUser(name, email, dateOfBirth, phoneNumber, location)
                         }
+                    }.addOnFailureListener { e -> // Error, Image not uploaded
+                        Toast.makeText(
+                            context, "Failed " + e.message, Toast.LENGTH_SHORT
+                        ).show()
                     }
-            }
-            else{
+            } else {
                 imgURL=App.sharedPrefs.profilePicture
-            }
-
-            //save updated details to the database
-            AuthService.updateUser(
-                name.text.toString(),
-                email.text.toString(),
-                dateOfBirth.text.toString(),
-                phoneNumber.text.toString(),
-                location.text.toString(),
-                imgURL
-            ) { updateSuccess ->
-                println("Update User success: $updateSuccess")
-                if (updateSuccess) {
-                    val profileFragment = ProfileFragment()
-                    val transaction: FragmentTransaction =
-                        requireFragmentManager().beginTransaction()
-                    transaction.replace(R.id.editProfileLayout, profileFragment)
-                    transaction.addToBackStack(null)
-                    transaction.setReorderingAllowed(true)
-                    transaction.commit()
-
-                    //App.shared.prefs ma ni update
-                    App.sharedPrefs.userName=name.text.toString()
-                    App.sharedPrefs.userEmail= email.text.toString()
-                    App.sharedPrefs.dateOfBirth=dateOfBirth.text.toString()
-                    App.sharedPrefs.phoneNumber=phoneNumber.text.toString()
-                    App.sharedPrefs.location=location.text.toString()
-                    App.sharedPrefs.profilePicture=imgURL
-
-                    imgButton.isVisible=false
-                    saveChanges.isVisible=false
-
-                    //changing label to user name in profile
-                    DashboardActivity().destination!!.label = "${App.sharedPrefs.userName}"
-
-                    HomeFragment().adapter.notifyDataSetChanged()
-                    ProfileFragment().adapter.notifyDataSetChanged()
-
-                    enableSpinner(false)
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Make sure all the fields are filled in.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    enableSpinner(false)
-                }
+                updateUser(name, email, dateOfBirth, phoneNumber, location)
             }
         }
 
@@ -182,12 +145,62 @@ class EditProfileFragment : Fragment() {
             transaction.replace(R.id.editProfileLayout, changePasswordFragment)
             transaction.addToBackStack("changePasswordFragment")
             transaction.commit()
-            saveChanges.isVisible=false
-            imgButton.isVisible=false
+            saveChanges.isVisible = false
+            imgButton.isVisible = false
         }
 
         return view
     }
+
+    private fun updateUser(name:TextView,email:TextView,dateOfBirth:TextView,phoneNumber:TextView,location:TextView) {
+        AuthService.updateUser(
+            name.text.toString(),
+            email.text.toString(),
+            dateOfBirth.text.toString(),
+            phoneNumber.text.toString(),
+            location.text.toString(),
+            imgURL
+        ) { updateSuccess ->
+            println("Update User success: $updateSuccess")
+            if (updateSuccess) {
+                //App.shared.prefs ma ni update
+                App.sharedPrefs.userName = name.text.toString()
+                App.sharedPrefs.userEmail = email.text.toString()
+                App.sharedPrefs.dateOfBirth = dateOfBirth.text.toString()
+                App.sharedPrefs.phoneNumber = phoneNumber.text.toString()
+                App.sharedPrefs.location = location.text.toString()
+                App.sharedPrefs.profilePicture = imgURL
+
+                imgButton.isVisible = false
+                saveChanges.isVisible = false
+
+                //changing label to user name in profile
+                /*DashboardActivity().destination!!.label =
+                    "${App.sharedPrefs.userName}"*/
+
+               /* val profileFrag = ProfileFragment()
+                val profile: FragmentTransaction =
+                    requireFragmentManager().beginTransaction()
+                profile.replace(R.id.editProfileLayout, profileFrag)
+                profile.addToBackStack(null)
+                profile.commit()*//*
+
+                HomeFragment().adapter.notifyDataSetChanged()
+                ProfileFragment().adapter.notifyDataSetChanged()*/
+
+                val profileFragment = ProfileFragment()
+                val transaction: FragmentTransaction =
+                    requireFragmentManager().beginTransaction()
+                transaction.replace(R.id.editProfileLayout, profileFragment)
+                transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commit()
+
+                enableSpinner(false)
+            }
+        }
+    }
+
     private fun enableSpinner(enable: Boolean) {
         if (enable) {
             progressBar.visibility = View.VISIBLE
@@ -200,13 +213,34 @@ class EditProfileFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == RESULT_OK) {
+        /*if (resultCode == RESULT_OK) {
 
             if (requestCode == galleryRequestCode) {
                 //for gallery
                 if (data != null) {
                     imgGallery.setImageURI(data.data)
                     filePath=data.data
+                    println(filePath)
+                }
+            }
+        }*/
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == galleryRequestCode) {
+                //for gallery
+                if (data != null) {
+                    //img.setImageURI(data.data)
+                    filePath = data.data!!
+                    println("OnActivityResult: filePath is : $filePath")
+                    try {
+                        val bitmap = MediaStore.Images.Media.getBitmap(
+                            requireContext().contentResolver, filePath
+                        )
+                        imgGallery.setImageBitmap(bitmap)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+
                 }
             }
         }
