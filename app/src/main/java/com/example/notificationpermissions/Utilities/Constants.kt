@@ -30,6 +30,7 @@ const val URL_GET_INTERESTED_USERS_BY_POST= "${BASE_URL}interestedUsers/getUsers
 const val URL_ADD_INTERESTED_USERS= "${BASE_URL}interestedUsers/addInterestedUsers"
 const val URL_DELETE_INTERESTED_USERS= "${BASE_URL}interestedUsers/deleteInterestedUsers"
 
+const val URL_UPDATE_CLOTH= "${BASE_URL}clothes/updateClothes/"
 const val URL_UPDATE_POST= "${BASE_URL}post/updatePost/"
 const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
 
@@ -37,3 +38,6 @@ const val URL_FIND_POST= "${BASE_URL}post/findPost/"
 
 //Broadcast constants
 const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
+
+//for viewing user's individual post
+const val EXTRA_POST= "post"

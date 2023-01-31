@@ -3,6 +3,7 @@ package com.example.notificationpermissions
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,11 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -23,6 +27,7 @@ import java.util.*
 class FeedRecyclerAdapter(
     private val context: Context,
     private val imageUrls: List<String>,
+    private val fragmentManager: FragmentManager,
     val itemClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<FeedRecyclerAdapter.ViewHolder>() {
@@ -33,6 +38,7 @@ class FeedRecyclerAdapter(
         return ViewHolder(view, itemClick)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val imageUrl = imageUrls[position]
         Glide.with(holder.itemView.context)
@@ -67,7 +73,7 @@ class FeedRecyclerAdapter(
                     for(i in PostService.InterestedUsers){
                         if (i.user_id==App.sharedPrefs.userID){
                             alreadyLiked= true
-                            markInterested.setImageResource(R.drawable.ic_baseline_star_24)
+                            markInterested.setImageResource(R.drawable.liked)
                         }
                     }
                 }
@@ -115,6 +121,15 @@ class FeedRecyclerAdapter(
 
             userProfile.setOnClickListener {
                     //open user profile with posts
+                val profileFragment = UserViewProfileFragment().apply {
+                    arguments= Bundle().apply { putSerializable(EXTRA_POST,post) }
+                }
+                val transaction: FragmentTransaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.home_fragment, profileFragment)
+                transaction.addToBackStack("profileFragment")
+                //transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commit()
             }
 
             interestedUsers.setOnClickListener {
@@ -156,7 +171,8 @@ class FeedRecyclerAdapter(
 
             markInterested.setOnClickListener {
                 if (!isLiked) {
-                    markInterested.setImageResource(R.drawable.ic_baseline_star_24)
+                    //markInterested.setImageResource(R.drawable.ic_baseline_star_24)
+                    markInterested.setImageResource(R.drawable.liked)
                     isLiked = true
 
                     //check if the user already liked, or is newly liked
@@ -173,7 +189,8 @@ class FeedRecyclerAdapter(
                         }
                     }
                 } else {
-                    markInterested.setImageResource(R.drawable.ic_baseline_star_border_24)
+                    //markInterested.setImageResource(R.drawable.ic_baseline_star_border_24)
+                    markInterested.setImageResource(R.drawable.unliked)
                     isLiked = false
                     //else check if the photo is liked, if yes dislike it
                     PostService.deleteInterestedUserByPosts(

@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 
 
 class ProfileFragment : Fragment() {
@@ -99,8 +100,19 @@ class ProfileFragment : Fragment() {
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter = PostRecycleAdapter(requireContext(), imageUrlsList) {
+                adapter = PostRecycleAdapter(requireContext(), imageUrlsList, requireFragmentManager()) {post ->
                     //do something on click; open full post details
+                    val viewPostFragment = ViewPostFragment().apply {
+                        arguments=Bundle().apply { putSerializable(EXTRA_POST,post) }
+                    }
+                    val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
+                    transaction.replace(R.id.profile_fragment, viewPostFragment)
+                    transaction.addToBackStack("profileFragment")
+                    //transaction.addToBackStack(null)
+                    transaction.setReorderingAllowed(true)
+                    transaction.commit()
+                    imgButton.isVisible=false
+
                 }
                 var spanCount = 2
                 val orientation = resources.configuration.orientation

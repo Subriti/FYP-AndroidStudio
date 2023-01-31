@@ -69,7 +69,11 @@ class ChangePasswordFragment : Fragment() {
                         transaction.addToBackStack(null)
                         transaction.commit()
                         enableSpinner(false)
-
+                        Toast.makeText(
+                            requireContext(),
+                            "Password was changed successfully",
+                            Toast.LENGTH_LONG
+                        ).show()
                         saveChanges.isVisible=false
 
                     } else {

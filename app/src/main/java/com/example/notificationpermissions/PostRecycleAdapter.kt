@@ -1,14 +1,18 @@
 package com.example.notificationpermissions
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 
 /*
 
@@ -69,7 +73,7 @@ class PostRecycleAdapter(private val context: Context, private val posts: List<P
 */
 
 
-class PostRecycleAdapter(private val context: Context, private val imageUrls: List<String>,val itemClick: (Post) -> Unit) :
+class PostRecycleAdapter(private val context: Context, private val imageUrls: List<String>, private val fragmentManager: FragmentManager, val itemClick: (Post) -> Unit) :
     RecyclerView.Adapter<PostRecycleAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -93,26 +97,51 @@ class PostRecycleAdapter(private val context: Context, private val imageUrls: Li
 
     inner class ViewHolder(itemView: View,val itemClick: (Post) -> Unit) : RecyclerView.ViewHolder(itemView) {
         val imageView = itemView.findViewById<ImageView>(R.id.postImage)
-        private val postOptions= itemView.findViewById<ImageView>(R.id.postOptions)
+        //private val postOptions= itemView.findViewById<ImageView>(R.id.postOptions)
 
         fun bindPost(post:Post, context: Context){
-            postOptions?.setOnClickListener {
+            /*postOptions?.setOnClickListener {
                 val popupMenu = PopupMenu(context, postOptions)
 
                 // Inflating popup menu from popup_menu.xml file
                 popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
 
                 popupMenu.setOnMenuItemClickListener { menuItem ->
+                    println(menuItem.title)
+                    if (menuItem.title?.equals("Edit Post") == true) {
+                        val editPostFragment = EditPostFragment().apply {
+                            arguments=Bundle().apply { putSerializable(EXTRA_POST,post) }
+                        }
+                        val transaction: FragmentTransaction = fragmentManager.beginTransaction()
+                        transaction.replace(R.id.profile_fragment, editPostFragment)
+                        transaction.addToBackStack("profileFragment")
+                        //transaction.addToBackStack(null)
+                        transaction.setReorderingAllowed(true)
+                        transaction.commit()
+
+
+
+                        true
+                    }
+
+                    if (menuItem.title=="Mark as Donated"){
+
+                    }
+                    if (menuItem.title=="Delete Post"){
+
+                    }
                     // Toast message on menu item clicked
                     Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT)
                         .show()
                     true
+
                 }
                 // Showing the popup menu
                 popupMenu.show()
-            }
+            }*/
 
-            itemView.setOnClickListener { itemClick(post) }
+            itemView.setOnClickListener { itemClick(post)
+            }
         }
         }
     }

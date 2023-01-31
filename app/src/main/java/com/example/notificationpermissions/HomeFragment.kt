@@ -51,7 +51,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter = FeedRecyclerAdapter(requireContext(), imageUrlsList) {
+                adapter = FeedRecyclerAdapter(requireContext(), imageUrlsList, requireFragmentManager()) {
                     //do something on click; open full post details
                 }
 

@@ -2,6 +2,7 @@ package com.example.notificationpermissions
 
 import android.util.Log
 import com.android.volley.DefaultRetryPolicy
+import com.android.volley.ExecutorDelivery
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -15,6 +16,8 @@ object PostService {
     val posts = ArrayList<Post>()
 
     val AllPosts = ArrayList<Post>()
+
+    val DetailedPosts=ArrayList<PostDetails>()
 
     var InterestedUsers = ArrayList<InterestedUsers>()
     //var InterestedUsers: MutableList<InterestedUsers>()
@@ -95,6 +98,90 @@ object PostService {
         App.sharedPrefs.requestQueue.add(createRequest)
     }
 
+    fun updatePost(
+        postId: String,
+        description: String,
+        location: String,
+        cloth_id: String,
+       /* category:String,
+        itemCategory:String,
+        clothSize: String,
+        clothCondition:String,
+        clothSeason: String,*/
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+
+        jsonBody.put("description", description)
+        jsonBody.put("location", location)
+
+        /*val json= JSONObject(cloth_id)
+        val cloth= json.getString("cloth_id")
+
+        println("Cloth_id: "+cloth_id)
+        println("Cloth: "+cloth)
+
+        //cloth ma yo id le update then balla yo id halne post ma
+        updateCloth(cloth,category,itemCategory,clothSize,clothCondition,clothSeason){
+            updateCloth ->  println("Update Cloth Response $updateCloth")
+        }*/
+
+        //bc it takes object of Cloth
+        val clothId = JSONObject()
+        clothId.put("cloth_id", cloth_id)
+        jsonBody.put("cloth_id", clothId)
+
+        val requestBody = jsonBody.toString()
+        println("Update Post: "+requestBody)
+
+        val updateRequest = object :
+            JsonObjectRequest(Method.PUT, "$URL_UPDATE_POST$postId", null, Response.Listener { response ->
+                println("Update Post Response $response")
+                complete(true)
+
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update Post: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+
+        }
+        updateRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(updateRequest)
+    }
+
+    fun deletePost(postId: String, complete: (Boolean) -> Unit) {
+        val deletePostRequest =
+            object : StringRequest(Method.DELETE, "$URL_DELETE_POST$postId", Response.Listener { response ->
+                println("Delete Post Response $response")
+                complete(true)
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not delete post: $error")
+                complete(false)
+            }) {
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                    return headers
+                }
+            }
+        App.sharedPrefs.requestQueue.add(deletePostRequest)
+    }
+
     fun getUserPosts(userId: String, complete: (Boolean) -> Unit) {
         if (posts.size > 0) {
             complete(true)
@@ -172,7 +259,10 @@ object PostService {
                             val postBy = post.getString("post_by")
 
                             val userJSONObject = JSONObject(postBy)
+                            val userId= userJSONObject.getString("user_id")
                             val username = userJSONObject.getString("user_name")
+                            val userEmail= userJSONObject.getString("email")
+                            val phoneNum= userJSONObject.getString("phone_number")
                             val profilePicture = userJSONObject.getString("profile_picture")
 
                             val mediaFile = post.getString("media_file")
@@ -199,9 +289,28 @@ object PostService {
                             val status = donationJSONObject.getString("donation_status")
 
                             val customDescription =
-                                "$description\n\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
+                                "$description\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
 
-                            val newPost = Post(
+                            val newPost = PostDetails(
+                                postId,
+                                username,
+                                userId,
+                                userEmail,
+                                profilePicture,
+                                phoneNum,
+                                mediaFile,
+                                customDescription,
+                                createdDatetime,
+                                location,
+                                clothId,
+                                category,
+                                itemCategory,
+                                clothSize,
+                                clothCondition,
+                                clothSeason,
+                                donationStatus
+                            )
+                            val newPosts = Post(
                                 postId,
                                 username,
                                 mediaFile,
@@ -211,7 +320,8 @@ object PostService {
                                 profilePicture,
                                 donationStatus
                             )
-                            AllPosts.add(newPost)
+                            AllPosts.add(newPosts)
+                            DetailedPosts.add(newPost)
                         }
                         complete(true)
                     } catch (e: JSONException) {
@@ -290,6 +400,58 @@ object PostService {
                 }
             }
         App.sharedPrefs.requestQueue.add(getClothRequest)
+    }
+    fun updateCloth(
+        cloth_id:String,
+        clothes_category_id: String,
+        item_category_id: String,
+        cloth_size: String,
+        cloth_condition: String,
+        cloth_season: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+
+        //bc it takes object of ClothCategory
+        val clothCategoryId = JSONObject()
+        clothCategoryId.put("category_id", clothes_category_id)
+        jsonBody.put("clothes_category_id", clothCategoryId)
+
+        //bc it takes object of ClothItemCategory
+        val clothItemCategoryId = JSONObject()
+        clothItemCategoryId.put("category_id", item_category_id)
+        jsonBody.put("item_category_id", clothItemCategoryId)
+
+        jsonBody.put("cloth_size", cloth_size)
+        jsonBody.put("cloth_condition", cloth_condition)
+        jsonBody.put("cloth_season", cloth_season)
+
+        val requestBody = jsonBody.toString()
+        println("Update cloth: "+requestBody)
+
+        val updateClothRequest = object :
+            JsonObjectRequest(Method.PUT, URL_UPDATE_CLOTH+cloth_id, null, Response.Listener { response ->
+                println("Update Cloth Response " + response)
+                complete(true)
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update cloth: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(updateClothRequest)
     }
 
     fun addCloth(

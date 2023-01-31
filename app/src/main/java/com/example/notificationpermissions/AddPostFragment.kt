@@ -312,7 +312,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 parent: AdapterView<*>, view: View, position: Int, id: Long
             ) {
                 spinnerClothDelivery.setSelection(position)
-                clothDelivery = spinnerClothDelivery.selectedItem as String
+                clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem as String}"
                 println("Selected cloth delivery: $clothDelivery")
             }
 
@@ -401,7 +401,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 PostService.createPost(
                                     App.sharedPrefs.userID,
                                     downloadURL,
-                                    desc.text.toString(),
+                                    desc.text.toString()+"\n\n$clothDelivery",
                                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
                                     locationTxt.text.toString(),
                                     PostService.clothId,
@@ -414,10 +414,14 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                         val transaction: FragmentTransaction =
                                             requireFragmentManager().beginTransaction()
                                         transaction.replace(R.id.addPostFragment, homeFragment)
-                                        transaction.addToBackStack(null)
-                                        transaction.setReorderingAllowed(true)
+                                        //transaction.addToBackStack(null)
+                                        //transaction.setReorderingAllowed(true)
                                         transaction.commit()
-
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "Post was successfully created",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         enableSpinner(false)
                                     }
                                 }
