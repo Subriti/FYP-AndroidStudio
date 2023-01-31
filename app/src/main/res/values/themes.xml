@@ -6,7 +6,7 @@
         <item name="colorPrimaryVariant">@color/oldRose</item>
 
         //text color on buttons
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         //checkbox colors
         <item name="colorSecondary">@color/firebrick</item>

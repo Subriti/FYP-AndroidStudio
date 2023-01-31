@@ -188,13 +188,16 @@ class EditProfileFragment : Fragment() {
                 HomeFragment().adapter.notifyDataSetChanged()
                 ProfileFragment().adapter.notifyDataSetChanged()*/
 
-                val profileFragment = ProfileFragment()
+                /*val profileFragment = HomeFragment()
                 val transaction: FragmentTransaction =
                     requireFragmentManager().beginTransaction()
                 transaction.replace(R.id.editProfileLayout, profileFragment)
                 transaction.addToBackStack(null)
                 transaction.setReorderingAllowed(true)
                 transaction.commit()
+*/
+                val intent = Intent(activity, DashboardActivity::class.java)
+                startActivity(intent)
 
                 enableSpinner(false)
             }

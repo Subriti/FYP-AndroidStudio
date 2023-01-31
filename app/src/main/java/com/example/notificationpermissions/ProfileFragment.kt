@@ -71,13 +71,14 @@ class ProfileFragment : Fragment() {
 
         imgButton = view.findViewById<Button>(R.id.editProfile)
         imgButton.setOnClickListener {
+            imgButton.isVisible=false
             val editProfileFragment = EditProfileFragment()
             val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
             transaction.replace(R.id.profile_fragment, editProfileFragment)
-            transaction.addToBackStack("editProfileFragment")
+            //transaction.addToBackStack("editProfileFragment")
+            transaction.addToBackStack(null)
             transaction.setReorderingAllowed(true)
             transaction.commit()
-            imgButton.isVisible=false
         }
 
 

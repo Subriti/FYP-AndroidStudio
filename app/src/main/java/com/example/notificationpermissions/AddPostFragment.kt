@@ -409,13 +409,13 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 ) { createSuccess ->
                                     println("Create Post success: $createSuccess")
                                     if (createSuccess) {
-
                                         //get back to homeFragment
                                         val homeFragment = HomeFragment()
                                         val transaction: FragmentTransaction =
                                             requireFragmentManager().beginTransaction()
                                         transaction.replace(R.id.addPostFragment, homeFragment)
                                         transaction.addToBackStack(null)
+                                        transaction.setReorderingAllowed(true)
                                         transaction.commit()
 
                                         enableSpinner(false)

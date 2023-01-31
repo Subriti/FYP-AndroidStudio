@@ -225,6 +225,10 @@ object AuthService {
             null,
             Response.Listener { response ->
                 println("Update User Response $response")
+                val token=response.getString("token")
+                if (token!="token") {
+                    App.sharedPrefs.authToken=token
+                }
                 complete(true)
             },
             Response.ErrorListener { error ->

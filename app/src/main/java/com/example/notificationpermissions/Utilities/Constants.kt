@@ -27,7 +27,8 @@ const val URL_GET_ALL_POST= "${BASE_URL}post/showPosts"
 const val URL_GET_USER_POSTS= "${BASE_URL}post/showUserPosts/"
 
 const val URL_GET_INTERESTED_USERS_BY_POST= "${BASE_URL}interestedUsers/getUsersByPost/"
-const val URL_ADD_INTERESTED_USERS= "${BASE_URL}addInterestedUsers"
+const val URL_ADD_INTERESTED_USERS= "${BASE_URL}interestedUsers/addInterestedUsers"
+const val URL_DELETE_INTERESTED_USERS= "${BASE_URL}interestedUsers/deleteInterestedUsers"
 
 const val URL_UPDATE_POST= "${BASE_URL}post/updatePost/"
 const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
