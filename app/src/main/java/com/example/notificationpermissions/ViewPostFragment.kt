@@ -38,6 +38,7 @@ class ViewPostFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.view_user_post_item, container, false)
         (activity as DashboardActivity?)!!.currentFragment = this
@@ -194,7 +195,14 @@ class ViewPostFragment : Fragment() {
                 }
             }
         }
+
+        println("Post Owner: "+postDetails.post_by)
+        val post= JSONObject(postDetails.post_by)
+        val postOwner= post.getString("user_name")
+        println("Logged in User: "+App.sharedPrefs.userName)
         val postOptions= view.findViewById<ImageView>(R.id.postOptions2)
+
+        postOptions.isVisible = postOwner== App.sharedPrefs.userName
         postOptions?.setOnClickListener {
             val popupMenu = PopupMenu(context, postOptions)
 

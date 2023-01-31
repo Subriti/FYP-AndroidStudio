@@ -2,7 +2,6 @@ package com.example.notificationpermissions
 
 import android.util.Log
 import com.android.volley.DefaultRetryPolicy
-import com.android.volley.ExecutorDelivery
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -17,7 +16,7 @@ object PostService {
 
     val AllPosts = ArrayList<Post>()
 
-    val DetailedPosts=ArrayList<PostDetails>()
+    val DetailedPosts = ArrayList<PostDetails>()
 
     var InterestedUsers = ArrayList<InterestedUsers>()
     //var InterestedUsers: MutableList<InterestedUsers>()
@@ -103,11 +102,11 @@ object PostService {
         description: String,
         location: String,
         cloth_id: String,
-       /* category:String,
-        itemCategory:String,
-        clothSize: String,
-        clothCondition:String,
-        clothSeason: String,*/
+        /* category:String,
+         itemCategory:String,
+         clothSize: String,
+         clothCondition:String,
+         clothSeason: String,*/
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
@@ -132,17 +131,22 @@ object PostService {
         jsonBody.put("cloth_id", clothId)
 
         val requestBody = jsonBody.toString()
-        println("Update Post: "+requestBody)
+        println("Update Post: " + requestBody)
 
         val updateRequest = object :
-            JsonObjectRequest(Method.PUT, "$URL_UPDATE_POST$postId", null, Response.Listener { response ->
-                println("Update Post Response $response")
-                complete(true)
+            JsonObjectRequest(
+                Method.PUT,
+                "$URL_UPDATE_POST$postId",
+                null,
+                Response.Listener { response ->
+                    println("Update Post Response $response")
+                    complete(true)
 
-            }, Response.ErrorListener { error ->
-                Log.d("ERROR", "Could not update Post: $error")
-                complete(false)
-            }) {
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not update Post: $error")
+                    complete(false)
+                }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -166,13 +170,17 @@ object PostService {
 
     fun deletePost(postId: String, complete: (Boolean) -> Unit) {
         val deletePostRequest =
-            object : StringRequest(Method.DELETE, "$URL_DELETE_POST$postId", Response.Listener { response ->
-                println("Delete Post Response $response")
-                complete(true)
-            }, Response.ErrorListener { error ->
-                Log.d("ERROR", "Could not delete post: $error")
-                complete(false)
-            }) {
+            object : StringRequest(
+                Method.DELETE,
+                "$URL_DELETE_POST$postId",
+                Response.Listener { response ->
+                    println("Delete Post Response $response")
+                    complete(true)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not delete post: $error")
+                    complete(false)
+                }) {
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
                     headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
@@ -183,65 +191,125 @@ object PostService {
     }
 
     fun getUserPosts(userId: String, complete: (Boolean) -> Unit) {
-        if (posts.size > 0) {
+        /*if (posts.size > 0) {
             complete(true)
-        } else {
-            val getPostRequest = object :
-                JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
-                    //this is where we parse the json object
-                        response ->
-                    try {
-                        for (x in 0 until response.length()) {
-                            val post = response.getJSONObject(x)
-                            val postId = post.getString("post_id")
-                            val postBy = post.getString("post_by")
-                            val mediaFile = post.getString("media_file")
-                            val description = post.getString("description")
-                            val createdDatetime = post.getString("created_datetime")
-                            val location = post.getString("location")
-                            val clothId = post.getString("cloth_id")
-                            val donationStatus = post.getString("donation_status")
+        } else {*/
+        posts.clear()
+        val getPostRequest = object :
+            JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
+                //this is where we parse the json object
+                    response ->
+                try {
+                    for (x in 0 until response.length()) {
+                        val post = response.getJSONObject(x)
+                        val postId = post.getString("post_id")
+                        val postBy = post.getString("post_by")
+                        val mediaFile = post.getString("media_file")
+                        val description = post.getString("description")
+                        val createdDatetime = post.getString("created_datetime")
+                        val location = post.getString("location")
+                        val clothId = post.getString("cloth_id")
+                        val donationStatus = post.getString("donation_status")
 
-                            val newPost = Post(
-                                postId,
-                                postBy,
-                                mediaFile,
-                                description,
-                                createdDatetime,
-                                location,
-                                clothId,
-                                donationStatus
-                            )
-                            posts.add(newPost)
-                        }
-                        complete(true)
-                    } catch (e: JSONException) {
-                        Log.d("JSON", "EXC: " + e.localizedMessage)
-                        complete(false)
+                        val newPost = Post(
+                            postId,
+                            postBy,
+                            mediaFile,
+                            description,
+                            createdDatetime,
+                            location,
+                            clothId,
+                            donationStatus
+                        )
+                        posts.add(newPost)
                     }
-                }, Response.ErrorListener {
-                    //this is where we deal with our error
-                        error ->
-                    Log.d("ERROR", "Could not retrieve posts: $error")
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
                     complete(false)
-                }) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
                 }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
-                    return headers
-                }
+            }, Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not retrieve posts: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
             }
-            getPostRequest.retryPolicy = DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            )
-            App.sharedPrefs.requestQueue.add(getPostRequest)
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                return headers
+            }
         }
+        getPostRequest.retryPolicy = DefaultRetryPolicy(
+            30000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(getPostRequest)
+    }
+
+
+    fun getOtherUserPosts(userId: String, complete: (Boolean) -> Unit) {
+        posts.clear()
+        val getPostRequest = object :
+            JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
+                //this is where we parse the json object
+                    response ->
+                try {
+                    for (x in 0 until response.length()) {
+                        val post = response.getJSONObject(x)
+                        val postId = post.getString("post_id")
+                        val postBy = post.getString("post_by")
+                        val mediaFile = post.getString("media_file")
+                        val description = post.getString("description")
+                        val createdDatetime = post.getString("created_datetime")
+                        val location = post.getString("location")
+                        val clothId = post.getString("cloth_id")
+                        val donationStatus = post.getString("donation_status")
+
+                        val newPost = Post(
+                            postId,
+                            postBy,
+                            mediaFile,
+                            description,
+                            createdDatetime,
+                            location,
+                            clothId,
+                            donationStatus
+                        )
+                        posts.add(newPost)
+                    }
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            }, Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not retrieve posts: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                return headers
+            }
+        }
+        getPostRequest.retryPolicy = DefaultRetryPolicy(
+            30000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(getPostRequest)
     }
 
     fun getAllPosts(complete: (Boolean) -> Unit) {
@@ -259,10 +327,10 @@ object PostService {
                             val postBy = post.getString("post_by")
 
                             val userJSONObject = JSONObject(postBy)
-                            val userId= userJSONObject.getString("user_id")
+                            val userId = userJSONObject.getString("user_id")
                             val username = userJSONObject.getString("user_name")
-                            val userEmail= userJSONObject.getString("email")
-                            val phoneNum= userJSONObject.getString("phone_number")
+                            val userEmail = userJSONObject.getString("email")
+                            val phoneNum = userJSONObject.getString("phone_number")
                             val profilePicture = userJSONObject.getString("profile_picture")
 
                             val mediaFile = post.getString("media_file")
@@ -401,8 +469,9 @@ object PostService {
             }
         App.sharedPrefs.requestQueue.add(getClothRequest)
     }
+
     fun updateCloth(
-        cloth_id:String,
+        cloth_id: String,
         clothes_category_id: String,
         item_category_id: String,
         cloth_size: String,
@@ -427,16 +496,21 @@ object PostService {
         jsonBody.put("cloth_season", cloth_season)
 
         val requestBody = jsonBody.toString()
-        println("Update cloth: "+requestBody)
+        println("Update cloth: " + requestBody)
 
         val updateClothRequest = object :
-            JsonObjectRequest(Method.PUT, URL_UPDATE_CLOTH+cloth_id, null, Response.Listener { response ->
-                println("Update Cloth Response " + response)
-                complete(true)
-            }, Response.ErrorListener { error ->
-                Log.d("ERROR", "Could not update cloth: $error")
-                complete(false)
-            }) {
+            JsonObjectRequest(
+                Method.PUT,
+                URL_UPDATE_CLOTH + cloth_id,
+                null,
+                Response.Listener { response ->
+                    println("Update Cloth Response " + response)
+                    complete(true)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not update cloth: $error")
+                    complete(false)
+                }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -641,28 +715,6 @@ object PostService {
                     if (InterestedUsers.isNotEmpty()) {
                         val newInterestedUserList = currentInterestedUsers + InterestedUsers
                         InterestedUsersMapList[postId] = newInterestedUserList
-
-                        /* if (currentInterestedUsers == null) {
-                             InterestedUsersMapList[postId] = list
-                         } else {
-                             currentInterestedUsers.
-                                 .add(list)
-                         }*/
-
-                        /*if (!InterestedUsersMapList.containsKey(postId)) {
-                            InterestedUsersMapList[postId] = InterestedUsers
-                        } else {
-                            InterestedUsersMapList.get(postId)?.addAll(InterestedUsers)
-                        }*/
-
-
-                        //previous value new value le change/replace vairacha
-                        println(postId)
-                        //InterestedUsersMapList.put(postId, InterestedUsers)
-
-                        println(InterestedUsersMapList[postId])
-                        //InterestedUsersMapList[postId] = InterestedUsers
-                        println(InterestedUsersMapList)
                     }
                     complete(true)
                 } catch (e: JSONException) {
@@ -697,37 +749,6 @@ object PostService {
         val deleteInterestedUsersRequest =
             object : StringRequest(Method.DELETE, url, Response.Listener { response ->
                 println("Delete Interested User Response " + response)
-                //remove from arraylist as well
-                //remove from map
-                /*for (i in InterestedUsers) {
-                    if (i.post_id == postId && i.user_id == userId) {
-                        println(InterestedUsers.size)
-                        InterestedUsers.remove(i)
-                        println(InterestedUsers.size)
-                    }
-                }*/
-               /* for (i in InterestedUsersMapList[postId]!!) {
-                    if (i.user_id == userId) {
-                        println(InterestedUsers.size)
-                        //InterestedUsersMapList.remove()
-                        println(InterestedUsers.size)
-                    }
-                }*/
-                // Get the list of InterestedUsers for the given key
-                /*var currentInterestedUsers = InterestedUsersMapList[postId] ?: ArrayList()
-                var newList= arrayListOf<InterestedUsers>()
-
-                for (i in currentInterestedUsers){
-                    println(i)
-                    if (i.user_id!=userId){
-                        newList.add(i)
-                    }
-                    *//*if (i.user_id==userId){
-                        currentInterestedUsers.filterNot { it == i }
-                    }*//*
-                }
-                InterestedUsersMapList[postId]=newList*/
-
                 complete(true)
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not delete interested User: $error")

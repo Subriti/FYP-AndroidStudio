@@ -33,34 +33,38 @@ class UserViewProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
         (activity as DashboardActivity?)!!.currentFragment = this
 
-        val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
-        println(postDetails)
-        println(postDetails.post_by)
+        var postDetails = arguments?.getSerializable(EXTRA_POST) as Post
+        var newPostDetails: PostDetails? = null
+        for (details in PostService.DetailedPosts){
+            if (details.post_by==postDetails.post_by){
+                newPostDetails= details
+            }
+        }
 
-        val userJSONObject = JSONObject(postDetails.post_by)
+       /* val userJSONObject = JSONObject(postDetails.post_by)
         val userId = userJSONObject.getString("user_id")
         val emailadd= userJSONObject.getString("email")
         val phone= userJSONObject.getString("phone_number")
-        val profilePicture = userJSONObject.getString("profile_picture")
+        val profilePicture = userJSONObject.getString("profile_picture")*/
         //user display picture
         imgGallery = view.findViewById(R.id.profile_image)
         context?.let {
-            Glide.with(it).load(profilePicture).into(imgGallery)
+            Glide.with(it).load(newPostDetails?.user_profile).into(imgGallery)
         }
 
         val location = view.findViewById<TextView>(R.id.UserLocation)
         val phoneNumber = view.findViewById<TextView>(R.id.UserPhone)
         val email = view.findViewById<TextView>(R.id.UserEmail)
 
-        email.text = "  ${emailadd}"
-        phoneNumber.text = "  ${phone}"
-        location.text = "  ${postDetails.location}"
+        email.text = "  ${newPostDetails?.user_email}"
+        phoneNumber.text = "  ${newPostDetails?.user_phone}"
+        location.text = "  ${newPostDetails?.location}"
 
-        imgButton = view.findViewById<Button>(R.id.editProfile)
+        imgButton = view.findViewById(R.id.editProfile)
         imgButton.isVisible=false
 
 
-        PostService.getUserPosts(userId) { complete ->
+        PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->
             if (complete) {
                 var imageUrlsList = mutableListOf<String>()
                 for (url in PostService.posts) {

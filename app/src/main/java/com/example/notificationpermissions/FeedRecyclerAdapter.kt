@@ -14,13 +14,13 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import java.text.SimpleDateFormat
 import java.time.Duration
-import java.time.Instant
-import java.time.OffsetDateTime
 import java.util.*
 
 
@@ -130,6 +130,9 @@ class FeedRecyclerAdapter(
                 //transaction.addToBackStack(null)
                 transaction.setReorderingAllowed(true)
                 transaction.commit()
+
+               /* val navController: NavController = Navigation.findNavController(itemView)
+                navController.navigate(R.id.profileFragment)*/
             }
 
             interestedUsers.setOnClickListener {

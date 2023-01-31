@@ -107,12 +107,11 @@ class ProfileFragment : Fragment() {
                     }
                     val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
                     transaction.replace(R.id.profile_fragment, viewPostFragment)
-                    transaction.addToBackStack("profileFragment")
-                    //transaction.addToBackStack(null)
+                    imgButton.isVisible=false
+                    //transaction.addToBackStack("profileFragment")
+                    transaction.addToBackStack(null)
                     transaction.setReorderingAllowed(true)
                     transaction.commit()
-                    imgButton.isVisible=false
-
                 }
                 var spanCount = 2
                 val orientation = resources.configuration.orientation
