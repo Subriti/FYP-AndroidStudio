@@ -1,6 +1,5 @@
 package com.example.notificationpermissions.Utilities
 
-
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
 //const val BASE_URL = "http://192.168.137.26:8080/api/"
@@ -10,6 +9,8 @@ const val BASE_URL = "http://192.168.1.109:8080/api/"
 const val URL_LOGIN= "${BASE_URL}user/loginUser"
 const val URL_CREATE_USER= "${BASE_URL}user/addUsers"
 const val URL_UPDATE_USER= "${BASE_URL}user/updateUsers/"
+const val URL_UPDATE_FCM_TOKEN= "${BASE_URL}user/updateFCMToken/"
+const val URL_GET_FCM_TOKEN= "${BASE_URL}user/getFCMToken"
 
 const val URL_FIND_USER= "${BASE_URL}user/findUser/"
 
@@ -41,3 +42,9 @@ const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
 
 //for viewing user's individual post
 const val EXTRA_POST= "post"
+
+
+//for fcm
+const val FCM_BASE_URL = "https://fcm.googleapis.com"
+const val SERVER_KEY = "AAAAc0zxpnI:APA91bHUgdgzTUJTuPqURBN4kzN9919_PZdfSCqfEweLOKdTAUkg4DxaIEePY0gif13FtWRuk1m4kRDNxmStUgf5K9bWeDnV48GPARgWXsMnrn5oQ-YhFghIb4B3jy3UjSUDS18_ZZBu"
+const val CONTENT_TYPE = "application/json"

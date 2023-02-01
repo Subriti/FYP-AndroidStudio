@@ -8,7 +8,7 @@
     android:background="@color/whitisPurple"
     android:layout_height="match_parent"
 
-    tools:context=".AlertDetails">
+    tools:context=".Activities.AlertDetails">
 
     <TextView
         android:id="@+id/textView8"

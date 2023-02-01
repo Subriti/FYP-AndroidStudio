@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
 
     android:id="@+id/editPost_fragment"
-    tools:context=".EditPostFragment">
+    tools:context=".Fragments.EditPostFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout_addPost"

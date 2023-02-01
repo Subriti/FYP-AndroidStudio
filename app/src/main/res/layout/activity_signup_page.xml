@@ -9,7 +9,7 @@
     android:paddingStart="30dp"
     android:paddingTop="20dp"
     android:paddingEnd="30dp"
-    tools:context=".SignUpPageActivity">
+    tools:context=".Activities.SignUpPageActivity">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_picture"
