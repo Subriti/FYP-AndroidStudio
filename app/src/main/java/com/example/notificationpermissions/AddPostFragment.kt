@@ -15,9 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
-import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
@@ -62,22 +60,11 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        /*val categoryValues = ArrayList<String>()
-        PostService.getCategory { complete ->
-            if (complete) {
-                if (PostService.categories.isNotEmpty()) {
-                    for (categoryName in PostService.categories) {
-                        categoryValues.add(categoryName.category_name)
-                    }
-                }
-            }
-        }*/
-
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_post, container, false)
 
-        postSpinner= view.findViewById(R.id.postSpinner)
-        postSpinner.visibility= View.INVISIBLE
+        postSpinner = view.findViewById(R.id.postSpinner)
+        postSpinner.visibility = View.INVISIBLE
 
         (activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
@@ -103,11 +90,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 val progressDialog = ProgressDialog(context)
                 progressDialog.setTitle("Finding your Current Location")
                 progressDialog.show()
-                /*println("CurrentLocation is " +fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, object : CancellationToken() {
-                    override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
 
-                    override fun isCancellationRequested() = false
-                }))*/
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                     println(location)
                     val geoCoder = Geocoder(requireContext())
@@ -147,14 +130,6 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
 
         val spinnerCategory: Spinner = view.findViewById(R.id.spinnerCategory)
-
-        /* // Create an ArrayAdapter using the string array and a default spinner layout
-         ArrayAdapter(
-             requireContext(),
-             //R.array.clothCategory_array, // esko satta bring database bata ig
-             android.R.layout.simple_spinner_item, categoryValues
-         )*/
-
         ArrayAdapter.createFromResource(
             requireContext(), R.array.clothCategory_array, android.R.layout.simple_spinner_item
         ).also { adapter ->
@@ -167,11 +142,8 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 override fun onItemSelected(
                     parent: AdapterView<*>, view: View, position: Int, id: Long
                 ) {
-                    //val item = parent.getItemAtPosition(position).toString()
                     spinnerCategory.setSelection(position)
                     category = (position + 1).toString()
-                    //category = spinnerCategory.selectedItem as String
-                    //println("Selected category index: $position")
                     println("Selected category: $category")
                 }
 
@@ -184,43 +156,29 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         val spinnerItemCategory: Spinner = view.findViewById(R.id.spinnerItemCategory)
         ArrayAdapter.createFromResource(
             requireContext(), R.array.itemCategory_array, android.R.layout.simple_spinner_item
-        )
-            /*  val itemCategoryValues = ArrayList<String>()
-              PostService.getItemCategory { complete ->
-                  if (complete) {
-                      if (PostService.itemcategory.isNotEmpty()) {
-                          for (categoryName in PostService.itemcategory) {
-                              itemCategoryValues.add(categoryName.category_name)
-                          }
-                      }
-                      // Create an ArrayAdapter using the string array and a default spinner layout
-                      ArrayAdapter(
-                          requireContext(),
-                          //R.array.clothCategory_array, // esko satta bring database bata ig
-                          android.R.layout.simple_spinner_item, itemCategoryValues
-                      )*/.also { adapter ->
-                // Specify the layout to use when the list of choices appears
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                // Apply the adapter to the spinner
-                spinnerItemCategory.adapter = adapter
-                spinnerItemCategory.setSelection(0)
-                spinnerItemCategory.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(
-                            parent: AdapterView<*>, view: View, position: Int, id: Long
-                        ) {
-                            //val item = parent.getItemAtPosition(position).toString()
-                            spinnerItemCategory.setSelection(position)
-                            itemCategory = (position + 6).toString()
-                            //spinnerItemCategory.selectedItem as String
-                            println("Selected item Category: $itemCategory")
-                        }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {
-                            // do nothing
-                        }
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerItemCategory.adapter = adapter
+            spinnerItemCategory.setSelection(0)
+            spinnerItemCategory.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>, view: View, position: Int, id: Long
+                    ) {
+                        //val item = parent.getItemAtPosition(position).toString()
+                        spinnerItemCategory.setSelection(position)
+                        itemCategory = (position + 6).toString()
+                        //spinnerItemCategory.selectedItem as String
+                        println("Selected item Category: $itemCategory")
                     }
-            }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // do nothing
+                    }
+                }
+        }
 
 
         val spinnerClothSize: Spinner = view.findViewById(R.id.spinnerClothSize)
@@ -371,8 +329,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 "images/" + UUID.randomUUID().toString()
             )
 
-            // adding listeners on upload
-            // or failure of image
+            // adding listeners on upload or failure of image
             ref.putFile(filePath)
                 .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
                     // Dismiss dialog
@@ -392,18 +349,14 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         //save the downloadURL to the database
                         println("Final download URL: $downloadURL")
                         PostService.addCloth(
-                            category,
-                            itemCategory,
-                            clothSize,
-                            clothCondition,
-                            clothSeason
+                            category, itemCategory, clothSize, clothCondition, clothSeason
                         ) { createSuccess ->
                             println("Add Cloth success: $createSuccess")
                             if (createSuccess) {
                                 PostService.createPost(
                                     App.sharedPrefs.userID,
                                     downloadURL,
-                                    desc.text.toString()+"\n\n$clothDelivery",
+                                    desc.text.toString() + "\n\n$clothDelivery",
                                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
                                     locationTxt.text.toString(),
                                     PostService.clothId,
@@ -412,19 +365,10 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     println("Create Post success: $createSuccess")
                                     if (createSuccess) {
                                         //get back to homeFragment
+                                        view?.findNavController()
+                                            ?.navigate(R.id.action_addPostFragment_to_homeFragment)
 
-                                      /*  val homeFragment = HomeFragment()
-                                        val transaction: FragmentTransaction =
-                                            requireFragmentManager().beginTransaction()
-                                        transaction.replace(R.id.addPostFragment, homeFragment)
-                                        //transaction.addToBackStack(null)
-                                        //transaction.setReorderingAllowed(true)
-                                        transaction.commit()*/
-
-                                        view?.findNavController()?.navigate(R.id.action_addPostFragment_to_homeFragment)
-
-
-                                    Toast.makeText(
+                                        Toast.makeText(
                                             requireContext(),
                                             "Post was successfully created",
                                             Toast.LENGTH_LONG
@@ -442,8 +386,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     ).show()
                 }.addOnProgressListener { taskSnapshot ->
 
-                    // Progress Listener for loading
-                    // percentage on the dialog box
+                    // Progress Listener for loading percentage on the dialog box
                     val progress =
                         (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
                     progressDialog.setMessage(

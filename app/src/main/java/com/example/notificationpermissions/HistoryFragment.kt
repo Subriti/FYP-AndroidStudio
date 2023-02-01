@@ -1,13 +1,9 @@
 package com.example.notificationpermissions
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.*
-import android.widget.*
-import androidx.annotation.Nullable
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
 class HistoryFragment : Fragment(){
@@ -20,8 +16,6 @@ class HistoryFragment : Fragment(){
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
         (activity as DashboardActivity?)!!.currentFragment = this
-        /* //adding back the appbar
-         (activity as DashboardActivity?)!!.supportActionBar!!.show()*/
         return view
     }
 }

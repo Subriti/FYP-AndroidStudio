@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         println("isLogged in : ${App.sharedPrefs.isLoggedIn}")
         if (App.sharedPrefs.isLoggedIn) {
             // Do something for the logged user
-           // AuthService.findUser(this){}
+            // AuthService.findUser(this){}
             val intent = Intent(this, DashboardActivity::class.java)
             startActivity(intent)
         } else {

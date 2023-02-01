@@ -48,19 +48,9 @@ class DashboardActivity : AppCompatActivity() {
             )
         )
 
-        //changing label to user welcome
-       /* val destination: NavDestination? = findNavController(R.id.nav_fragment).graph.findNode(R.id.homeFragment)
-        destination!!.label = "Welcome, ${App.sharedPrefs.userName}"*/
-
-
         //changing label to user name in profile
-         destination = findNavController(R.id.nav_fragment).graph.findNode(R.id.profileFragment)!!
-         destination!!.label = "${App.sharedPrefs.userName}"
-
-       /* val bundle = Bundle()
-        bundle.putString("label",  "Welcome, ${App.sharedPrefs.userName}")
-        findNavController(R.id.nav_fragment).navigate(R.id.homeFragment, bundle)
-*/
+        destination = findNavController(R.id.nav_fragment).graph.findNode(R.id.profileFragment)!!
+        destination!!.label = "${App.sharedPrefs.userName}"
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         //mapping ig nav view with fragments
@@ -76,12 +66,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        /* val currentFragment= supportFragmentManager.fragments.last()?.childFragmentManager?.fragments?.get(0)
-
-
-             println(AddPostFragment::class.java)*/
-        /*if (currentFragment == AddPostFragment::class || shareVisible == SocFragment::class.java.toString() || shareVisible == DevFragment::class.java.toString()) {
-*/      println(currentFragment)
+       println(currentFragment)
         val item = menu.findItem(R.id.nav_search)
         val item1=menu.findItem(R.id.nav_notifications)
         val item2= menu.findItem(R.id.nav_logout)
@@ -90,12 +75,6 @@ class DashboardActivity : AppCompatActivity() {
             item.isVisible = false
             item1.isVisible=false
             item2.isVisible=false
-
-            /* //removing existing appBar and adding new
-             val frag= AddPostFragment()
-             val toolbar: Toolbar = frag.requireView().findViewById(R.id.addPost_toolbar)
-                 supportActionBar!!.hide()
-                 setSupportActionBar(toolbar)*/
         }
         if (currentFragment::class.java == ProfileFragment::class.java) {
             item.isVisible = false

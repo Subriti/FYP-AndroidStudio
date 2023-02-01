@@ -1,34 +1,19 @@
 package com.example.notificationpermissions
 
-import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import com.google.android.gms.tasks.Task
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.hbb20.CountryCodePicker
 import org.json.JSONObject
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
@@ -49,8 +34,8 @@ class ViewPostFragment : Fragment() {
         val userProfile = view.findViewById<ImageView>(R.id.user_profile)
         val description = view.findViewById<TextView>(R.id.feed_description)
         val markInterested = view.findViewById<ImageView>(R.id.markInterested)
-        val interestedUsers= view.findViewById<TextView>(R.id.countInterested)
-        val createdDatetime= view.findViewById<TextView>(R.id.createdDatetime)
+        val interestedUsers = view.findViewById<TextView>(R.id.countInterested)
+        val createdDatetime = view.findViewById<TextView>(R.id.createdDatetime)
 
         val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
 
@@ -91,7 +76,7 @@ class ViewPostFragment : Fragment() {
         val customDescription =
             "${postDetails.description}\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
 
-        description.text=customDescription
+        description.text = customDescription
 
         val dateString = postDetails.created_datetime
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -107,25 +92,25 @@ class ViewPostFragment : Fragment() {
         val days = duration.toDays()
 
         if (days > 0) {
-            createdDatetime?.text="$days days ago"
+            createdDatetime?.text = "$days days ago"
         } else if (hours > 0) {
-            createdDatetime?.text="$hours hours ago"
+            createdDatetime?.text = "$hours hours ago"
         } else if (minutes > 0) {
-            createdDatetime?.text="$minutes minutes ago"
+            createdDatetime?.text = "$minutes minutes ago"
         } else {
-            createdDatetime?.text="$seconds seconds ago"
+            createdDatetime?.text = "$seconds seconds ago"
         }
 
-        var alreadyLiked= false
-        fun getUsers(post:Post): Boolean{
-            PostService.getInterestedUserByPosts(post.post_id){
-                    getInterestedUsers -> println("Get Interested User success: $getInterestedUsers")
+        var alreadyLiked = false
+        fun getUsers(post: Post): Boolean {
+            PostService.getInterestedUserByPosts(post.post_id) { getInterestedUsers ->
+                println("Get Interested User success: $getInterestedUsers")
                 if (getInterestedUsers) {
                     //on success display users ig
-                    interestedUsers.text= "Interested Users: ${PostService.InterestedUsers.size}"
-                    for(i in PostService.InterestedUsers){
-                        if (i.user_id==App.sharedPrefs.userID){
-                            alreadyLiked= true
+                    interestedUsers.text = "Interested Users: ${PostService.InterestedUsers.size}"
+                    for (i in PostService.InterestedUsers) {
+                        if (i.user_id == App.sharedPrefs.userID) {
+                            alreadyLiked = true
                             markInterested.setImageResource(R.drawable.liked)
                         }
                     }
@@ -158,7 +143,7 @@ class ViewPostFragment : Fragment() {
                 }
             }
         }
-        var isLiked = false;
+        var isLiked = false
 
         markInterested.setOnClickListener {
             if (!isLiked) {
@@ -180,7 +165,6 @@ class ViewPostFragment : Fragment() {
                     }
                 }
             } else {
-                //markInterested.setImageResource(R.drawable.ic_baseline_star_border_24)
                 markInterested.setImageResource(R.drawable.unliked)
                 isLiked = false
                 //else check if the photo is liked, if yes dislike it
@@ -198,13 +182,13 @@ class ViewPostFragment : Fragment() {
         }
 
         //hiding and displaying the edit menu
-        println("Post Owner: "+postDetails.post_by)
-        val post= JSONObject(postDetails.post_by)
-        val postOwner= post.getString("user_name")
-        println("Logged in User: "+App.sharedPrefs.userName)
-        val postOptions= view.findViewById<ImageView>(R.id.postOptions2)
+        println("Post Owner: " + postDetails.post_by)
+        val post = JSONObject(postDetails.post_by)
+        val postOwner = post.getString("user_name")
+        println("Logged in User: " + App.sharedPrefs.userName)
+        val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
 
-        postOptions.isVisible = postOwner== App.sharedPrefs.userName
+        postOptions.isVisible = postOwner == App.sharedPrefs.userName
         postOptions?.setOnClickListener {
             val popupMenu = PopupMenu(context, postOptions)
 
@@ -214,23 +198,14 @@ class ViewPostFragment : Fragment() {
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 println(menuItem.title)
                 if (menuItem.title?.equals("Edit Post") == true) {
-                    /*val editPostFragment = EditPostFragment().apply {
-                        arguments=Bundle().apply { putSerializable(EXTRA_POST,postDetails) }
-                    }
-                    val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
-                    transaction.replace(R.id.profile_fragment, editPostFragment)
-                    transaction.addToBackStack("profileFragment")
-                    //transaction.addToBackStack(null)
-                    transaction.setReorderingAllowed(true)
-                    transaction.commit()*/
-
-                    view.findNavController().navigate(R.id.action_viewPostFragment_to_editPostFragment, Bundle().apply { putSerializable(EXTRA_POST,postDetails) })}
-
-
-                if (menuItem.title=="Mark as Donated"){
+                    view.findNavController().navigate(
+                        R.id.action_viewPostFragment_to_editPostFragment,
+                        Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+                }
+                if (menuItem.title == "Mark as Donated") {
 
                 }
-                if (menuItem.title=="Delete Post"){
+                if (menuItem.title == "Delete Post") {
                     val builder = AlertDialog.Builder(context)
                     builder.setTitle("Confirm")
                     builder.setMessage("Are you sure you want to delete this post?")
@@ -246,18 +221,14 @@ class ViewPostFragment : Fragment() {
                                 println(PostService.InterestedUsersMapList)
                                 println(PostService.InterestedUsersMapList[postDetails.post_id])
                                 PostService.InterestedUsersMapList.remove(postDetails.post_id)
-                                Toast.makeText(context, "Post was deleted successfully", Toast.LENGTH_SHORT)
-                                    .show()
-
-                               /* val profileFragment = ProfileFragment()
-                                val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
-                                transaction.replace(R.id.profile_fragment, profileFragment)
-                                transaction.addToBackStack("profileFragment")
-                                //transaction.addToBackStack(null)
-                                transaction.setReorderingAllowed(true)
-                                transaction.commit()*/
-
-                                view.findNavController().navigate(R.id.action_viewPostFragment_to_profileFragment)}
+                                Toast.makeText(
+                                    context,
+                                    "Post was deleted successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                view.findNavController()
+                                    .navigate(R.id.action_viewPostFragment_to_profileFragment)
+                            }
 
                         }
                     }

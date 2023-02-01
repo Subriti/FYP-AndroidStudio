@@ -92,5 +92,9 @@
         <action
             android:id="@+id/action_userViewProfileFragment2_to_viewPostFragment"
             app:destination="@id/viewPostFragment" />
+        <action
+            android:id="@+id/action_userViewProfileFragment2_to_chatFragment"
+            app:destination="@id/chatFragment"
+            app:popUpTo="@id/homeFragment" />
     </fragment>
 </navigation>

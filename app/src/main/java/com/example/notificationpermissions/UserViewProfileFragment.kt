@@ -1,7 +1,5 @@
 package com.example.notificationpermissions
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,15 +8,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import org.json.JSONObject
 
 
 class UserViewProfileFragment : Fragment() {
@@ -36,17 +31,12 @@ class UserViewProfileFragment : Fragment() {
 
         var postDetails = arguments?.getSerializable(EXTRA_POST) as Post
         var newPostDetails: PostDetails? = null
-        for (details in PostService.DetailedPosts){
-            if (details.post_by==postDetails.post_by){
-                newPostDetails= details
+        for (details in PostService.DetailedPosts) {
+            if (details.post_by == postDetails.post_by) {
+                newPostDetails = details
             }
         }
 
-       /* val userJSONObject = JSONObject(postDetails.post_by)
-        val userId = userJSONObject.getString("user_id")
-        val emailadd= userJSONObject.getString("email")
-        val phone= userJSONObject.getString("phone_number")
-        val profilePicture = userJSONObject.getString("profile_picture")*/
         //user display picture
         imgGallery = view.findViewById(R.id.profile_image)
         context?.let {
@@ -62,8 +52,10 @@ class UserViewProfileFragment : Fragment() {
         location.text = "  ${newPostDetails?.location}"
 
         imgButton = view.findViewById(R.id.editProfile)
-        imgButton.isVisible=false
-
+        imgButton.text = "Message"
+        imgButton.setOnClickListener {
+            view.findNavController().navigate(R.id.action_userViewProfileFragment2_to_chatFragment)
+        }
 
         PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->
             if (complete) {
@@ -72,34 +64,26 @@ class UserViewProfileFragment : Fragment() {
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter = PostRecycleAdapter(requireContext(), imageUrlsList, requireFragmentManager()) {post ->
+                adapter = PostRecycleAdapter(
+                    requireContext(),
+                    imageUrlsList) { post ->
                     //do something on click; open full post details
-
-                  /*  val viewPostFragment = ViewPostFragment().apply {
-                        arguments=Bundle().apply { putSerializable(EXTRA_POST,post) }
-                    }
-                    val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
-                    transaction.replace(R.id.profile_fragment, viewPostFragment)
-                    transaction.addToBackStack("profileFragment")
-                    //transaction.addToBackStack(null)
-                    transaction.setReorderingAllowed(true)
-                    transaction.commit()
-                    imgButton.isVisible=false*/
-
-                    view.findNavController().navigate(R.id.action_userViewProfileFragment2_to_viewPostFragment, Bundle().apply { putSerializable(EXTRA_POST,post) })}
-
-            }
-                var spanCount = 2
-                val orientation = resources.configuration.orientation
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    spanCount = 3
+                    view.findNavController().navigate(
+                        R.id.action_userViewProfileFragment2_to_viewPostFragment,
+                        Bundle().apply { putSerializable(EXTRA_POST, post) })
                 }
-
-                val layoutManager = GridLayoutManager(context, spanCount)
-                val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                postRV.layoutManager = layoutManager
-                postRV.adapter = adapter
             }
+            var spanCount = 2
+            val orientation = resources.configuration.orientation
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                spanCount = 3
+            }
+
+            val layoutManager = GridLayoutManager(context, spanCount)
+            val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+            postRV.layoutManager = layoutManager
+            postRV.adapter = adapter
+        }
         return view
     }
 }

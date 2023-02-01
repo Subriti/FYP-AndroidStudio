@@ -14,10 +14,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.tasks.Task
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -142,19 +140,8 @@ class EditProfileFragment : Fragment() {
 
         changePassword.setOnClickListener {
             //open fragment to change password
-
-           /* val changePasswordFragment = ChangePasswordFragment()
-            val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
-            transaction.replace(R.id.editProfileLayout, changePasswordFragment)
-            transaction.addToBackStack("changePasswordFragment")
-            transaction.commit()
-            saveChanges.isVisible = false
-            imgButton.isVisible = false
-            */
-
             view.findNavController().navigate(R.id.action_editProfileFragment_to_changePasswordFragment2)
         }
-
         return view
     }
 
@@ -184,27 +171,8 @@ class EditProfileFragment : Fragment() {
                 /*DashboardActivity().destination!!.label =
                     "${App.sharedPrefs.userName}"*/
 
-               /* val profileFrag = ProfileFragment()
-                val profile: FragmentTransaction =
-                    requireFragmentManager().beginTransaction()
-                profile.replace(R.id.editProfileLayout, profileFrag)
-                profile.addToBackStack(null)
-                profile.commit()*//*
-
-                HomeFragment().adapter.notifyDataSetChanged()
-                ProfileFragment().adapter.notifyDataSetChanged()*/
-
-                /*val profileFragment = HomeFragment()
-                val transaction: FragmentTransaction =
-                    requireFragmentManager().beginTransaction()
-                transaction.replace(R.id.editProfileLayout, profileFragment)
-                transaction.addToBackStack(null)
-                transaction.setReorderingAllowed(true)
-                transaction.commit()
-*/
                 val intent = Intent(activity, DashboardActivity::class.java)
                 startActivity(intent)
-
                 enableSpinner(false)
             }
         }
@@ -221,19 +189,6 @@ class EditProfileFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        /*if (resultCode == RESULT_OK) {
-
-            if (requestCode == galleryRequestCode) {
-                //for gallery
-                if (data != null) {
-                    imgGallery.setImageURI(data.data)
-                    filePath=data.data
-                    println(filePath)
-                }
-            }
-        }*/
-
         if (resultCode == RESULT_OK) {
             if (requestCode == galleryRequestCode) {
                 //for gallery

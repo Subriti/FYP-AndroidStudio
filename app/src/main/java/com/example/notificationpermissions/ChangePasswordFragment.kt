@@ -11,19 +11,15 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
-import com.example.notificationpermissions.Utilities.EXTRA_POST
 
 
 class ChangePasswordFragment : Fragment() {
-
     private lateinit var progressBar: ProgressBar
     private lateinit var saveChanges: Button
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_change_password, container, false)
@@ -43,15 +39,14 @@ class ChangePasswordFragment : Fragment() {
 
 
         saveChanges.setOnClickListener {
-            if(currentPassword.text.toString() != "" && password.text.toString() != "" && currentPassword.text.toString() == password.text.toString()){
+            if (currentPassword.text.toString() != "" && password.text.toString() != "" && currentPassword.text.toString() == password.text.toString()) {
                 Toast.makeText(
                     requireContext(),
                     "Current Password and New Password cannot be the same",
                     Toast.LENGTH_LONG
                 ).show()
                 enableSpinner(false)
-            }
-            else if (currentPassword.text.toString() != "" && password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
+            } else if (currentPassword.text.toString() != "" && password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
                 passwordIndicator.visibility = View.VISIBLE
                 passwordIndicator.text = "Password Matched"
                 passwordIndicator.setTextColor(getColor(requireContext(), R.color.darkgreen))
@@ -59,28 +54,17 @@ class ChangePasswordFragment : Fragment() {
                 enableSpinner(true)
                 //save updated details to the database
                 AuthService.changePassword(
-                    currentPassword.text.toString(),
-                    password.text.toString()
+                    currentPassword.text.toString(), password.text.toString()
                 ) { changeSuccess ->
                     println("Change Password success: $changeSuccess")
                     if (changeSuccess) {
-                        /*val profileFragment = ProfileFragment()
-                        val transaction: FragmentTransaction =
-                            requireFragmentManager().beginTransaction()
-                        transaction.replace(R.id.profile_fragment, profileFragment)
-                        transaction.addToBackStack(null)
-                        transaction.commit()*/
-
-                        view.findNavController().navigate(R.id.action_changePasswordFragment2_to_profileFragment)
-
-
-                    enableSpinner(false)
+                        view.findNavController()
+                            .navigate(R.id.action_changePasswordFragment2_to_profileFragment)
+                        enableSpinner(false)
                         Toast.makeText(
-                            requireContext(),
-                            "Password was changed successfully",
-                            Toast.LENGTH_LONG
+                            requireContext(), "Password was changed successfully", Toast.LENGTH_LONG
                         ).show()
-                        saveChanges.isVisible=false
+                        //saveChanges.isVisible = false
 
                     } else {
                         Toast.makeText(
@@ -95,12 +79,9 @@ class ChangePasswordFragment : Fragment() {
                 passwordIndicator.visibility = View.VISIBLE
                 passwordIndicator.text = "Password didn't match"
                 passwordIndicator.setTextColor(getColor(requireContext(), R.color.falured))
-            }
-            else{
+            } else {
                 Toast.makeText(
-                    requireContext(),
-                    "Make sure all the fields are filled in.",
-                    Toast.LENGTH_LONG
+                    requireContext(), "Make sure all the fields are filled in.", Toast.LENGTH_LONG
                 ).show()
                 enableSpinner(false)
             }

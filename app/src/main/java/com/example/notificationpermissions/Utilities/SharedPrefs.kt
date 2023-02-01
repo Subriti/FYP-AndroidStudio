@@ -2,9 +2,7 @@ package com.example.notificationpermissions.Utilities
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import com.android.volley.toolbox.Volley
-
 
 class SharedPrefs(context: Context) {
 

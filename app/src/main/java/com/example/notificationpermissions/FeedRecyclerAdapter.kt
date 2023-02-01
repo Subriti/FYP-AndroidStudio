@@ -12,10 +12,6 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -28,7 +24,6 @@ import java.util.*
 class FeedRecyclerAdapter(
     private val context: Context,
     private val imageUrls: List<String>,
-    private val fragmentManager: FragmentManager,
     val itemClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<FeedRecyclerAdapter.ViewHolder>() {
@@ -92,15 +87,7 @@ class FeedRecyclerAdapter(
             val dateString = post.created_datetime
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
             val date = format.parse(dateString)
-           // val millis = date.time
             val currentDate = Date() // current date and time
-
-            //val date2= OffsetDateTime.now()
-            //val durations= Duration.between(date,date2)
-
-            //val now = Instant.now()
-            //val pastInstant = now.minus(millis, ChronoUnit.DAYS)
-            //val duration = Duration.between(pastInstant, now)
 
             val diffInMillis: Long = currentDate.time - date.time
             val duration = Duration.ofMillis(diffInMillis)
@@ -121,28 +108,12 @@ class FeedRecyclerAdapter(
             }
 
             userProfile.setOnClickListener {
-                    //open user profile with posts
-                /*val profileFragment = UserViewProfileFragment().apply {
-                    arguments= Bundle().apply { putSerializable(EXTRA_POST,post) }
-                }
-                val transaction: FragmentTransaction = fragmentManager.beginTransaction()
-                transaction.replace(R.id.home_fragment, profileFragment)
-                transaction.addToBackStack("profileFragment")
-                //transaction.addToBackStack(null)
-                transaction.setReorderingAllowed(true)
-                transaction.commit()*/
-
+                //open user profile with posts
                 itemView.findNavController().navigate(R.id.action_homeFragment_to_userViewProfileFragment2, Bundle().apply { putSerializable(EXTRA_POST,post) })}
-
-               /* val navController: NavController = Navigation.findNavController(itemView)
-                navController.navigate(R.id.profileFragment)*/
-
 
             interestedUsers.setOnClickListener {
                 val items = arrayListOf<String>()
                 if (PostService.InterestedUsersMapList.containsKey(post.post_id)) {
-                    /*println(PostService.InterestedUsersMapList)
-                    println(PostService.InterestedUsersMapList[post.post_id])*/
 
                     for (i in PostService.InterestedUsersMapList[post.post_id]!!) {
                         items.add(i.user_name)
@@ -165,11 +136,8 @@ class FeedRecyclerAdapter(
                 }
             }
 
-            //getUsers(post)
 
             var isLiked = false;
-
-            //var isLiked = false;
             alreadyLiked = getUsers(post);
             if (alreadyLiked){
                 isLiked=true
@@ -177,7 +145,6 @@ class FeedRecyclerAdapter(
 
             markInterested.setOnClickListener {
                 if (!isLiked) {
-                    //markInterested.setImageResource(R.drawable.ic_baseline_star_24)
                     markInterested.setImageResource(R.drawable.liked)
                     isLiked = true
 
@@ -195,7 +162,6 @@ class FeedRecyclerAdapter(
                         }
                     }
                 } else {
-                    //markInterested.setImageResource(R.drawable.ic_baseline_star_border_24)
                     markInterested.setImageResource(R.drawable.unliked)
                     isLiked = false
                     //else check if the photo is liked, if yes dislike it
