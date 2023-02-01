@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -73,7 +74,8 @@ class UserViewProfileFragment : Fragment() {
 
                 adapter = PostRecycleAdapter(requireContext(), imageUrlsList, requireFragmentManager()) {post ->
                     //do something on click; open full post details
-                    val viewPostFragment = ViewPostFragment().apply {
+
+                  /*  val viewPostFragment = ViewPostFragment().apply {
                         arguments=Bundle().apply { putSerializable(EXTRA_POST,post) }
                     }
                     val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
@@ -82,8 +84,11 @@ class UserViewProfileFragment : Fragment() {
                     //transaction.addToBackStack(null)
                     transaction.setReorderingAllowed(true)
                     transaction.commit()
-                    imgButton.isVisible=false
-                }
+                    imgButton.isVisible=false*/
+
+                    view.findNavController().navigate(R.id.action_userViewProfileFragment2_to_viewPostFragment, Bundle().apply { putSerializable(EXTRA_POST,post) })}
+
+            }
                 var spanCount = 2
                 val orientation = resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -95,7 +100,6 @@ class UserViewProfileFragment : Fragment() {
                 postRV.layoutManager = layoutManager
                 postRV.adapter = adapter
             }
-        }
         return view
     }
 }

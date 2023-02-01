@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -73,14 +74,16 @@ class ProfileFragment : Fragment() {
         imgButton = view.findViewById<Button>(R.id.editProfile)
         imgButton.setOnClickListener {
             imgButton.isVisible=false
-            val editProfileFragment = EditProfileFragment()
+           /* val editProfileFragment = EditProfileFragment()
             val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
             transaction.replace(R.id.profile_fragment, editProfileFragment)
             //transaction.addToBackStack("editProfileFragment")
             transaction.addToBackStack(null)
             transaction.setReorderingAllowed(true)
-            transaction.commit()
-        }
+            transaction.commit()*/
+
+            view.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)}
+
 
 
         //logout is fixed in navBar
@@ -102,7 +105,8 @@ class ProfileFragment : Fragment() {
 
                 adapter = PostRecycleAdapter(requireContext(), imageUrlsList, requireFragmentManager()) {post ->
                     //do something on click; open full post details
-                    val viewPostFragment = ViewPostFragment().apply {
+
+                   /* val viewPostFragment = ViewPostFragment().apply {
                         arguments=Bundle().apply { putSerializable(EXTRA_POST,post) }
                     }
                     val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
@@ -111,8 +115,12 @@ class ProfileFragment : Fragment() {
                     //transaction.addToBackStack("profileFragment")
                     transaction.addToBackStack(null)
                     transaction.setReorderingAllowed(true)
-                    transaction.commit()
-                }
+                    transaction.commit()*/
+
+
+                    view.findNavController().navigate(R.id.action_profileFragment_to_viewPostFragment, Bundle().apply { putSerializable(EXTRA_POST,post) })}
+
+            }
                 var spanCount = 2
                 val orientation = resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -124,7 +132,6 @@ class ProfileFragment : Fragment() {
                 postRV.layoutManager = layoutManager
                 postRV.adapter = adapter
             }
-        }
         return view
     }
 

@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 
 
 class ChangePasswordFragment : Fragment() {
@@ -62,13 +64,17 @@ class ChangePasswordFragment : Fragment() {
                 ) { changeSuccess ->
                     println("Change Password success: $changeSuccess")
                     if (changeSuccess) {
-                        val profileFragment = ProfileFragment()
+                        /*val profileFragment = ProfileFragment()
                         val transaction: FragmentTransaction =
                             requireFragmentManager().beginTransaction()
                         transaction.replace(R.id.profile_fragment, profileFragment)
                         transaction.addToBackStack(null)
-                        transaction.commit()
-                        enableSpinner(false)
+                        transaction.commit()*/
+
+                        view.findNavController().navigate(R.id.action_changePasswordFragment2_to_profileFragment)
+
+
+                    enableSpinner(false)
                         Toast.makeText(
                             requireContext(),
                             "Password was changed successfully",

@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
@@ -121,7 +122,7 @@ class FeedRecyclerAdapter(
 
             userProfile.setOnClickListener {
                     //open user profile with posts
-                val profileFragment = UserViewProfileFragment().apply {
+                /*val profileFragment = UserViewProfileFragment().apply {
                     arguments= Bundle().apply { putSerializable(EXTRA_POST,post) }
                 }
                 val transaction: FragmentTransaction = fragmentManager.beginTransaction()
@@ -129,11 +130,13 @@ class FeedRecyclerAdapter(
                 transaction.addToBackStack("profileFragment")
                 //transaction.addToBackStack(null)
                 transaction.setReorderingAllowed(true)
-                transaction.commit()
+                transaction.commit()*/
+
+                itemView.findNavController().navigate(R.id.action_homeFragment_to_userViewProfileFragment2, Bundle().apply { putSerializable(EXTRA_POST,post) })}
 
                /* val navController: NavController = Navigation.findNavController(itemView)
                 navController.navigate(R.id.profileFragment)*/
-            }
+
 
             interestedUsers.setOnClickListener {
                 val items = arrayListOf<String>()

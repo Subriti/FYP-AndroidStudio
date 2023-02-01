@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -141,14 +142,20 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         println("Update Post Response $response")
                         if (response) {
                             //get back to viewPostFragment
-                            val viewFragment = ViewPostFragment()
+
+                          /*  val viewFragment = ViewPostFragment()
                             val transaction: FragmentTransaction =
                                 requireFragmentManager().beginTransaction()
                             transaction.replace(R.id.addPostFragment, viewFragment)
                             //transaction.addToBackStack(null)
                             //transaction.setReorderingAllowed(true)
-                            transaction.commit()
-                            Toast.makeText(
+                            transaction.commit()*/
+
+
+                            view.findNavController().navigate(R.id.action_editPostFragment_to_viewPostFragment)
+
+
+                        Toast.makeText(
                                 requireContext(),
                                 "Post was successfully updated",
                                 Toast.LENGTH_LONG

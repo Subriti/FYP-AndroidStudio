@@ -20,6 +20,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.tasks.Task
@@ -196,6 +197,7 @@ class ViewPostFragment : Fragment() {
             }
         }
 
+        //hiding and displaying the edit menu
         println("Post Owner: "+postDetails.post_by)
         val post= JSONObject(postDetails.post_by)
         val postOwner= post.getString("user_name")
@@ -212,7 +214,7 @@ class ViewPostFragment : Fragment() {
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 println(menuItem.title)
                 if (menuItem.title?.equals("Edit Post") == true) {
-                    val editPostFragment = EditPostFragment().apply {
+                    /*val editPostFragment = EditPostFragment().apply {
                         arguments=Bundle().apply { putSerializable(EXTRA_POST,postDetails) }
                     }
                     val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
@@ -220,8 +222,10 @@ class ViewPostFragment : Fragment() {
                     transaction.addToBackStack("profileFragment")
                     //transaction.addToBackStack(null)
                     transaction.setReorderingAllowed(true)
-                    transaction.commit()
-                }
+                    transaction.commit()*/
+
+                    view.findNavController().navigate(R.id.action_viewPostFragment_to_editPostFragment, Bundle().apply { putSerializable(EXTRA_POST,postDetails) })}
+
 
                 if (menuItem.title=="Mark as Donated"){
 
@@ -244,14 +248,17 @@ class ViewPostFragment : Fragment() {
                                 PostService.InterestedUsersMapList.remove(postDetails.post_id)
                                 Toast.makeText(context, "Post was deleted successfully", Toast.LENGTH_SHORT)
                                     .show()
-                                val profileFragment = ProfileFragment()
+
+                               /* val profileFragment = ProfileFragment()
                                 val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
                                 transaction.replace(R.id.profile_fragment, profileFragment)
                                 transaction.addToBackStack("profileFragment")
                                 //transaction.addToBackStack(null)
                                 transaction.setReorderingAllowed(true)
-                                transaction.commit()
-                            }
+                                transaction.commit()*/
+
+                                view.findNavController().navigate(R.id.action_viewPostFragment_to_profileFragment)}
+
                         }
                     }
                     builder.setNegativeButton("No") { dialog, which ->

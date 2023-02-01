@@ -16,6 +16,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
@@ -410,14 +412,19 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     println("Create Post success: $createSuccess")
                                     if (createSuccess) {
                                         //get back to homeFragment
-                                        val homeFragment = HomeFragment()
+
+                                      /*  val homeFragment = HomeFragment()
                                         val transaction: FragmentTransaction =
                                             requireFragmentManager().beginTransaction()
                                         transaction.replace(R.id.addPostFragment, homeFragment)
                                         //transaction.addToBackStack(null)
                                         //transaction.setReorderingAllowed(true)
-                                        transaction.commit()
-                                        Toast.makeText(
+                                        transaction.commit()*/
+
+                                        view?.findNavController()?.navigate(R.id.action_addPostFragment_to_homeFragment)
+
+
+                                    Toast.makeText(
                                             requireContext(),
                                             "Post was successfully created",
                                             Toast.LENGTH_LONG

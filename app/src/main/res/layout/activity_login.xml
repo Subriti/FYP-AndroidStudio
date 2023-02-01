@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/whitisPurple"
     android:padding="30dp"
-    tools:context=".MainActivity">
+    tools:context=".LoginActivity"
+    android:id="@+id/login_activity">
 
     <TextView
         android:id="@+id/loginHeading"

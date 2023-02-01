@@ -15,7 +15,9 @@ import android.widget.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.gms.tasks.Task
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -140,13 +142,17 @@ class EditProfileFragment : Fragment() {
 
         changePassword.setOnClickListener {
             //open fragment to change password
-            val changePasswordFragment = ChangePasswordFragment()
+
+           /* val changePasswordFragment = ChangePasswordFragment()
             val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
             transaction.replace(R.id.editProfileLayout, changePasswordFragment)
             transaction.addToBackStack("changePasswordFragment")
             transaction.commit()
             saveChanges.isVisible = false
             imgButton.isVisible = false
+            */
+
+            view.findNavController().navigate(R.id.action_editProfileFragment_to_changePasswordFragment2)
         }
 
         return view
