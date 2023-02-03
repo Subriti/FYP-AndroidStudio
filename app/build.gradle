@@ -110,5 +110,15 @@ dependencies {
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.6.2'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+
+
+    //socket for chat: does not work
+    implementation 'io.socket:socket.io-client:1.0.0'
+
+
+    //worked in other projects
+    implementation 'tech.gusavila92:java-android-websocket-client:1.2.2'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
 }
 apply plugin: 'com.google.gms.google-services'

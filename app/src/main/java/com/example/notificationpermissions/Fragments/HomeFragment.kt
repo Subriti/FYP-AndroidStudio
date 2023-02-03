@@ -18,7 +18,6 @@ import com.example.notificationpermissions.Utilities.App
 class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     lateinit var adapter: FeedRecyclerAdapter
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,7 +29,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
         welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"
 
-        PostService.getAllPosts() { complete ->
+        PostService.getAllPosts { complete ->
             if (complete) {
                 var imageUrlsList = mutableListOf<String>()
                 for (url in PostService.AllPosts) {
@@ -47,22 +46,8 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 postRV.adapter = adapter
             }
         }
-
         return view
     }
-
-
-
-
-
-    /* override fun onPrepareOptionsMenu(menu: Menu) {
-         *//*menu.clear()*//*
-        val item: MenuItem = menu.findItem(R.id.nav_search)
-        val item1: MenuItem = menu.findItem(R.id.nav_notifications)
-        if (item != null) item.isVisible = true
-        if (item1 != null) item1.isVisible = true
-    }*/
-
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
         val item= parent?.selectedItem
     }

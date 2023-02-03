@@ -25,7 +25,6 @@ import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +34,8 @@ import java.util.*
 
 
 //for sending notification
-const val TOPIC="/topics/interestedUser"
+const val TOPIC = "/topics/interestedUser"
+
 class FeedRecyclerAdapter(
     private val context: Context,
     private val imageUrls: List<String>,
@@ -70,20 +70,20 @@ class FeedRecyclerAdapter(
         private val userProfile = itemView.findViewById<ImageView>(R.id.user_profile)
         private val description = itemView.findViewById<TextView>(R.id.feed_description)
         private val markInterested = itemView.findViewById<ImageView>(R.id.markInterested)
-        private val interestedUsers= itemView.findViewById<TextView>(R.id.countInterested)
-        private val createdDatetime= itemView.findViewById<TextView>(R.id.createdDatetime)
+        private val interestedUsers = itemView.findViewById<TextView>(R.id.countInterested)
+        private val createdDatetime = itemView.findViewById<TextView>(R.id.createdDatetime)
 
 
-        var alreadyLiked= false
-        private fun getUsers(post: Post): Boolean{
-            PostService.getInterestedUserByPosts(post.post_id){
-                    getInterestedUsers -> println("Get Interested User success: $getInterestedUsers")
+        var alreadyLiked = false
+        private fun getUsers(post: Post): Boolean {
+            PostService.getInterestedUserByPosts(post.post_id) { getInterestedUsers ->
+                println("Get Interested User success: $getInterestedUsers")
                 if (getInterestedUsers) {
                     //on success display users ig
-                    interestedUsers.text= "Interested Users: ${PostService.InterestedUsers.size}"
-                    for(i in PostService.InterestedUsers){
-                        if (i.user_id== App.sharedPrefs.userID){
-                            alreadyLiked= true
+                    interestedUsers.text = "Interested Users: ${PostService.InterestedUsers.size}"
+                    for (i in PostService.InterestedUsers) {
+                        if (i.user_id == App.sharedPrefs.userID) {
+                            alreadyLiked = true
                             markInterested.setImageResource(R.drawable.liked)
                         }
                     }
@@ -113,18 +113,21 @@ class FeedRecyclerAdapter(
             val days = duration.toDays()
 
             if (days > 0) {
-                createdDatetime?.text="$days days ago"
+                createdDatetime?.text = "$days days ago"
             } else if (hours > 0) {
-                createdDatetime?.text="$hours hours ago"
+                createdDatetime?.text = "$hours hours ago"
             } else if (minutes > 0) {
-                createdDatetime?.text="$minutes minutes ago"
+                createdDatetime?.text = "$minutes minutes ago"
             } else {
-                createdDatetime?.text="$seconds seconds ago"
+                createdDatetime?.text = "$seconds seconds ago"
             }
 
             userProfile.setOnClickListener {
                 //open user profile with posts
-                itemView.findNavController().navigate(R.id.action_homeFragment_to_userViewProfileFragment2, Bundle().apply { putSerializable(EXTRA_POST,post) })}
+                itemView.findNavController().navigate(
+                    R.id.action_homeFragment_to_userViewProfileFragment2,
+                    Bundle().apply { putSerializable(EXTRA_POST, post) })
+            }
 
             interestedUsers.setOnClickListener {
                 val items = arrayListOf<String>()
@@ -152,10 +155,10 @@ class FeedRecyclerAdapter(
             }
 
 
-            var isLiked = false;
-            alreadyLiked = getUsers(post);
-            if (alreadyLiked){
-                isLiked=true
+            var isLiked = false
+            alreadyLiked = getUsers(post)
+            if (alreadyLiked) {
+                isLiked = true
             }
 
             markInterested.setOnClickListener {
@@ -175,27 +178,38 @@ class FeedRecyclerAdapter(
                                 getUsers(post)
 
                                 //send Notification to the owner when liked by someone
-                                val title= "Your post was liked by someone"
-                                val message= "${App.sharedPrefs.userName} was interested on your post"
+                                val title = "Your post was liked by someone"
+                                val message =
+                                    "${App.sharedPrefs.userName} was interested on your post"
 
-                                AuthService.getFCMToken(post.post_by){
-                                    response-> println("Get FCM Token success: $response")
+                                AuthService.getFCMToken(post.post_by) { response ->
+                                    println("Get FCM Token success: $response")
 
                                     //to specific post owners; TOPIC ko satta post.postowner ko token: get from database
                                     println("Recipient Token during notification sending is:${AuthService.recipientToken}")
-                                    PushNotification(NotificationData(title,message),AuthService.recipientToken)
+                                    PushNotification(
+                                        NotificationData(title, message),
+                                        AuthService.recipientToken
+                                    )
                                         .also { sendNotification(it) }
+
+                                    //for sending to multiple recipients
+                                    /*val recipientTokens = listOf("token1", "token2", "token3")
+                                    for (token in recipientTokens) {
+                                        PushNotification(NotificationData(title, message), token)
+                                            .also { sendNotification(it) }
+                                    }*/
                                 }
                                 //to all people subscribed to the topic; like general announcements
-                               /* PushNotification(NotificationData(title,message), TOPIC)
-                                    .also { sendNotification(it) }*/
+                                /* PushNotification(NotificationData(title,message), TOPIC)
+                                     .also { sendNotification(it) }*/
                             }
                         }
                     }
                 } else {
                     markInterested.setImageResource(R.drawable.unliked)
                     isLiked = false
-                    alreadyLiked=false
+                    alreadyLiked = false
                     //else check if the photo is liked, if yes dislike it
                     PostService.deleteInterestedUserByPosts(
                         post.post_id,
@@ -214,20 +228,21 @@ class FeedRecyclerAdapter(
         }
     }
 
-    val TAG="InterestedUser"
-    private fun sendNotification(notification: PushNotification)= CoroutineScope(Dispatchers.IO).launch {
-        try{
-            val response= RetrofitInstance.api.postNotification(notification)
-            if (response.isSuccessful){
-                println("Notification successfully sent")
-                println(response.message().toString())
-            }else{
-                println("Notification could not be sent")
-                Log.e(TAG,response.errorBody().toString())
+    val TAG = "InterestedUser"
+    private fun sendNotification(notification: PushNotification) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitInstance.api.postNotification(notification)
+                if (response.isSuccessful) {
+                    println("Notification successfully sent")
+                    println(response.message().toString())
+                } else {
+                    println("Notification could not be sent")
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
             }
-        }catch (e:Exception){
-            Log.e(TAG, e.toString())
         }
-    }
 }
 

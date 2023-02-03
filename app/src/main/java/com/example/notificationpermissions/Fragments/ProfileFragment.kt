@@ -75,17 +75,17 @@ class ProfileFragment : Fragment() {
                             R.id.action_profileFragment_to_viewPostFragment,
                             Bundle().apply { putSerializable(EXTRA_POST, post) })
                 }
-            }
-            var spanCount = 2
-            val orientation = resources.configuration.orientation
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                spanCount = 3
-            }
+                var spanCount = 2
+                val orientation = resources.configuration.orientation
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    spanCount = 3
+                }
 
-            val layoutManager = GridLayoutManager(context, spanCount)
-            val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-            postRV.layoutManager = layoutManager
-            postRV.adapter = adapter
+                val layoutManager = GridLayoutManager(context, spanCount)
+                val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                postRV.layoutManager = layoutManager
+                postRV.adapter = adapter
+            }
         }
         return view
     }
