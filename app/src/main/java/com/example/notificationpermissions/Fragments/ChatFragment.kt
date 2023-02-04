@@ -1,14 +1,19 @@
-package com.example.notificationpermissions.Fragments
+package com.example. notificationpermissions.Fragments
 
+import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +44,11 @@ class ChatFragment : Fragment(), OnClickListener{
         (activity as DashboardActivity?)!!.currentFragment = this
 
         createWebSocketClient()
+        messageText= view.findViewById(R.id.messageText)
+        serverMessage= view.findViewById(R.id.serverMsg)
+
+        val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
+        sendMessage.setOnClickListener(this)
 
         fun getUserChatRooms() {
             MessageService.getChatRooms {
@@ -57,27 +67,41 @@ class ChatFragment : Fragment(), OnClickListener{
                             }
                             println(MessageService.userChatRooms)
                             //adapter ma halera display
-                            chatRoomAdapter = ChatRoomAdapter(requireContext(), MessageService.userChatRooms)
-                            val chatRoomList= view.findViewById<RecyclerView>(R.id.chatRoomList)
-                            chatRoomList.adapter = chatRoomAdapter
-                            val layoutManager = LinearLayoutManager(context)
-                            chatRoomList.layoutManager = layoutManager
+                            checkIfFragmentAttached {
+                                println(context)
+                                println(requireContext())
+                                chatRoomAdapter =
+                                    ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms)
+                                val chatRoomList =
+                                    view.findViewById<RecyclerView>(R.id.chatRoomList)
+                                chatRoomList.adapter = chatRoomAdapter
+                                val layoutManager = LinearLayoutManager(context)
+                                chatRoomList.layoutManager = layoutManager
+                            }
                         }
                     }
                 }
             }
         }
-        getUserChatRooms()
 
-        messageText= view.findViewById(R.id.messageText)
-        serverMessage= view.findViewById(R.id.serverMsg)
-
-        val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
-        sendMessage.setOnClickListener(this)
-
+        if (MessageService.userChatRooms.isEmpty()){
+            getUserChatRooms()
+        }else{
+            chatRoomAdapter =
+                ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms)
+            val chatRoomList =
+                view.findViewById<RecyclerView>(R.id.chatRoomList)
+            chatRoomList.adapter = chatRoomAdapter
+            val layoutManager = LinearLayoutManager(context)
+            chatRoomList.layoutManager = layoutManager
+        }
         return view
     }
-
+    private fun checkIfFragmentAttached(operation: Context.() -> Unit) {
+        if (isAdded && context != null) {
+            operation(requireContext())
+        }
+    }
 
     private fun createWebSocketClient() {
         val uri: URI = try {
@@ -95,13 +119,23 @@ class ChatFragment : Fragment(), OnClickListener{
 
             override fun onTextReceived(s: String) {
                 Log.i("WebSocket", "Message received")
-
+/*
                 try {
-                    serverMessage?.text = s
+                    serverMessage!!.text = s
                     println(s)
                 } catch (e: java.lang.Exception) {
                     e.printStackTrace()
+                }*/
+                activity?.runOnUiThread {
+                    serverMessage!!.text = s
+                    println(s)
                 }
+
+                /*val handler = Handler(Looper.getMainLooper())
+                handler.post {
+                    serverMessage!!.text = s
+                    println(s)
+                }*/
             }
 
             override fun onBinaryReceived(data: ByteArray) {}
@@ -127,5 +161,16 @@ class ChatFragment : Fragment(), OnClickListener{
         when (view?.id) {
             R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())
         }
+        messageText?.text=""
+        hideKeyboard()
     }
+
+    fun hideKeyboard() {
+        val inputManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
+        if (inputManager.isAcceptingText) {
+            inputManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
+        }
+    }
+
 }

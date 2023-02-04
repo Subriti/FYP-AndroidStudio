@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.viewpager2.adapter.FragmentViewHolder
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
@@ -144,7 +145,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             spinnerCategory.setSelection(0)
             spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>, view: View, position: Int, id: Long
+                    parent: AdapterView<*>, view:View?, position: Int, id: Long
                 ) {
                     spinnerCategory.setSelection(position)
                     category = (position + 1).toString()
@@ -169,7 +170,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             spinnerItemCategory.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(
-                        parent: AdapterView<*>, view: View, position: Int, id: Long
+                        parent: AdapterView<*>, view: View?, position: Int, id: Long
                     ) {
                         //val item = parent.getItemAtPosition(position).toString()
                         spinnerItemCategory.setSelection(position)
@@ -198,7 +199,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         spinnerClothSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>, view: View, position: Int, id: Long
+                parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 //val item = parent.getItemAtPosition(position).toString()
                 spinnerClothSize.setSelection(position)
@@ -224,7 +225,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         spinnerClothCondition.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>, view: View, position: Int, id: Long
+                parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 //val item = parent.getItemAtPosition(position).toString()
                 spinnerClothCondition.setSelection(position)
@@ -249,7 +250,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         spinnerClothSeason.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>, view: View, position: Int, id: Long
+                parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 spinnerClothSeason.setSelection(position)
                 clothSeason = spinnerClothSeason.selectedItem as String
@@ -273,7 +274,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         spinnerClothDelivery.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>, view: View, position: Int, id: Long
+                parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 spinnerClothDelivery.setSelection(position)
                 clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem as String}"
