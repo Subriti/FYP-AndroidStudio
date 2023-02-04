@@ -10,8 +10,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.notificationpermissions.Activities.DashboardActivity
+import com.example.notificationpermissions.Adapters.ChatRoomAdapter
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.FirebaseService
+import com.example.notificationpermissions.Services.MessageService
 import tech.gusavila92.websocketclient.WebSocketClient
 import java.net.URI
 import java.net.URISyntaxException
@@ -20,6 +25,9 @@ class ChatFragment : Fragment(), OnClickListener{
     var serverMessage: TextView? =null
     var messageText: TextView? =null
     lateinit var webSocketClient: WebSocketClient
+
+
+    lateinit var chatRoomAdapter: ChatRoomAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,16 +40,49 @@ class ChatFragment : Fragment(), OnClickListener{
 
         createWebSocketClient()
 
+        fun getUserChatRooms() {
+            MessageService.getChatRooms {
+                    getChatRooms ->
+                println("Get Chat Rooms success: $getChatRooms")
+                if (getChatRooms) {
+                    println(MessageService.userChatRooms)
+                    for (i in MessageService.map)
+                    {
+                        println(i.key)
+                        println(i.value)
+                        MessageService.findUser(i.key, i.value) { findUser ->
+                            println("FInd User success: $findUser")
+                            if (getChatRooms) {
+                                println(MessageService.userChatRooms)
+                            }
+                            println(MessageService.userChatRooms)
+                            //adapter ma halera display
+                            chatRoomAdapter = ChatRoomAdapter(requireContext(), MessageService.userChatRooms)
+                            val chatRoomList= view.findViewById<RecyclerView>(R.id.chatRoomList)
+                            chatRoomList.adapter = chatRoomAdapter
+                            val layoutManager = LinearLayoutManager(context)
+                            chatRoomList.layoutManager = layoutManager
+                        }
+                    }
+                }
+            }
+        }
+        getUserChatRooms()
+
         messageText= view.findViewById(R.id.messageText)
         serverMessage= view.findViewById(R.id.serverMsg)
+
         val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
         sendMessage.setOnClickListener(this)
+
         return view
     }
+
+
     private fun createWebSocketClient() {
         val uri: URI = try {
             // Connect to local host
-            URI("ws://192.168.1.109:8080/api/messageSocket")
+            URI("ws://192.168.1.109:8080/api/messageSocket/${FirebaseService.token}")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -55,12 +96,12 @@ class ChatFragment : Fragment(), OnClickListener{
             override fun onTextReceived(s: String) {
                 Log.i("WebSocket", "Message received")
 
-                    try {
-                        serverMessage?.text = s
-                        println(s)
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
-                    }
+                try {
+                    serverMessage?.text = s
+                    println(s)
+                } catch (e: java.lang.Exception) {
+                    e.printStackTrace()
+                }
             }
 
             override fun onBinaryReceived(data: ByteArray) {}

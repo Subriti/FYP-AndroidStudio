@@ -39,7 +39,7 @@ const val TOPIC = "/topics/interestedUser"
 class FeedRecyclerAdapter(
     private val context: Context,
     private val imageUrls: List<String>,
-    val itemClick: (Post) -> Unit
+    private val itemClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<FeedRecyclerAdapter.ViewHolder>() {
 

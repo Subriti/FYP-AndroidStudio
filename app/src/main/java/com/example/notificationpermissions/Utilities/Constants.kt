@@ -14,6 +14,9 @@ const val URL_GET_FCM_TOKEN= "${BASE_URL}user/getFCMToken"
 
 const val URL_FIND_USER= "${BASE_URL}user/findUser/"
 
+const val URL_FIND_USER_BY_ID= "${BASE_URL}user/findUserByID/"
+
+
 const val URL_RESET_PASSWORD= "${BASE_URL}user/resetPassword/"
 
 const val URL_GET_CATEGORY= "${BASE_URL}category/showCategory/1"
@@ -37,12 +40,17 @@ const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
 
 const val URL_FIND_POST= "${BASE_URL}post/findPost/"
 
+
+const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
+const val URL_GET_USER_CHAT_ROOMS= "${BASE_URL}message/showUserChatRooms/"
+const val URL_GET_USER_CHAT_ROOM_MESSAGES= "${BASE_URL}message/showUserChatRoomMessages/"
+
+
 //Broadcast constants
 const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
 
 //for viewing user's individual post
 const val EXTRA_POST= "post"
-
 
 //for fcm
 const val FCM_BASE_URL = "https://fcm.googleapis.com"
