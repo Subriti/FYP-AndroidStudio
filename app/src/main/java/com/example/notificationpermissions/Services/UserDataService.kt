@@ -32,8 +32,7 @@ object UserDataService {
         App.sharedPrefs.dateOfBirth=""
         App.sharedPrefs.isLoggedIn= false
         PostService.posts.clear()
-
-        //PostService.clearPosts()
-        //MessageService.clearMessages()
+        MessageService.clearMessages()
+        MessageService.clearChatRooms()
     }
 }

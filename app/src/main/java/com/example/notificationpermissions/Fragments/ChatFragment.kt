@@ -3,33 +3,27 @@ package com.example. notificationpermissions.Fragments
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.ChatRoomAdapter
 import com.example.notificationpermissions.R
-import com.example.notificationpermissions.Services.FirebaseService
 import com.example.notificationpermissions.Services.MessageService
-import tech.gusavila92.websocketclient.WebSocketClient
-import java.net.URI
-import java.net.URISyntaxException
+import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
 
-class ChatFragment : Fragment(), OnClickListener{
-    var serverMessage: TextView? =null
-    var messageText: TextView? =null
-    lateinit var webSocketClient: WebSocketClient
+class ChatFragment : Fragment()/*, OnClickListener*/{
+    //var serverMessage: TextView? =null
+    //var messageText: TextView? =null
+    //lateinit var webSocketClient: WebSocketClient
 
 
     lateinit var chatRoomAdapter: ChatRoomAdapter
@@ -43,12 +37,15 @@ class ChatFragment : Fragment(), OnClickListener{
 
         (activity as DashboardActivity?)!!.currentFragment = this
 
-        createWebSocketClient()
-        messageText= view.findViewById(R.id.messageText)
-        serverMessage= view.findViewById(R.id.serverMsg)
+        //createWebSocketClient()
+        val messageText= view.findViewById<TextView>(R.id.messageText)
+        messageText.isVisible=false
+        //val serverMessage= view.findViewById<TextView>(R.id.serverMsg)
+        //serverMessage.isVisible=false
 
         val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
-        sendMessage.setOnClickListener(this)
+        //sendMessage.setOnClickListener(this)
+        sendMessage.isVisible=false
 
         fun getUserChatRooms() {
             MessageService.getChatRooms {
@@ -62,16 +59,18 @@ class ChatFragment : Fragment(), OnClickListener{
                         println(i.value)
                         MessageService.findUser(i.key, i.value) { findUser ->
                             println("FInd User success: $findUser")
-                            if (getChatRooms) {
-                                println(MessageService.userChatRooms)
-                            }
-                            println(MessageService.userChatRooms)
                             //adapter ma halera display
                             checkIfFragmentAttached {
-                                println(context)
-                                println(requireContext())
                                 chatRoomAdapter =
-                                    ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms)
+                                    ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
+                                            userchat->
+                                        //on Click do something--> open individual chat room
+                                        view.findNavController()
+                                            .navigate(
+                                                R.id.action_chatFragment_to_individualChatRoomFragment,
+                                                Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
+
+                                    }
                                 val chatRoomList =
                                     view.findViewById<RecyclerView>(R.id.chatRoomList)
                                 chatRoomList.adapter = chatRoomAdapter
@@ -88,7 +87,14 @@ class ChatFragment : Fragment(), OnClickListener{
             getUserChatRooms()
         }else{
             chatRoomAdapter =
-                ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms)
+                ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
+                        userchat->
+                    //on Click do something--> open individual chat room
+                    view.findNavController()
+                        .navigate(
+                            R.id.action_chatFragment_to_individualChatRoomFragment,
+                            Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
+                }
             val chatRoomList =
                 view.findViewById<RecyclerView>(R.id.chatRoomList)
             chatRoomList.adapter = chatRoomAdapter
@@ -103,39 +109,39 @@ class ChatFragment : Fragment(), OnClickListener{
         }
     }
 
-    private fun createWebSocketClient() {
-        val uri: URI = try {
-            // Connect to local host
-            URI("ws://192.168.1.109:8080/api/messageSocket/${FirebaseService.token}")
-        } catch (e: URISyntaxException) {
-            e.printStackTrace()
-            return
-        }
-        webSocketClient = object : WebSocketClient(uri) {
-            override fun onOpen() {
-                Log.i("WebSocket", "Session is starting")
-                webSocketClient.send("Hello World!")
-            }
+    /* private fun createWebSocketClient() {
+         val uri: URI = try {
+             // Connect to local host
+             URI("ws://192.168.1.109:8080/api/messageSocket/${FirebaseService.token}")
+         } catch (e: URISyntaxException) {
+             e.printStackTrace()
+             return
+         }
+         webSocketClient = object : WebSocketClient(uri) {
+             override fun onOpen() {
+                 Log.i("WebSocket", "Session is starting")
+                 webSocketClient.send("Hello World!")
+             }
 
-            override fun onTextReceived(s: String) {
-                Log.i("WebSocket", "Message received")
-/*
+             override fun onTextReceived(s: String) {
+                 Log.i("WebSocket", "Message received")
+ *//*
                 try {
                     serverMessage!!.text = s
                     println(s)
                 } catch (e: java.lang.Exception) {
                     e.printStackTrace()
-                }*/
+                }*//*
                 activity?.runOnUiThread {
                     serverMessage!!.text = s
                     println(s)
                 }
 
-                /*val handler = Handler(Looper.getMainLooper())
+                *//*val handler = Handler(Looper.getMainLooper())
                 handler.post {
                     serverMessage!!.text = s
                     println(s)
-                }*/
+                }*//*
             }
 
             override fun onBinaryReceived(data: ByteArray) {}
@@ -154,8 +160,8 @@ class ChatFragment : Fragment(), OnClickListener{
         webSocketClient.setReadTimeout(60000)
         webSocketClient.enableAutomaticReconnection(5000)
         webSocketClient.connect()
-    }
-    override fun onClick(view: View?) {
+    }*/
+    /*override fun onClick(view: View?) {
         Toast.makeText(context, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
         Log.i("WebSocket", "Send Button was clicked")
         when (view?.id) {
@@ -163,7 +169,7 @@ class ChatFragment : Fragment(), OnClickListener{
         }
         messageText?.text=""
         hideKeyboard()
-    }
+    }*/
 
     fun hideKeyboard() {
         val inputManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager

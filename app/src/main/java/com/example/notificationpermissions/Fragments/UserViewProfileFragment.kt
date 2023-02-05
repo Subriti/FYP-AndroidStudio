@@ -13,8 +13,8 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Adapters.PostRecycleAdapter
 import com.example.notificationpermissions.Activities.DashboardActivity
+import com.example.notificationpermissions.Adapters.PostRecycleAdapter
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.Models.PostDetails
 import com.example.notificationpermissions.R
@@ -61,6 +61,7 @@ class UserViewProfileFragment : Fragment() {
         imgButton.text = "Message"
         imgButton.setOnClickListener {
             view.findNavController().navigate(R.id.action_userViewProfileFragment2_to_chatFragment)
+            //message thichdaa create chatroom for user if not already created, send a first message "Hi"?
         }
 
         PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->

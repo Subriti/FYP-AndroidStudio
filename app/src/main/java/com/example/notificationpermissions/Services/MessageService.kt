@@ -1,17 +1,16 @@
 package com.example.notificationpermissions.Services
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
-import com.example.notificationpermissions.Adapters.ChatRoomAdapter
 import com.example.notificationpermissions.Models.ChatRoom
 import com.example.notificationpermissions.Models.Message
-import com.example.notificationpermissions.Models.Post
-import com.example.notificationpermissions.Utilities.*
+import com.example.notificationpermissions.Utilities.App
+import com.example.notificationpermissions.Utilities.URL_FIND_USER_BY_ID
+import com.example.notificationpermissions.Utilities.URL_GET_USER_CHAT_ROOMS
+import com.example.notificationpermissions.Utilities.URL_GET_USER_CHAT_ROOM_MESSAGES
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -30,25 +29,16 @@ object MessageService {
 
                     val arrayList= ArrayList(id)
 
-                    arrayList.removeAt(0)
-                    arrayList.removeAt(arrayList.lastIndex)
+                    if(arrayList.size>1) {
+                        arrayList.removeAt(0)
+                        arrayList.removeAt(arrayList.lastIndex)
 
-                    println(arrayList)
+                        println(arrayList)
 
-                    for (i in 0 until arrayList.size step 2) {
-                        map[arrayList[i]] = arrayList[i + 1]
+                        for (i in 0 until arrayList.size step 2) {
+                            map[arrayList[i]] = arrayList[i + 1]
+                        }
                     }
-                    println(map)
-                    println(map["Subriti+Shamba"])
-                      /* for (x in 0 until response.length()) {
-                        val chatRooms = response.getJSONObject(x)
-                        println(chatRooms)
-                        val chats= chatRooms.getString("[]")
-                        println(chats)
-                        val id= chats.split(",")
-                        println(id)*/
-                        //val chats= chatRooms.getString("chat_room_id")
-                        //this.userChatRooms.add(chats.toString())}
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC:" + e.localizedMessage)
@@ -122,7 +112,7 @@ object MessageService {
 
     fun getMessages(chatRoomId: String, complete: (Boolean) -> Unit) {
         //channel to uniquely define the chatroom, userId to get the messages as a sender
-        val url = "${URL_GET_USER_CHAT_ROOM_MESSAGES}$chatRoomId"
+        val url = "${URL_GET_USER_CHAT_ROOM_MESSAGES}/$chatRoomId"
         val messagesRequest = object : JsonArrayRequest(
             Method.GET,
             url,
@@ -134,7 +124,7 @@ object MessageService {
                         val message = response.getJSONObject(x)
                         val id= message.getString("message_id")
                         val messsageBody= message.getString("message_body")
-                        val timeStamp= message.getString("time_stamp")
+                        val timeStamp= message.getString("timestamp")
 
                         val senderUserId= message.getString("sender_user_id")
                         val sender= JSONObject(senderUserId)
@@ -174,6 +164,77 @@ object MessageService {
             }
         }
         App.sharedPrefs.requestQueue.add(messagesRequest)
+    }
+
+    fun getChatRoomMessages(chatRoomId: String, complete: (Boolean) -> Unit) {
+        val jsonBody = JSONObject()
+        jsonBody.put("chat_room_id", chatRoomId)
+
+        val requestBody = jsonBody.toString()
+        println(requestBody)
+
+        val getMessageRequest = object : JsonArrayRequest(Method.POST,
+            "$URL_GET_USER_CHAT_ROOM_MESSAGES",
+            null,
+            Response.Listener { response ->
+                clearMessages()
+                try {
+                    for (x in 0 until response.length()) {
+                        val message = response.getJSONObject(x)
+                        val id= message.getString("message_id")
+                        val messsageBody= message.getString("message_body")
+                        val timeStamp= message.getString("timestamp")
+                        println(timeStamp)
+                        val senderUserId= message.getString("sender_user_id")
+                        val sender= JSONObject(senderUserId)
+                        val senderId= sender.getString("user_id")
+                        val senderName= sender.getString("user_name")
+                        val senderProfile= sender.getString("profile_picture")
+                        val senderFCMtoken= sender.getString("fcm_token")
+
+                        val recieverUserId= message.getString("reciever_user_id")
+                        val chatRoomId= message.getString("chat_room_id")
+
+                        val reciever= JSONObject(recieverUserId)
+                        val recieverId= reciever.getString("user_id")
+                        val recieverName= reciever.getString("user_name")
+                        val recieverProfile= reciever.getString("profile_picture")
+                        val recieverFCMtoken= reciever.getString("fcm_token")
+
+                        //val newMessage = Message(id,messsageBody,timeStamp,senderId,recieverId,recieverName,recieverProfile,recieverFCMtoken,chatRoomId)
+                        val newMessage = Message(id,messsageBody,timeStamp,recieverId,senderId,senderName,senderProfile,senderFCMtoken,chatRoomId)
+
+                        this.messages.add(newMessage)
+                    }
+                    complete(true)
+
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC:" + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not get fcm_token: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+        }
+        getMessageRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(getMessageRequest)
     }
 
     fun clearMessages(){

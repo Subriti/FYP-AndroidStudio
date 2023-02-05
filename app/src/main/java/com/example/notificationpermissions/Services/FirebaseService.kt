@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.RingtoneManager
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -12,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.app.NotificationCompat
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Utilities.App
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
@@ -21,7 +21,7 @@ private const val CHANNEL_ID = "my_channel"
 
 class FirebaseService: FirebaseMessagingService() {
 
-    companion object{
+    /*companion object{
         var sharedPref: SharedPreferences?= null
 
         var token: String?
@@ -32,11 +32,11 @@ class FirebaseService: FirebaseMessagingService() {
             sharedPref?.edit()?.putString("token", value)?.apply()
         }
 
-    }
+    }*/
 
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
-        token= newToken
+        App.sharedPrefs.token= newToken
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

@@ -43,7 +43,7 @@ const val URL_FIND_POST= "${BASE_URL}post/findPost/"
 
 const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
 const val URL_GET_USER_CHAT_ROOMS= "${BASE_URL}message/showUserChatRooms/"
-const val URL_GET_USER_CHAT_ROOM_MESSAGES= "${BASE_URL}message/showUserChatRoomMessages/"
+const val URL_GET_USER_CHAT_ROOM_MESSAGES= "${BASE_URL}message/showUserChatRoomMessages"
 
 
 //Broadcast constants
@@ -51,6 +51,10 @@ const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
 
 //for viewing user's individual post
 const val EXTRA_POST= "post"
+
+
+//for viewing user's individual chat room
+const val EXTRA_CHAT_ROOM= "chat"
 
 //for fcm
 const val FCM_BASE_URL = "https://fcm.googleapis.com"

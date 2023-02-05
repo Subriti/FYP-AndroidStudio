@@ -8,10 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -148,6 +145,22 @@ class FeedRecyclerAdapter(
                         val listView: ListView = dialogView.findViewById(R.id.list_view)
                         listView.adapter = adapter
 
+                        //not working
+                        listView.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(
+                                parent: AdapterView<*>, view: View?, position: Int, id: Long
+                            ) {
+                                val selected = "Selected user: ${listView.selectedItem as String}"
+                                println("Selected user: : $selected")
+                                Toast.makeText(context,"$selected selected",Toast.LENGTH_SHORT).show()
+
+                                //select garresi open user profile?
+
+                            }
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // do nothing
+                            }
+                        }
                         val dialog: AlertDialog = builder.create()
                         dialog.show()
                     }

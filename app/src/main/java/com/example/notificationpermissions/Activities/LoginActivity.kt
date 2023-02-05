@@ -1,13 +1,7 @@
 package com.example.notificationpermissions.Activities
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -16,12 +10,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
 import com.example.notificationpermissions.Adapters.TOPIC
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
-import com.example.notificationpermissions.Services.FirebaseService
-import com.google.firebase.iid.FirebaseInstanceIdReceiver
+import com.example.notificationpermissions.Utilities.App
 import com.google.firebase.messaging.FirebaseMessaging
 
 
@@ -57,16 +49,16 @@ class LoginActivity : AppCompatActivity() {
                                 val intent= Intent(this, DashboardActivity::class.java)
                                 startActivity(intent)
 
-                                FirebaseService.sharedPref= getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
-
+                                /*  FirebaseService.sharedPref= getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
+  */
                                 //get registration token:
                                 FirebaseMessaging.getInstance().token.addOnCompleteListener {
                                     if (it.isComplete) {
                                         val firebaseToken = it.result.toString()
-                                        FirebaseService.token=it.result.toString()
+                                        App.sharedPrefs.token=it.result.toString()
                                         //store this token to the database it is device specific.
                                         AuthService.updateFCMToken(firebaseToken){
-                                            response-> println("Update response: $response")
+                                                response-> println("Update response: $response")
 
                                         }
                                     }
@@ -113,6 +105,6 @@ class LoginActivity : AppCompatActivity() {
             inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
     }
-    }
+}
 
 

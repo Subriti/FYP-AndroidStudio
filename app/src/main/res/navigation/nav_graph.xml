@@ -17,8 +17,12 @@
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.example.notificationpermissions.Fragments.ChatFragment"
-        android:label="Chat Zone"
-        tools:layout="@layout/fragment_chat" />
+        android:label="Chat Rooms"
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatFragment_to_individualChatRoomFragment"
+            app:destination="@id/individualChatRoomFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addPostFragment"
         android:name="com.example.notificationpermissions.Fragments.AddPostFragment"
@@ -97,4 +101,9 @@
             app:destination="@id/chatFragment"
             app:popUpTo="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/individualChatRoomFragment"
+        android:name="com.example.notificationpermissions.Fragments.IndividualChatRoomFragment"
+        android:label="Individual Chat Room"
+        tools:layout="@layout/fragment_individual_chat_room" />
 </navigation>

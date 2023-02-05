@@ -20,13 +20,18 @@ class SharedPrefs(context: Context) {
     val PHONE_NUMBER= "phoneNumber"
     val DATE_OF_BIRTH= "dateOfBirth"
 
+    val FCM_TOKEN= "fcmToken"
+    var token: String
+        get()= prefs.getString(FCM_TOKEN,"")!!
+        set(value)= prefs.edit().putString(FCM_TOKEN, value).apply()
+
     var isLoggedIn: Boolean
-    get() = prefs.getBoolean(IS_LOGGED_IN, false)
-    set(value) = prefs.edit().putBoolean(IS_LOGGED_IN, value).apply()
+        get() = prefs.getBoolean(IS_LOGGED_IN, false)
+        set(value) = prefs.edit().putBoolean(IS_LOGGED_IN, value).apply()
 
     var authToken: String
-    get() = prefs.getString(AUTH_TOKEN, "")!!
-    set(value) = prefs.edit().putString(AUTH_TOKEN, value).apply()
+        get() = prefs.getString(AUTH_TOKEN, "")!!
+        set(value) = prefs.edit().putString(AUTH_TOKEN, value).apply()
 
     var userEmail: String
         get() = prefs.getString(USER_EMAIL, "")!!
