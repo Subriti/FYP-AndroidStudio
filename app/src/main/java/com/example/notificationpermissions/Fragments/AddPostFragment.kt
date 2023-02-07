@@ -370,8 +370,11 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     println("Create Post success: $createSuccess")
                                     if (createSuccess) {
                                         //get back to homeFragment
-                                        view?.findNavController()
+                                       /* view?.findNavController()
                                             ?.navigate(R.id.action_addPostFragment_to_homeFragment)
+*/
+                                        val intent= Intent(context, DashboardActivity::class.java)
+                                        startActivity(intent)
 
                                         Toast.makeText(
                                             requireContext(),

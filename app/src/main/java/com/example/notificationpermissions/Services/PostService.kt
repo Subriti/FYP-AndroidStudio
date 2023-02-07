@@ -314,9 +314,10 @@ object PostService {
     }
 
     fun getAllPosts(complete: (Boolean) -> Unit) {
-        if (AllPosts.size > 0) {
+       /* if (AllPosts.size > 0) {
             complete(true)
-        } else {
+        } else {*/
+        AllPosts.clear()
             val getPostRequest =
                 object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
                     //this is where we parse the json object
@@ -333,6 +334,7 @@ object PostService {
                             val userEmail = userJSONObject.getString("email")
                             val phoneNum = userJSONObject.getString("phone_number")
                             val profilePicture = userJSONObject.getString("profile_picture")
+                            val fcmToken = userJSONObject.getString("fcm_token")
 
                             val mediaFile = post.getString("media_file")
                             val description = post.getString("description")
@@ -367,6 +369,7 @@ object PostService {
                                 userEmail,
                                 profilePicture,
                                 phoneNum,
+                                fcmToken,
                                 mediaFile,
                                 customDescription,
                                 createdDatetime,
@@ -419,7 +422,7 @@ object PostService {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             )
             App.sharedPrefs.requestQueue.add(getPostRequest)
-        }
+        //}
     }
 
     fun getCloth(userId: String, complete: (Boolean) -> Unit) {

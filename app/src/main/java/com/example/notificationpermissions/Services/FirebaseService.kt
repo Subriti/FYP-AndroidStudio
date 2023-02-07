@@ -46,7 +46,6 @@ class FirebaseService: FirebaseMessagingService() {
 
     private fun showNotification(message: RemoteMessage) {
         //intent actually should be the current post liked ko viewPostFragment
-
         val intent = Intent(this, DashboardActivity::class.java)
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notificationID = Random.nextInt()

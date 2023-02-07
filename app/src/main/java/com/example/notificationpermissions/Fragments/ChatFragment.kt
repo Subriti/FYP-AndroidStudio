@@ -82,10 +82,10 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
                 }
             }
         }
-
-        if (MessageService.userChatRooms.isEmpty()){
+        getUserChatRooms()
+        /*if (MessageService.userChatRooms.isEmpty()){
             getUserChatRooms()
-        }else{
+        }else{*/
             chatRoomAdapter =
                 ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
                         userchat->
@@ -100,7 +100,7 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
             chatRoomList.adapter = chatRoomAdapter
             val layoutManager = LinearLayoutManager(context)
             chatRoomList.layoutManager = layoutManager
-        }
+       // }
         return view
     }
     private fun checkIfFragmentAttached(operation: Context.() -> Unit) {

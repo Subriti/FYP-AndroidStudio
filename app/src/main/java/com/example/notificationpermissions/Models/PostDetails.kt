@@ -9,6 +9,7 @@ class PostDetails(
     val user_email: String,
     val user_profile: String,
     val user_phone: String,
+    val fcm_token: String,
     val media_file: String,
     val description: String,
     val created_datetime: String,

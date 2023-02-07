@@ -34,5 +34,7 @@ object UserDataService {
         PostService.posts.clear()
         MessageService.clearMessages()
         MessageService.clearChatRooms()
+        MessageService.userChatRooms.clear()
+        MessageService.map.clear()
     }
 }

@@ -26,6 +26,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.notificationpermissions.Fragments.AddPostFragment
 import com.example.notificationpermissions.Fragments.ChatFragment
+import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.UserDataService
@@ -125,7 +126,7 @@ class DashboardActivity : AppCompatActivity() {
         val item1=menu.findItem(R.id.nav_notifications)
         val item2= menu.findItem(R.id.nav_logout)
 
-        if (currentFragment::class.java == AddPostFragment::class.java) {
+        if (currentFragment::class.java == AddPostFragment::class.java && currentFragment::class.java == IndividualChatRoomFragment::class.java) {
             item.isVisible = false
             item1.isVisible=false
             item2.isVisible=false
@@ -138,7 +139,7 @@ class DashboardActivity : AppCompatActivity() {
             supportActionBar!!.show()
         }
 
-        if (currentFragment::class.java != AddPostFragment::class.java && currentFragment::class.java != ProfileFragment::class.java) {
+        if (currentFragment::class.java != AddPostFragment::class.java && currentFragment::class.java != ProfileFragment::class.java && currentFragment::class.java != IndividualChatRoomFragment::class.java) {
             item.isVisible = true
             item1.isVisible=true
             item2.isVisible=false

@@ -20,8 +20,9 @@ object MessageService {
     val map = mutableMapOf<String, String>()
 
     fun getChatRooms(complete: (Boolean) -> Unit) {
+        userChatRooms.clear()
         val chatRoomRequest = object :
-            JsonArrayRequest(Method.GET, "$URL_GET_USER_CHAT_ROOMS${App.sharedPrefs.userID}", null, Response.Listener { response ->
+            JsonArrayRequest(Method.GET, "$URL_GET_USER_CHAT_ROOMS${App.sharedPrefs.userID}/?userName=${App.sharedPrefs.userName}", null, Response.Listener { response ->
                 try {
                     println(response)
                     val id= response.toString().split("[\"","\",\"",",","\"]")
@@ -184,7 +185,6 @@ object MessageService {
                         val id= message.getString("message_id")
                         val messsageBody= message.getString("message_body")
                         val timeStamp= message.getString("timestamp")
-                        println(timeStamp)
                         val senderUserId= message.getString("sender_user_id")
                         val sender= JSONObject(senderUserId)
                         val senderId= sender.getString("user_id")

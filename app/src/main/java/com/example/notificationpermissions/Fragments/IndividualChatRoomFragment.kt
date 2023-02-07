@@ -1,5 +1,6 @@
 package com.example.notificationpermissions.Fragments
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -13,7 +14,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -21,19 +24,25 @@ import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.MessageAdapter
 import com.example.notificationpermissions.Models.ChatRoom
 import com.example.notificationpermissions.Models.Message
+import com.example.notificationpermissions.Notifications.NotificationData
+import com.example.notificationpermissions.Notifications.PushNotification
+import com.example.notificationpermissions.Notifications.RetrofitInstance
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.MessageService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import tech.gusavila92.websocketclient.WebSocketClient
 import java.net.URI
 import java.net.URISyntaxException
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
 class IndividualChatRoomFragment : Fragment(), OnClickListener{
-
     var messageText: TextView? =null
     var messageList:RecyclerView?=null
     lateinit var webSocketClient: WebSocketClient
@@ -49,14 +58,28 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         val view = inflater.inflate(R.layout.fragment_individual_chat_room, container, false)
 
         (activity as DashboardActivity?)!!.currentFragment = this
+        (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
         chatDetails = arguments?.getSerializable(EXTRA_CHAT_ROOM) as ChatRoom
+        println(chatDetails)
         createWebSocketClient()
 
-        val recieverName= view.findViewById<TextView>(R.id.bro)
+        val recieverName= view.findViewById<TextView>(R.id.recieverUsername)
         val recieverProfile= view.findViewById<ImageView>(R.id.recieverProfile)
         messageText= view.findViewById(R.id.messageText)
         val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
+        val backButton= view.findViewById<ImageView>(R.id.backButton)
+        backButton.isVisible=false
+
+        backButton.setOnClickListener {
+            //get back to chatFragment
+            view?.findNavController()
+                ?.navigate(R.id.action_individualChatRoomFragment_to_chatFragment)
+        }
+        val phoneButton= view.findViewById<ImageView>(R.id.recieverPhone)
+        phoneButton.setOnClickListener {
+            //get reciever's phone number: intent to call the number
+        }
 
         println(chatDetails!!.chatRoomId)
         println(chatDetails!!.receiverUserId)
@@ -81,31 +104,24 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                         view.findViewById(R.id.messageListView)
                     messageList?.adapter = messageAdapter
                     val layoutManager = LinearLayoutManager(context)
+                    layoutManager.stackFromEnd = true;
                     messageList?.layoutManager = layoutManager
+                    messageList?.scrollToPosition((messageList?.adapter?.itemCount)!! - 1);
                     messageAdapter.notifyDataSetChanged()
                 }
             }
         }
         getUserChatRoomMessages()
-        /*if (MessageService.messages.isEmpty()){
-            getUserChatRoomMessages()
-        }else{
-            messageAdapter =
-                MessageAdapter(requireContext().applicationContext, MessageService.messages)
-            val messageList =
-                view.findViewById<RecyclerView>(R.id.messageListView)
-            messageList.adapter = messageAdapter
-            val layoutManager = LinearLayoutManager(context)
-            messageList.layoutManager = layoutManager
-        }*/
+
         return view
     }
 
     private fun createWebSocketClient() {
         val uri: URI = try {
             // Connect to local host
-            //URI("ws://192.168.1.109:8080/api/messageSocket/${App.sharedPrefs.token}")
-            URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
+            val encodedPath= URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
+            //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
+            URI("ws://192.168.1.109:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -137,6 +153,36 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                         val chatRoomId = jsonBody.getString("chat_room_id")
 
                         println(App.sharedPrefs.token)
+                        var userName= ""
+                        var profile= ""
+                        var token= ""
+
+                        if (sID==App.sharedPrefs.userID){
+                             userName= App.sharedPrefs.userName
+                             profile= App.sharedPrefs.profilePicture
+                             token= App.sharedPrefs.token
+
+                            val title = "Message from ${App.sharedPrefs.userName}"
+                            val message ="Message: ${messageBody}"
+                            PushNotification(
+                                NotificationData(title, message),
+                                chatDetails?.recieverFCMtoken.toString()
+                            )
+                                .also { sendNotification(it) }
+                        }else{
+                            userName= chatDetails?.recieverUserName.toString()
+                            profile= chatDetails?.recieverProfilePicture.toString()
+                            token= chatDetails?.recieverFCMtoken.toString()
+
+                            //send notification as well
+                            val title = "Message from ${chatDetails?.recieverUserName.toString()}"
+                            val message ="Message: ${messageBody}"
+                            PushNotification(
+                                NotificationData(title, message),
+                                App.sharedPrefs.token
+                            )
+                                .also { sendNotification(it) }
+                        }
 
                         val newMessages = Message(
                             id,
@@ -144,9 +190,9 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                             timeStamp,
                             rID,
                             sID,
-                            App.sharedPrefs.userName,
-                            App.sharedPrefs.profilePicture,
-                            App.sharedPrefs.token!!,
+                            userName,
+                            profile,
+                            token,
                             chatRoomId
                         );
                         MessageService.messages.add(newMessages)
@@ -180,6 +226,22 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         webSocketClient.enableAutomaticReconnection(5000)
         webSocketClient.connect()
     }
+
+    private fun sendNotification(notification: PushNotification) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitInstance.api.postNotification(notification)
+                if (response.isSuccessful) {
+                    println("Notification successfully sent")
+                    println(response.message().toString())
+                } else {
+                    println("Notification could not be sent")
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onClick(view: View) {

@@ -97,13 +97,19 @@
             android:id="@+id/action_userViewProfileFragment2_to_viewPostFragment"
             app:destination="@id/viewPostFragment" />
         <action
-            android:id="@+id/action_userViewProfileFragment2_to_chatFragment"
-            app:destination="@id/chatFragment"
-            app:popUpTo="@id/homeFragment" />
+            android:id="@+id/action_userViewProfileFragment2_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_userViewProfileFragment2_to_individualChatRoomFragment"
+            app:destination="@id/individualChatRoomFragment" />
     </fragment>
     <fragment
         android:id="@+id/individualChatRoomFragment"
         android:name="com.example.notificationpermissions.Fragments.IndividualChatRoomFragment"
         android:label="Individual Chat Room"
-        tools:layout="@layout/fragment_individual_chat_room" />
+        tools:layout="@layout/fragment_individual_chat_room" >
+        <action
+            android:id="@+id/action_individualChatRoomFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
 </navigation>
