@@ -1,5 +1,6 @@
 package com.example.notificationpermissions.Fragments
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -41,6 +42,7 @@ import tech.gusavila92.websocketclient.WebSocketClient
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -169,15 +171,40 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                 webSocketClient.send("Hello World!")
             }
 
+            @SuppressLint("NewApi")
+            @RequiresApi(Build.VERSION_CODES.N)
             override fun onTextReceived(s: String) {
                 Log.i("WebSocket", "Message received")
-                println(s)
+                println("Response is $s")
                 if (s != "Message recieved from client: Hello World!") {
                     activity?.runOnUiThread {
                         val jsonBody = JSONObject(s)
                         val id = jsonBody.getString("message_id")
                         val messageBody = jsonBody.getString("message_body")
-                        val timeStamp = jsonBody.getString("timestamp")
+                        var timeStamp = jsonBody.getString("timestamp")
+
+                        /*var date="";
+                        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+                        try {
+                            val date = inputFormat.parse(timeStamp).toString()
+                            //date= inputFormat.format(dates)
+                            //println(dates)
+                            println(date)
+                        } catch (e: ParseException) {
+                            e.printStackTrace()
+                        }*/
+
+/*
+                        val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
+                        val date = inputFormat.parse(timeStamp)
+
+                        println(date)
+
+                        val outputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        timeStamp = outputFormat.format(date)
+
+                        println(timeStamp)*/
 
                         val recieverId = jsonBody.getString("reciever_user_id")
                         val reciever= JSONObject(recieverId)
@@ -189,7 +216,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
 
                         val chatRoomId = jsonBody.getString("chat_room_id")
 
-                        println(App.sharedPrefs.token)
                         var userName= ""
                         var profile= ""
                         var token= ""
@@ -297,7 +323,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         sdf.timeZone = Calendar.getInstance().timeZone
         val dateTimeWithTimezone = sdf.format(Calendar.getInstance().time)
 
-
         //send full detail for adding the msg
         val jsonBody= JSONObject()
         jsonBody.put("message_body", messageText?.text.toString())
@@ -313,7 +338,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         jsonBody.put("sender_user_id",sender)
 
         jsonBody.put("chat_room_id", chatDetails?.chatRoomId )
-        println(jsonBody)
+        println("JSON BOdy is "+jsonBody)
 
         when (view?.id) {
             //R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())

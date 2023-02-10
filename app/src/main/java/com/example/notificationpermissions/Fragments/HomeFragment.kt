@@ -72,6 +72,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 builder.create().show()
             }
         }
+        PostService.getAllPostError=null
         return view
     }
 

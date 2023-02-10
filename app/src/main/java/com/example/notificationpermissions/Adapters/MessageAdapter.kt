@@ -46,6 +46,13 @@ class MessageAdapter(
         when (holder.itemViewType) {
             SENDER_MESSAGE -> {
                 val senderMessageHolder = holder as SenderMessageViewHolder
+                println(message.timeStamp)
+                //println(SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp))
+                /*if ( Date(message.timeStamp)== SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp)){
+                    senderMessageHolder.timeStamp?.text = message.timeStamp
+                }else{
+                    senderMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
+                }*/
                 senderMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
                 senderMessageHolder.messageBody?.text = message.message
             }
@@ -54,6 +61,12 @@ class MessageAdapter(
                 Glide.with(context).load(message.recieverProfilePicture)
                     .into(receiverMessageHolder.userImage!!)
                 //receiverMessageHolder.userName?.text = message.recieverUserName
+/*
+                if ( Date(message.timeStamp)== SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp)){
+                    receiverMessageHolder.timeStamp?.text = message.timeStamp
+                }else{
+                    receiverMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
+                }*/
                 receiverMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
                 receiverMessageHolder.messageBody?.text = message.message
             }
