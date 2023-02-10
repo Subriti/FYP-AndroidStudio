@@ -3,6 +3,7 @@ package com.example.notificationpermissions.Services
 import android.util.Log
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
@@ -30,6 +31,7 @@ object PostService {
     var categories = ArrayList<Category>()
     var itemcategory = ArrayList<Category>()
 
+    var getAllPostError: VolleyError? = null
 
     var clothId = ""
 
@@ -314,115 +316,113 @@ object PostService {
     }
 
     fun getAllPosts(complete: (Boolean) -> Unit) {
-       /* if (AllPosts.size > 0) {
-            complete(true)
-        } else {*/
         AllPosts.clear()
-            val getPostRequest =
-                object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
-                    //this is where we parse the json object
-                        response ->
-                    try {
-                        for (x in 0 until response.length()) {
-                            val post = response.getJSONObject(x)
-                            val postId = post.getString("post_id")
-                            val postBy = post.getString("post_by")
+        val getPostRequest =
+            object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
+                //this is where we parse the json object
+                    response ->
+                try {
+                    for (x in 0 until response.length()) {
+                        val post = response.getJSONObject(x)
+                        val postId = post.getString("post_id")
+                        val postBy = post.getString("post_by")
 
-                            val userJSONObject = JSONObject(postBy)
-                            val userId = userJSONObject.getString("user_id")
-                            val username = userJSONObject.getString("user_name")
-                            val userEmail = userJSONObject.getString("email")
-                            val phoneNum = userJSONObject.getString("phone_number")
-                            val profilePicture = userJSONObject.getString("profile_picture")
-                            val fcmToken = userJSONObject.getString("fcm_token")
+                        val userJSONObject = JSONObject(postBy)
+                        val userId = userJSONObject.getString("user_id")
+                        val username = userJSONObject.getString("user_name")
+                        val userEmail = userJSONObject.getString("email")
+                        val phoneNum = userJSONObject.getString("phone_number")
+                        val profilePicture = userJSONObject.getString("profile_picture")
+                        val fcmToken = userJSONObject.getString("fcm_token")
 
-                            val mediaFile = post.getString("media_file")
-                            val description = post.getString("description")
-                            val createdDatetime = post.getString("created_datetime")
-                            val location = post.getString("location")
-                            val clothId = post.getString("cloth_id")
+                        val mediaFile = post.getString("media_file")
+                        val description = post.getString("description")
+                        val createdDatetime = post.getString("created_datetime")
+                        val location = post.getString("location")
+                        val clothId = post.getString("cloth_id")
 
-                            val clothJSONObject = JSONObject(clothId)
-                            val clothSize = clothJSONObject.getString("cloth_size")
-                            val clothCondition = clothJSONObject.getString("cloth_condition")
-                            val clothSeason = clothJSONObject.getString("cloth_season")
+                        val clothJSONObject = JSONObject(clothId)
+                        val clothSize = clothJSONObject.getString("cloth_size")
+                        val clothCondition = clothJSONObject.getString("cloth_condition")
+                        val clothSeason = clothJSONObject.getString("cloth_season")
 
-                            val clothCategory = clothJSONObject.getString("clothes_category_id")
-                            val categoryJSONObject = JSONObject(clothCategory)
-                            val category = categoryJSONObject.getString("category_name")
+                        val clothCategory = clothJSONObject.getString("clothes_category_id")
+                        val categoryJSONObject = JSONObject(clothCategory)
+                        val category = categoryJSONObject.getString("category_name")
 
-                            val itemCategoryId = clothJSONObject.getString("item_category_id")
-                            val itemCategoryJSONObject = JSONObject(itemCategoryId)
-                            val itemCategory = itemCategoryJSONObject.getString("category_name")
+                        val itemCategoryId = clothJSONObject.getString("item_category_id")
+                        val itemCategoryJSONObject = JSONObject(itemCategoryId)
+                        val itemCategory = itemCategoryJSONObject.getString("category_name")
 
-                            val donationStatus = post.getString("donation_status")
-                            val donationJSONObject = JSONObject(donationStatus)
-                            val status = donationJSONObject.getString("donation_status")
+                        val donationStatus = post.getString("donation_status")
+                        val donationJSONObject = JSONObject(donationStatus)
+                        val status = donationJSONObject.getString("donation_status")
 
-                            val customDescription =
-                                "$description\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
+                        val customDescription =
+                            "$description\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
 
-                            val newPost = PostDetails(
-                                postId,
-                                username,
-                                userId,
-                                userEmail,
-                                profilePicture,
-                                phoneNum,
-                                fcmToken,
-                                mediaFile,
-                                customDescription,
-                                createdDatetime,
-                                location,
-                                clothId,
-                                category,
-                                itemCategory,
-                                clothSize,
-                                clothCondition,
-                                clothSeason,
-                                donationStatus
-                            )
-                            val newPosts = Post(
-                                postId,
-                                username,
-                                mediaFile,
-                                customDescription,
-                                createdDatetime,
-                                location,
-                                profilePicture,
-                                donationStatus
-                            )
-                            AllPosts.add(newPosts)
-                            DetailedPosts.add(newPost)
-                        }
-                        complete(true)
-                    } catch (e: JSONException) {
-                        Log.d("JSON", "EXC: " + e.localizedMessage)
-                        complete(false)
+                        val newPost = PostDetails(
+                            postId,
+                            username,
+                            userId,
+                            userEmail,
+                            profilePicture,
+                            phoneNum,
+                            fcmToken,
+                            mediaFile,
+                            customDescription,
+                            createdDatetime,
+                            location,
+                            clothId,
+                            category,
+                            itemCategory,
+                            clothSize,
+                            clothCondition,
+                            clothSeason,
+                            donationStatus
+                        )
+                        val newPosts = Post(
+                            postId,
+                            username,
+                            mediaFile,
+                            customDescription,
+                            createdDatetime,
+                            location,
+                            profilePicture,
+                            donationStatus
+                        )
+                        AllPosts.add(newPosts)
+                        DetailedPosts.add(newPost)
                     }
-                }, Response.ErrorListener {
-                    //this is where we deal with our error
-                        error ->
-                    Log.d("ERROR", "Could not retrieve posts: $error")
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
                     complete(false)
-                }) {
-                    override fun getBodyContentType(): String {
-                        return "application/json; charset=utf-8"
-                    }
-
-                    override fun getHeaders(): MutableMap<String, String> {
-                        val headers = HashMap<String, String>()
-                        headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
-                        return headers
-                    }
                 }
-            getPostRequest.retryPolicy = DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            )
-            App.sharedPrefs.requestQueue.add(getPostRequest)
-        //}
+            }, Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not retrieve posts: $error")
+                getAllPostError= error
+                println(getAllPostError)
+                complete(false)
+            }) {
+                override fun getBodyContentType(): String {
+                    return "application/json; charset=utf-8"
+                }
+
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                    return headers
+                }
+            }
+        getPostRequest.retryPolicy = DefaultRetryPolicy(
+            30000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(getPostRequest)
     }
 
     fun getCloth(userId: String, complete: (Boolean) -> Unit) {
