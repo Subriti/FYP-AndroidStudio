@@ -83,7 +83,8 @@ object MessageService {
                         userId,
                         userName,
                         profilePicture,
-                        fcmToken
+                        fcmToken,
+                        phoneNumber
                     )
                     userChatRooms.add(newChatRoom)
                     println(userChatRooms)
@@ -137,8 +138,9 @@ object MessageService {
                         val recieverName= reciever.getString("user_name")
                         val recieverProfile= reciever.getString("profile_picture")
                         val recieverFCMtoken= reciever.getString("fcm_token")
+                        val recieverPhone= reciever.getString("phone_number")
 
-                        val newMessage = Message(id,messsageBody,timeStamp,senderId,recieverId,recieverName,recieverProfile,recieverFCMtoken,chatRoomId)
+                        val newMessage = Message(id,messsageBody,timeStamp,senderId,recieverId,recieverName,recieverProfile,recieverFCMtoken,chatRoomId, recieverPhone)
                         this.messages.add(newMessage)
                     }
                     complete(true)
@@ -218,6 +220,7 @@ object MessageService {
                         val senderName= sender.getString("user_name")
                         val senderProfile= sender.getString("profile_picture")
                         val senderFCMtoken= sender.getString("fcm_token")
+                        val senderPhone= sender.getString("phone_number")
 
                         val recieverUserId= message.getString("reciever_user_id")
                         val chatRoomId= message.getString("chat_room_id")
@@ -229,7 +232,7 @@ object MessageService {
                         val recieverFCMtoken= reciever.getString("fcm_token")
 
                         //val newMessage = Message(id,messsageBody,timeStamp,senderId,recieverId,recieverName,recieverProfile,recieverFCMtoken,chatRoomId)
-                        val newMessage = Message(id,messsageBody,timeStamp,recieverId,senderId,senderName,senderProfile,senderFCMtoken,chatRoomId)
+                        val newMessage = Message(id,messsageBody,timeStamp,recieverId,senderId,senderName,senderProfile,senderFCMtoken,chatRoomId,senderPhone)
 
                         this.messages.add(newMessage)
                     }

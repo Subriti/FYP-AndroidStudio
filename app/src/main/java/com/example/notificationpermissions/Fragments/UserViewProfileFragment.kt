@@ -63,47 +63,39 @@ class UserViewProfileFragment : Fragment() {
         location.text = "  ${newPostDetails?.location}"
 
         imgButton = view.findViewById(R.id.editProfile)
+        imgButton.text = "Message"
+        imgButton.setOnClickListener {
 
-        //if opened own's profile, open profile fragment
-        if (newPostDetails?.user_id== App.sharedPrefs.userID){
-            imgButton.text = "Edit Profile"
-            imgButton.setOnClickListener {
-                view.findNavController().navigate(R.id.action_userViewProfileFragment2_to_profileFragment)
-            }
-        }else {
-            imgButton.text = "Message"
-            imgButton.setOnClickListener {
+            //checking if the user's chatroom already exists
+            MessageService.getChatRoomId(App.sharedPrefs.userName, newPostDetails?.post_by!!) { complete ->
+                if (complete) {
+                    println("Get Char Room Id success "+complete)
+                    println(MessageService.chatRoomId)
+                    var id= MessageService.chatRoomId
 
-                //checking if the user's chatroom already exists
-                MessageService.getChatRoomId(App.sharedPrefs.userName, newPostDetails?.post_by!!) { complete ->
-                    if (complete) {
-                        println("Get Char Room Id success "+complete)
-                        println(MessageService.chatRoomId)
-                        var id= MessageService.chatRoomId
-
-                        if (id==""){
-                            id = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
-                        }
-
-                        val recieverUserId = newPostDetails?.user_id
-                        val recieverFCMtoken = newPostDetails?.fcm_token
-                        val recieverProfilePicture = newPostDetails?.user_profile
-                        val recieverUserName = newPostDetails?.post_by
-
-                        val newChatRoom = ChatRoom(
-                            id,
-                            recieverUserId!!,
-                            recieverUserName!!,
-                            recieverProfilePicture!!,
-                            recieverFCMtoken!!
-                        )
-                        view.findNavController()
-                            .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
-                                Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
+                    if (id==""){
+                        id = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
                     }
+
+                    val recieverUserId = newPostDetails?.user_id
+                    val recieverFCMtoken = newPostDetails?.fcm_token
+                    val recieverProfilePicture = newPostDetails?.user_profile
+                    val recieverUserName = newPostDetails?.post_by
+                    val recieverPhone= newPostDetails?.user_phone
+
+                    val newChatRoom = ChatRoom(
+                        id,
+                        recieverUserId!!,
+                        recieverUserName!!,
+                        recieverProfilePicture!!,
+                        recieverFCMtoken!!,
+                        recieverPhone!!
+                    )
+                    view.findNavController()
+                        .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
+                            Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
                 }
             }
-
         }
 
         PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->

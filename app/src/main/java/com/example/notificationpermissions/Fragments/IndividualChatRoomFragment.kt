@@ -2,6 +2,8 @@ package com.example.notificationpermissions.Fragments
 
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,8 +16,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -68,18 +70,54 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         messageText= view.findViewById(R.id.messageText)
         val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
         val backButton= view.findViewById<ImageView>(R.id.backButton)
-        backButton.isVisible=false
+        // backButton.isVisible=false
 
         backButton.setOnClickListener {
             //get back to chatFragment
-            view?.findNavController()
+            /*view?.findNavController()
                 ?.navigate(R.id.action_individualChatRoomFragment_to_chatFragment)
-        }
-        val phoneButton= view.findViewById<ImageView>(R.id.recieverPhone)
-        phoneButton.setOnClickListener {
-            //get reciever's phone number: intent to call the number
+            (activity as DashboardActivity?)!!.supportActionBar!!.show()
+*/
+            //view.findNavController().popBackStack(R.id.homeFragment, false)
+            println(view.findNavController().backQueue.last().destination )
+            println(view.findNavController().findDestination(R.id.individualChatRoomFragment))
+
+            if (view.findNavController().backQueue.last().destination == view.findNavController()
+                    .findDestination(R.id.individualChatRoomFragment)
+            ) {
+                println("user view")
+               //view.findNavController().popBackStack(R.id.individualChatRoomFragment, false)
+               //NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
+                //NavOptions.Builder().setPopUpTo(R.id.userViewProfileFragment2, true).build()
+                //NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
+
+                view.findNavController().navigate(
+                    R.id.action_individualChatRoomFragment_to_chatFragment, null,
+                    NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
+                )
+                (activity as DashboardActivity?)!!.supportActionBar!!.show()
+            }
+          /*  else if (view.findNavController().backQueue.removeLast().destination.parent?.startDestinationId == (R.id.homeFragment)) {
+                println("chat room")
+                view.findNavController().navigate(
+                    R.id.action_individualChatRoomFragment_to_chatFragment, null,
+                    NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
+                )
+                (activity as DashboardActivity?)!!.supportActionBar!!.show()
+            }*/
         }
 
+        val phoneButton= view.findViewById<ImageView>(R.id.recieverPhone)
+        phoneButton.setOnClickListener {
+            //get receiver's phone number: intent to call the number
+            val phoneNumber = chatDetails!!.recieverPhone
+            val dial = Intent(Intent.ACTION_DIAL)
+            dial.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            dial.data = Uri.parse("tel:$phoneNumber")
+            startActivity(dial)
+        }
+
+        println(chatDetails!!.recieverPhone)
         println(chatDetails!!.chatRoomId)
         println(chatDetails!!.receiverUserId)
         println(chatDetails!!.recieverFCMtoken)
@@ -155,11 +193,13 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                         var userName= ""
                         var profile= ""
                         var token= ""
+                        var phone=""
 
                         if (sID==App.sharedPrefs.userID){
-                             userName= App.sharedPrefs.userName
-                             profile= App.sharedPrefs.profilePicture
-                             token= App.sharedPrefs.token
+                            userName= App.sharedPrefs.userName
+                            profile= App.sharedPrefs.profilePicture
+                            token= App.sharedPrefs.token
+                            phone=App.sharedPrefs.phoneNumber
 
                             val title = "Message from ${App.sharedPrefs.userName}"
                             val message ="Message: ${messageBody}"
@@ -172,6 +212,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                             userName= chatDetails?.recieverUserName.toString()
                             profile= chatDetails?.recieverProfilePicture.toString()
                             token= chatDetails?.recieverFCMtoken.toString()
+                            phone= chatDetails?.recieverPhone.toString()
 
                             //send notification as well
                             val title = "Message from ${chatDetails?.recieverUserName.toString()}"
@@ -192,7 +233,8 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                             userName,
                             profile,
                             token,
-                            chatRoomId
+                            chatRoomId,
+                            phone
                         );
                         MessageService.messages.add(newMessages)
                         messageAdapter.notifyDataSetChanged()
