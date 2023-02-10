@@ -3,7 +3,7 @@ package com.example.notificationpermissions.Utilities
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
 //const val BASE_URL = "http://192.168.137.26:8080/api/"
-const val BASE_URL = "http://192.168.1.109:8080/api/"
+const val BASE_URL = "http://192.168.1.105:8080/api/"
 //const val BASE_URL = "http://192.168.172.41:8080/api/"
 //const val BASE_URL = "http://192.168.137.77:8080/api/"
 
@@ -45,7 +45,7 @@ const val URL_FIND_POST= "${BASE_URL}post/findPost/"
 const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
 const val URL_GET_USER_CHAT_ROOMS= "${BASE_URL}message/showUserChatRooms/"
 const val URL_GET_USER_CHAT_ROOM_MESSAGES= "${BASE_URL}message/showUserChatRoomMessages"
-
+const val URL_GET_USER_CHAT_ROOM_ID= "${BASE_URL}message/getUserChatRoomId/?senderName="
 
 //Broadcast constants
 const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"

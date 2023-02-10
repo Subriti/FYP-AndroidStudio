@@ -19,6 +19,7 @@ import com.example.notificationpermissions.Models.ChatRoom
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.Models.PostDetails
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.MessageService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
@@ -63,9 +64,6 @@ class UserViewProfileFragment : Fragment() {
 
         imgButton = view.findViewById(R.id.editProfile)
 
-        println(newPostDetails?.user_id)
-        println(App.sharedPrefs.userID)
-
         //if opened own's profile, open profile fragment
         if (newPostDetails?.user_id== App.sharedPrefs.userID){
             imgButton.text = "Edit Profile"
@@ -75,24 +73,37 @@ class UserViewProfileFragment : Fragment() {
         }else {
             imgButton.text = "Message"
             imgButton.setOnClickListener {
-                val chatRoomId = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
-                val recieverUserId = newPostDetails?.user_id
-                val recieverFCMtoken = newPostDetails?.fcm_token
-                val recieverProfilePicture = newPostDetails?.user_profile
-                val recieverUserName = newPostDetails?.post_by
 
-                val newChatRoom = ChatRoom(
-                    chatRoomId,
-                    recieverUserId!!,
-                    recieverUserName!!,
-                    recieverProfilePicture!!,
-                    recieverFCMtoken!!
-                )
-                view.findNavController()
-                    .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
-                        Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
-                //message thichdaa create chatroom for user if not already created, send a first message "Hi"?
+                //checking if the user's chatroom already exists
+                MessageService.getChatRoomId(App.sharedPrefs.userName, newPostDetails?.post_by!!) { complete ->
+                    if (complete) {
+                        println("Get Char Room Id success "+complete)
+                        println(MessageService.chatRoomId)
+                        var id= MessageService.chatRoomId
+
+                        if (id==""){
+                            id = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
+                        }
+
+                        val recieverUserId = newPostDetails?.user_id
+                        val recieverFCMtoken = newPostDetails?.fcm_token
+                        val recieverProfilePicture = newPostDetails?.user_profile
+                        val recieverUserName = newPostDetails?.post_by
+
+                        val newChatRoom = ChatRoom(
+                            id,
+                            recieverUserId!!,
+                            recieverUserName!!,
+                            recieverProfilePicture!!,
+                            recieverFCMtoken!!
+                        )
+                        view.findNavController()
+                            .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
+                                Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
+                    }
+                }
             }
+
         }
 
         PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->

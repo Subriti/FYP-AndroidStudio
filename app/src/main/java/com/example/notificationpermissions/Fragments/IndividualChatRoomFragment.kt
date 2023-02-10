@@ -61,7 +61,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
         chatDetails = arguments?.getSerializable(EXTRA_CHAT_ROOM) as ChatRoom
-        println(chatDetails)
         createWebSocketClient()
 
         val recieverName= view.findViewById<TextView>(R.id.recieverUsername)
@@ -121,7 +120,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
             // Connect to local host
             val encodedPath= URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
-            URI("ws://192.168.1.109:8080/api/messageSocket/$encodedPath")
+            URI("ws://192.168.1.105:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return

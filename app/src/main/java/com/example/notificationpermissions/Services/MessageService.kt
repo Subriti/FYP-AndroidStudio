@@ -7,10 +7,7 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.example.notificationpermissions.Models.ChatRoom
 import com.example.notificationpermissions.Models.Message
-import com.example.notificationpermissions.Utilities.App
-import com.example.notificationpermissions.Utilities.URL_FIND_USER_BY_ID
-import com.example.notificationpermissions.Utilities.URL_GET_USER_CHAT_ROOMS
-import com.example.notificationpermissions.Utilities.URL_GET_USER_CHAT_ROOM_MESSAGES
+import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -18,6 +15,7 @@ object MessageService {
     val userChatRooms = ArrayList<ChatRoom>()
     val messages = ArrayList<Message>()
     val map = mutableMapOf<String, String>()
+    var chatRoomId=""
 
     fun getChatRooms(complete: (Boolean) -> Unit) {
         userChatRooms.clear()
@@ -161,6 +159,35 @@ object MessageService {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(messagesRequest)
+    }
+
+    fun getChatRoomId(senderName: String, recieverName: String, complete: (Boolean) -> Unit){
+        val url = "${URL_GET_USER_CHAT_ROOM_ID}$senderName&recieverName=$recieverName"
+        val messagesRequest = object : JsonObjectRequest(
+            Method.GET,
+            url,
+            null,
+            Response.Listener { response ->
+                try {
+                    chatRoomId = response.getString("chat_room_id")
+                    println("Chat Room iD is $chatRoomId")
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC:" + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener { _ ->
+                Log.d("ERROR", "Could not retrieve chat room Id")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
                 return headers
             }
         }

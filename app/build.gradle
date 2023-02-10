@@ -120,5 +120,8 @@ dependencies {
     implementation 'tech.gusavila92:java-android-websocket-client:1.2.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    //scalable size unit (support for different screen sizes)
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
+    implementation 'com.intuit.ssp:ssp-android:1.0.6'
 }
 apply plugin: 'com.google.gms.google-services'
