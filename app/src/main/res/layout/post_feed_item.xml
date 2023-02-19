@@ -4,8 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="4dp"
     android:layout_marginBottom="8dp"
-    android:background="#FFFFFF">
+    android:background="#EAE8E7"
+    android:elevation="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_profile"
@@ -80,14 +84,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:text="Description"
         android:textColor="#2C2323"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@+id/markInterested"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/countInterested" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <TextView
         android:id="@+id/createdDatetime"
@@ -112,5 +115,16 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/markInterested"
         app:layout_constraintTop_toBottomOf="@+id/postImage" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Description: "
+        android:textColor="#2C2323"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/countInterested" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

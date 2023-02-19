@@ -16,7 +16,8 @@
             android:id="@+id/addPost_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/roseEbony"
+            android:background="#121212"
+            android:backgroundTint="#272727"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.NotificationPermissions.PopupOverlay">
 
@@ -29,7 +30,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
-                    android:background="@color/roseEbony"
+                    android:background="#272727"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_close_24" />
 
@@ -40,7 +41,7 @@
                     android:layout_marginStart="6dp"
                     android:maxLines="1"
                     android:text="Add New Post"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -51,7 +52,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerInParent="true"
                     android:layout_marginEnd="10dp"
-                    android:background="@color/roseEbony"
+                    android:background="#272727"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_check_24" />
             </RelativeLayout>
@@ -60,12 +61,12 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_below="@id/app_bar_layout_addPost"
-        android:layout_marginTop="48dp"
         android:background="@color/whitisPurple"
         android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@id/app_bar_layout_addPost"
@@ -184,7 +185,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/locationInputLayout"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
@@ -196,10 +197,8 @@
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:ems="10"
                 android:hint="Write a Description"
-                android:inputType="textMultiLine|textPersonName|textImeMultiLine"
+                android:inputType="textMultiLine|textImeMultiLine"
                 android:maxLines="6" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -231,7 +230,7 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_baseline_image_24"
             app:layout_constraintStart_toStartOf="parent"

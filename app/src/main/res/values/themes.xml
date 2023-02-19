@@ -2,19 +2,23 @@
     <!-- Base application theme. -->
     <style name="Theme.NotificationPermissions" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/roseEbony</item>
-        <item name="colorPrimaryVariant">@color/oldRose</item>
+        <!-- color Primary is the selected fragment color -->
+         <item name="colorPrimary">@color/black</item>
+
+        <!-- <item name="colorPrimaryVariant">@color/green</item> -->
 
         //text color on buttons
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         //checkbox colors
         <item name="colorSecondary">@color/firebrick</item>
         <item name="colorSecondaryVariant">@color/tumbleWeed</item>
-        <item name="colorOnSecondary">@color/eerieBlack</item>
+        <item name="colorOnSecondary">@color/white</item>
+
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item>
+
         <!-- Customize your theme here. -->
     </style>
     <style name="Theme.NotificationPermissions.NoActionBar">
@@ -24,5 +28,5 @@
     <style name="Theme.NotificationPermissions.AppBarOverlay"
         parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="Theme.NotificationPermissions.PopupOverlay"
-        parent="ThemeOverlay.AppCompat.Light" />
+        parent="ThemeOverlay.AppCompat.Dark" />
 </resources>

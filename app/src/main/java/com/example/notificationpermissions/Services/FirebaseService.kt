@@ -41,6 +41,7 @@ class FirebaseService: FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        println("Firebase Service onMessage Received ${message.data}")
         showNotification(message)
     }
 

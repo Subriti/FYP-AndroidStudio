@@ -42,7 +42,6 @@ import tech.gusavila92.websocketclient.WebSocketClient
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -88,8 +87,8 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                     .findDestination(R.id.individualChatRoomFragment)
             ) {
                 println("user view")
-               //view.findNavController().popBackStack(R.id.individualChatRoomFragment, false)
-               //NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
+                //view.findNavController().popBackStack(R.id.individualChatRoomFragment, false)
+                //NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
                 //NavOptions.Builder().setPopUpTo(R.id.userViewProfileFragment2, true).build()
                 //NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
 
@@ -99,14 +98,14 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                 )
                 (activity as DashboardActivity?)!!.supportActionBar!!.show()
             }
-          /*  else if (view.findNavController().backQueue.removeLast().destination.parent?.startDestinationId == (R.id.homeFragment)) {
-                println("chat room")
-                view.findNavController().navigate(
-                    R.id.action_individualChatRoomFragment_to_chatFragment, null,
-                    NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
-                )
-                (activity as DashboardActivity?)!!.supportActionBar!!.show()
-            }*/
+            /*  else if (view.findNavController().backQueue.removeLast().destination.parent?.startDestinationId == (R.id.homeFragment)) {
+                  println("chat room")
+                  view.findNavController().navigate(
+                      R.id.action_individualChatRoomFragment_to_chatFragment, null,
+                      NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
+                  )
+                  (activity as DashboardActivity?)!!.supportActionBar!!.show()
+              }*/
         }
 
         val phoneButton= view.findViewById<ImageView>(R.id.recieverPhone)
@@ -160,7 +159,8 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
             // Connect to local host
             val encodedPath= URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
-            URI("ws://192.168.1.105:8080/api/messageSocket/$encodedPath")
+            URI("ws://192.168.1.101:8080/api/messageSocket/$encodedPath")
+            //URI("ws://100.64.232.254:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -300,6 +300,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                 val response = RetrofitInstance.api.postNotification(notification)
                 if (response.isSuccessful) {
                     println("Notification successfully sent")
+                    println(response)
                     println(response.message().toString())
                 } else {
                     println("Notification could not be sent")

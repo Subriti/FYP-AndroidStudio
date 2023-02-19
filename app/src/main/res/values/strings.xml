@@ -25,6 +25,25 @@
     <string name="descriptionDetails">Detailed Description regarding condition of clothes, availability of delivery and locations</string>
     <string name="description">Write a Description</string>
 
+    <string-array name="filterBy_array">
+        <item>General Category</item>
+        <item>Item Category</item>
+        <item>Available Location</item>
+        <item>Cloth Sizes</item>
+        <item>Cloth Condition</item>
+        <item>Cloth Season</item>
+    </string-array>
+
+    <string-array name="location_array">
+        <item>Kathmandu</item>
+        <item>Biratnagar</item>
+        <item>Lalitpur</item>
+        <item>Itahari</item>
+        <item>Mustang</item>
+        <item>Nagarkot</item>
+    </string-array>
+
+
     <string-array name="clothCategory_array">
         <item>Unisex Clothing</item>
         <item>Men\'s Clothing</item>

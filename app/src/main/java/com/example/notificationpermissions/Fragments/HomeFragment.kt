@@ -1,12 +1,15 @@
 package com.example.notificationpermissions.Fragments
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -24,6 +27,11 @@ import com.example.notificationpermissions.Utilities.App
 class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     lateinit var adapter: FeedRecyclerAdapter
+    var selected_filter= ""
+    var selected_item="General Category"
+
+    var filterAdapterItem: Int = 1
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,6 +43,82 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val welcomeUser= view.findViewById<TextView>(R.id.welcomeUser)
         welcomeUser.text= "Welcome, ${App.sharedPrefs.userName}"
 
+        // Code for showing progressDialog while getting posts from server
+        val progressDialog = ProgressDialog(context)
+        progressDialog.setTitle("Refreshing your feed...")
+        progressDialog.show()
+
+        val spinnerFilter: Spinner = view.findViewById(R.id.spinner)
+        val selectedText: TextView = view.findViewById(R.id.selectedItem)
+        val spinnerItem: Spinner = view.findViewById(R.id.spinner2)
+
+        ArrayAdapter.createFromResource(
+            requireContext(), R.array.clothCategory_array, android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerItem.adapter = adapter
+            spinnerItem.setSelection(0)
+            spinnerItem.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>, view:View?, position: Int, id: Long
+                ) {
+                    spinnerItem.setSelection(position)
+                    selected_item = (position + 1).toString()
+                    println("Selected item : $selected_item")
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // do nothing
+                }
+            }
+        }
+
+        ArrayAdapter.createFromResource(
+            requireContext(), R.array.filterBy_array, android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerFilter.adapter = adapter
+            spinnerFilter.setSelection(0)
+            spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>, view:View?, position: Int, id: Long
+                ) {
+                    spinnerFilter.setSelection(position)
+                    selected_filter = (position + 1).toString()
+
+                    if (selected_filter == "1") {
+                        selectedText.text = "General Category: "
+                        filterAdapterItem= R.array.clothCategory_array
+                    } else if (selected_filter == "2") {
+                        selectedText.text = "Item Category: "
+                        filterAdapterItem= R.array.itemCategory_array
+                    } else if (selected_filter == "3") {
+                        selectedText.text = "Available Locations: "
+                        filterAdapterItem= R.array.location_array
+                    } else if (selected_filter == "4") {
+                        selectedText.text = "Cloth Sizes: "
+                        filterAdapterItem= R.array.clothSizes_array
+                    } else if (selected_filter == "5") {
+                        selectedText.text = "Cloth Condition: "
+                        filterAdapterItem= R.array.clothCondition_array
+                    } else if (selected_filter == "6") {
+                        selectedText.text = "Cloth Season: "
+                        filterAdapterItem= R.array.clothSeason_array
+                    }
+
+                    loadAdapterItem(spinnerItem, filterAdapterItem)
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // do nothing
+                }
+            }
+        }
+
+
+
         PostService.getAllPosts { complete ->
             if (complete) {
                 var imageUrlsList = mutableListOf<String>()
@@ -42,16 +126,16 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     imageUrlsList.add(url.media_file)
                 }
 
-                adapter = FeedRecyclerAdapter(requireContext(), imageUrlsList){
-                    //do something on click; open full post details
-                }
+                adapter = FeedRecyclerAdapter(requireContext(), imageUrlsList){}
 
                 val postRV = view.findViewById<RecyclerView>(R.id.feedRecyclerView)
                 val layoutManager= LinearLayoutManager(context)
                 postRV.layoutManager= layoutManager
                 postRV.adapter = adapter
+                progressDialog.dismiss()
             }
             if (PostService.getAllPostError is AuthFailureError) {
+                progressDialog.dismiss()
                 println("Session expired. Please Login again.")
                 if (activity != null) {
                     activity?.runOnUiThread {
@@ -60,6 +144,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
             if (PostService.getAllPostError is NoConnectionError){
+                progressDialog.dismiss()
                 println("you aren't connected to internet try again later")
                 val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
                 builder.setMessage("You seem to have problems with your internet connection")
@@ -74,6 +159,34 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
         PostService.getAllPostError=null
         return view
+    }
+
+    private fun loadAdapterItem(spinnerItem: Spinner, filterAdapterItem: Int) {
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            filterAdapterItem,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinnerItem.adapter = adapter
+            spinnerItem.setSelection(0)
+            spinnerItem.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>, view: View?, position: Int, id: Long
+                    ) {
+                        spinnerItem.setSelection(position)
+                        selected_item = (position + 1).toString()
+                        println("Selected item : $selected_item")
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // do nothing
+                    }
+                }
+        }
     }
 
     private fun alertDialog(){
