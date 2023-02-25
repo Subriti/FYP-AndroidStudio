@@ -171,6 +171,144 @@ object PostService {
         App.sharedPrefs.requestQueue.add(updateRequest)
     }
 
+    fun updateDonationStatus(
+        postId: String,
+        donationStatus: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+        jsonBody.put("donation_status_id", donationStatus)
+
+        val requestBody = jsonBody.toString()
+        println("Update Donation Status: " + requestBody)
+
+        val updateRequest = object :
+            JsonObjectRequest(
+                Method.PUT,
+                "$URL_UPDATE_DONATION_STATUS$postId",
+                null,
+                Response.Listener { response ->
+                    println("Update Donation Status Response $response")
+                    complete(true)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not update donation status: $error")
+                    complete(false)
+                }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        updateRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(updateRequest)
+    }
+
+    fun createTransaction(
+        post_id: String,
+        reciever_user_id: String,
+        transaction_datetime: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+        //bc it takes object of User
+        val user = JSONObject()
+        user.put("user_id", reciever_user_id)
+        jsonBody.put("reciever_user_id", user)
+
+        //bc it takes object of Post
+        val post = JSONObject()
+        post.put("post_id", post_id)
+        jsonBody.put("post_id", post)
+
+        jsonBody.put("transaction_date", transaction_datetime)
+
+        val requestBody = jsonBody.toString()
+        print(requestBody)
+
+        val createRequest = object :
+            JsonObjectRequest(Method.POST, URL_ADD_TRANSACTION, null, Response.Listener { response ->
+                println("Create Transaction Response $response")
+                complete(true)
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not add Transaction: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        createRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(createRequest)
+    }
+
+    fun updateRating(
+        postId: String,
+        rating: Float,
+        transaction_datetime: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+        jsonBody.put("rating", rating)
+        jsonBody.put("transaction_date", transaction_datetime)
+
+        val requestBody = jsonBody.toString()
+        println("Update Rating Request: " + requestBody)
+
+        val updateRequest = object :
+            JsonObjectRequest(
+                Method.PUT,
+                "$URL_UPDATE_RATING$postId",
+                null,
+                Response.Listener { response ->
+                    println("Update Rating Response $response")
+                    complete(true)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not update transaction rating: $error")
+                    complete(false)
+                }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        updateRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(updateRequest)
+    }
+
     fun deletePost(postId: String, complete: (Boolean) -> Unit) {
         val deletePostRequest =
             object : StringRequest(

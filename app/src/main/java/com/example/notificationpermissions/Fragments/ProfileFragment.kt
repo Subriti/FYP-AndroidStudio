@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Adapters.PostRecycleAdapter
 import com.example.notificationpermissions.Activities.DashboardActivity
+import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
@@ -62,6 +63,10 @@ class ProfileFragment : Fragment() {
             view.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
 
+       // val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
+       /* if (postDetails != null) {
+        }*/
+
         PostService.getUserPosts(App.sharedPrefs.userID) { complete ->
             if (complete) {
                 var imageUrlsList = mutableListOf<String>()
@@ -70,7 +75,7 @@ class ProfileFragment : Fragment() {
                 }
 
                 adapter = PostRecycleAdapter(
-                    requireContext(), imageUrlsList
+                    requireContext(), imageUrlsList//, postDetails
                 ) { post ->
                     //do something on click; open full post details
                     view.findNavController()

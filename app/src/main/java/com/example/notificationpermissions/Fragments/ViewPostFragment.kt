@@ -3,6 +3,7 @@ package com.example.notificationpermissions.Fragments
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,10 +15,17 @@ import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Models.Post
+import com.example.notificationpermissions.Notifications.NotificationData
+import com.example.notificationpermissions.Notifications.PushNotification
+import com.example.notificationpermissions.Notifications.RetrofitInstance
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.time.Duration
@@ -25,6 +33,9 @@ import java.util.*
 
 
 class ViewPostFragment : Fragment() {
+    var recieverId= ""
+    var recieverName = ""
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -144,8 +155,7 @@ class ViewPostFragment : Fragment() {
                         ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items)
                     val builder: AlertDialog.Builder = AlertDialog.Builder(context)
                     val inflater = LayoutInflater.from(context)
-                    val dialogView: View =
-                        inflater.inflate(R.layout.dialog_interested_users, null)
+                    val dialogView: View = inflater.inflate(R.layout.dialog_interested_users, null)
                     builder.setView(dialogView)
 
                     val listView: ListView = dialogView.findViewById(R.id.list_view)
@@ -167,8 +177,7 @@ class ViewPostFragment : Fragment() {
                 //check if the user already liked, or is newly liked
                 if (!alreadyLiked) {
                     PostService.addInterestedUser(
-                        App.sharedPrefs.userID,
-                        postDetails.post_id
+                        App.sharedPrefs.userID, postDetails.post_id
                     ) { addUserSuccess ->
                         println("Add Interested User success: $addUserSuccess")
                         if (addUserSuccess) {
@@ -182,8 +191,7 @@ class ViewPostFragment : Fragment() {
                 isLiked = false
                 //else check if the photo is liked, if yes dislike it
                 PostService.deleteInterestedUserByPosts(
-                    postDetails.post_id,
-                    App.sharedPrefs.userID
+                    postDetails.post_id, App.sharedPrefs.userID
                 ) { deleteUserSuccess ->
                     println("Delete Interested User success: $deleteUserSuccess")
                     if (deleteUserSuccess) {
@@ -211,12 +219,120 @@ class ViewPostFragment : Fragment() {
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 println(menuItem.title)
                 if (menuItem.title?.equals("Edit Post") == true) {
-                    view.findNavController().navigate(
-                        R.id.action_viewPostFragment_to_editPostFragment,
-                        Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+                    view.findNavController()
+                        .navigate(R.id.action_viewPostFragment_to_editPostFragment,
+                            Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
                 }
                 if (menuItem.title == "Mark as Donated") {
+                    val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    val dialogView = layoutInflater.inflate(R.layout.donation_ongoing_layout, null)
 
+                    val recieverNameSpinner = dialogView.findViewById<Spinner>(R.id.receiverNames)
+
+                    fun View?.removeSelf() {
+                        this ?: return
+                        val parentView = parent as? ViewGroup ?: return
+                        parentView.removeView(this)
+                    }
+
+                    println(postDetails.post_id)
+                    println(PostService.InterestedUsersMapList[postDetails.post_id])
+                    //get Interested Users of the Post
+                    val items = arrayListOf<String>()
+                    val idReceiver = arrayListOf<String>()
+                    if (PostService.InterestedUsersMapList.containsKey(postDetails.post_id)) {
+                        for (i in PostService.InterestedUsersMapList[postDetails.post_id]!!) {
+                            items.add(i.user_name)
+                            idReceiver.add(i.user_id)
+                        }
+
+                        println(items.size)
+                        if (items.size == 0) {
+                            Toast.makeText(
+                                requireContext(),
+                                "The post does not have any interested receiver",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            dialogView.removeSelf()
+                        }
+                        if (items.size > 0) {
+                            val adapter = ArrayAdapter(
+                                requireContext(), android.R.layout.simple_spinner_item, items
+                            )
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            recieverNameSpinner.adapter = adapter
+                            recieverNameSpinner.setSelection(0)
+                            recieverNameSpinner.onItemSelectedListener =
+                                object : AdapterView.OnItemSelectedListener {
+                                    override fun onItemSelected(
+                                        parent: AdapterView<*>, view: View?, position: Int, id: Long
+                                    ) {
+                                        recieverNameSpinner.setSelection(position)
+                                        recieverId = idReceiver[position]
+                                        recieverName= items[position]
+                                        println("Selected reciever : $recieverId")
+                                        println("Selected reciever name : $recieverName")
+                                    }
+                                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                                        // do nothing
+                                    }
+                                }
+                        }
+                    }
+
+                    if (builder != null) {
+                        builder.setView(dialogView).setPositiveButton("Verify") { _, i ->
+                            //call service to update donation status; write backend code for transactions and record it
+                            PostService.updateDonationStatus(
+                                postDetails.post_id, "2"
+                            ) {// 2 -> ongoing status
+                                    updateSuccess ->
+                                println("Update Donation status success: $updateSuccess")
+                                if (updateSuccess) {
+                                    PostService.createTransaction(
+                                        postDetails.post_id,
+                                        recieverId,
+                                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time)
+                                    ) { createSuccess ->
+                                        println("Create Transaction success: $createSuccess")
+                                        if (createSuccess) {
+                                            //send Notification to the reciever of the clothes for rating
+                                            val title = "Please Rate the Donor"
+                                            val message =
+                                                "Share your experience on the donation process with ${App.sharedPrefs.userName} :)"
+
+                                            println("Reciever Id $recieverId")
+                                            println("RecieverName: $recieverName")        
+
+                                            AuthService.getFCMToken(recieverName) { response ->
+                                                println("Get FCM Token success: $response")
+                                                println("Recipient Token during notification sending is:${AuthService.recipientToken}")
+                                                PushNotification(
+                                                    NotificationData(title, message),
+                                                    AuthService.recipientToken
+                                                ) .also { sendNotification(it) }
+
+                                                //go to profile
+                                                view.findNavController()
+                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment,
+                                                        Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+
+
+                                                //post laii grey; unavailable banaune // donation sttus complete vayesii huncha auto
+
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        builder.setNegativeButton("Cancel") { dialog, which ->
+                            dialog.dismiss()
+                        }
+
+                        builder.setView(dialogView).show()
+                    }
                 }
                 if (menuItem.title == "Delete Post") {
                     val builder = AlertDialog.Builder(context)
@@ -235,9 +351,7 @@ class ViewPostFragment : Fragment() {
                                 println(PostService.InterestedUsersMapList[postDetails.post_id])
                                 PostService.InterestedUsersMapList.remove(postDetails.post_id)
                                 Toast.makeText(
-                                    context,
-                                    "Post was deleted successfully",
-                                    Toast.LENGTH_SHORT
+                                    context, "Post was deleted successfully", Toast.LENGTH_SHORT
                                 ).show()
                                 view.findNavController()
                                     .navigate(R.id.action_viewPostFragment_to_profileFragment)
@@ -252,8 +366,7 @@ class ViewPostFragment : Fragment() {
                     dialog.show()
                 }
                 // Toast message on menu item clicked
-                Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT).show()
                 true
             }
             // Showing the popup menu
@@ -261,4 +374,21 @@ class ViewPostFragment : Fragment() {
         }
         return view
     }
+
+    val TAG = "DonationProcess"
+    private fun sendNotification(notification: PushNotification) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitInstance.api.postNotification(notification)
+                if (response.isSuccessful) {
+                    println("Notification successfully sent")
+                    println(response.message().toString())
+                } else {
+                    println("Notification could not be sent")
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
 }

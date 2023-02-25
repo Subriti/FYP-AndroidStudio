@@ -38,6 +38,10 @@ const val URL_DELETE_INTERESTED_USERS= "${BASE_URL}interestedUsers/deleteInteres
 
 const val URL_UPDATE_CLOTH= "${BASE_URL}clothes/updateClothes/"
 const val URL_UPDATE_POST= "${BASE_URL}post/updatePost/"
+const val URL_UPDATE_DONATION_STATUS= "${BASE_URL}post/updateDonationStatus/"
+
+const val URL_ADD_TRANSACTION= "${BASE_URL}transaction/addTransaction"
+const val URL_UPDATE_RATING= "${BASE_URL}transaction/updateTransaction/"
 const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
 
 const val URL_FIND_POST= "${BASE_URL}post/findPost/"

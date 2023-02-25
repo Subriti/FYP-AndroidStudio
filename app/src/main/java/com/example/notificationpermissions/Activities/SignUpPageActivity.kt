@@ -82,6 +82,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
     private lateinit var createSpinner: ProgressBar
 
+    private var hideEmail= false
+    private var hideNumber= false
+
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,6 +110,16 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         password = findViewById<EditText>(R.id.passwordText)
         repassword = findViewById<EditText>(R.id.repasswordText)
         phonecode = findViewById<CountryCodePicker>(R.id.ccp)
+
+        val privateEmail= findViewById<CheckBox>(R.id.privateEmail)
+        if(privateEmail.isChecked){
+            hideEmail= true
+        }
+
+        val privateNumber= findViewById<CheckBox>(R.id.privateNumber)
+        if (privateNumber.isChecked){
+            hideNumber= true
+        }
 
         val indicatorText = findViewById<TextView>(R.id.passwordIndicatorText)
         indicatorText.visibility = View.GONE

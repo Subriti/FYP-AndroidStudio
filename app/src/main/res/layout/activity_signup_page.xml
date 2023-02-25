@@ -109,21 +109,21 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ccp"
+        app:layout_constraintTop_toBottomOf="@+id/privateNumber"
         app:srcCompat="@drawable/baseline_location_on_24" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dateInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="50dp"
         android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailInputLayout">
+        app:layout_constraintTop_toBottomOf="@+id/privateEmail">
 
         <EditText
             android:id="@+id/dateText"
@@ -221,7 +221,7 @@
         android:id="@+id/saveChanges"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="Start Donating"
         app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -238,6 +238,32 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/saveChanges" />
+
+    <CheckBox
+        android:id="@+id/privateNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginTop="4dp"
+        android:text="Keep my number private"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout" />
+
+    <CheckBox
+        android:id="@+id/privateEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginTop="4dp"
+        android:text="Hide Email details from profile"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailInputLayout" />
 
     <TextView
         android:id="@+id/passwordIndicatorText"
@@ -264,11 +290,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/findLocation"
-        app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout">
+        app:layout_constraintTop_toBottomOf="@+id/privateNumber">
 
         <EditText
             android:id="@+id/locationText"

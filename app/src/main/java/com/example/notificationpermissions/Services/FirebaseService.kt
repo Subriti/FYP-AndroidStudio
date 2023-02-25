@@ -9,7 +9,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.core.app.NotificationCompat
+import com.example.notificationpermissions.Activities.AlertDetails
 import com.example.notificationpermissions.Activities.DashboardActivity
+import com.example.notificationpermissions.Fragments.ProfileFragment
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Utilities.App
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -20,20 +22,6 @@ import kotlin.random.Random
 private const val CHANNEL_ID = "my_channel"
 
 class FirebaseService: FirebaseMessagingService() {
-
-    /*companion object{
-        var sharedPref: SharedPreferences?= null
-
-        var token: String?
-        get(){
-            return sharedPref?.getString("token","")
-        }
-        set(value){
-            sharedPref?.edit()?.putString("token", value)?.apply()
-        }
-
-    }*/
-
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         App.sharedPrefs.token= newToken
@@ -47,7 +35,16 @@ class FirebaseService: FirebaseMessagingService() {
 
     private fun showNotification(message: RemoteMessage) {
         //intent actually should be the current post liked ko viewPostFragment
-        val intent = Intent(this, DashboardActivity::class.java)
+        var intent = Intent(this, DashboardActivity::class.java)
+
+        if (message.data["title"]=="Please Rate the Donor"){
+            intent = Intent(this, AlertDetails::class.java)
+        }
+
+        if (message.data["title"]=="Your post was liked by someone"){
+            intent = Intent(this, ProfileFragment::class.java)
+        }
+
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notificationID = Random.nextInt()
 
