@@ -13,7 +13,7 @@
         android:layout_height="100dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="60dp"
-        app:civ_border_color="#FF000000"
+        app:civ_border_color="@color/purple_200"
         app:civ_border_width="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -26,7 +26,19 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="Edit Profile"
+        app:cornerRadius="10dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
+    <Button
+        android:id="@+id/blockUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Block"
+        app:cornerRadius="10dp"
+        app:layout_constraintStart_toEndOf="@+id/editProfile"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
 
     <ImageView
@@ -66,8 +78,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:drawableStart="@drawable/ic_baseline_mail_outline_24"
+        android:drawableStart="@drawable/baseline_mail_outline_24"
         android:text="  gmail.com"
+        android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/profile_image"
         app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
@@ -76,8 +89,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:drawableStart="@drawable/ic_baseline_local_phone_24"
+        android:drawableStart="@drawable/baseline_local_phone_24"
         android:text="  phoneNum"
+        android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/profile_image"
         app:layout_constraintTop_toBottomOf="@+id/UserEmail" />
 
@@ -86,8 +100,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:drawableEnd="@drawable/ic_baseline_star_24"
+        android:drawableEnd="@drawable/baseline_stars_24"
         android:text="rating  "
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/editProfile" />
 
@@ -96,8 +111,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:drawableEnd="@drawable/ic_baseline_done_24"
-        android:text="cloths donated   "
+        android:drawableEnd="@drawable/baseline_done_all_24"
+        android:text="clothes donated   "
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/userRating" />
 
@@ -106,8 +122,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:drawableStart="@drawable/ic_baseline_location_on_24"
+        android:drawableStart="@drawable/baseline_location_on_24"
         android:text="  location"
+        android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/profile_image"
         app:layout_constraintTop_toBottomOf="@+id/UserPhone" />
 

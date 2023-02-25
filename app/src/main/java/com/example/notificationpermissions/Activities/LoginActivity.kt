@@ -28,6 +28,12 @@ class LoginActivity : AppCompatActivity() {
         loginSpinner= findViewById(R.id.loginSpinner)
         loginSpinner.visibility= View.INVISIBLE
 
+        val forgotPasswordBtn= findViewById<TextView>(R.id.forgotPassword)
+        forgotPasswordBtn.setOnClickListener {
+                //reset password by sending OTP? then redirect to change password fragment
+                //sendVerificationCode(number)
+        }
+
         loginBtn= findViewById(R.id.loginBtn)
 
         loginBtn.setOnClickListener{
@@ -98,7 +104,7 @@ class LoginActivity : AppCompatActivity() {
         loginBtn.isEnabled = !enable
     }
 
-    fun hideKeyboard() {
+    private fun hideKeyboard() {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         if (inputManager.isAcceptingText) {

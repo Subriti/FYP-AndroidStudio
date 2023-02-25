@@ -203,7 +203,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             ) {
                 //val item = parent.getItemAtPosition(position).toString()
                 spinnerClothSize.setSelection(position)
-                clothSize = spinnerClothSize.selectedItem as String
+                clothSize = spinnerClothSize.selectedItem.toString() //as String
                 println("Selected cloth size: $clothSize")
             }
 
@@ -229,7 +229,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             ) {
                 //val item = parent.getItemAtPosition(position).toString()
                 spinnerClothCondition.setSelection(position)
-                clothCondition = spinnerClothCondition.selectedItem as String
+                clothCondition = spinnerClothCondition.selectedItem.toString() //as String
                 println("Selected cloth condition: $clothCondition")
             }
 
@@ -253,7 +253,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 spinnerClothSeason.setSelection(position)
-                clothSeason = spinnerClothSeason.selectedItem as String
+                clothSeason = spinnerClothSeason.selectedItem.toString()
                 println("Selected cloth season: $clothSeason")
             }
 
@@ -277,15 +277,13 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 parent: AdapterView<*>, view: View?, position: Int, id: Long
             ) {
                 spinnerClothDelivery.setSelection(position)
-                clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem as String}"
+                clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem}"
                 println("Selected cloth delivery: $clothDelivery")
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // do nothing
             }
         }
-
         return view
     }
 

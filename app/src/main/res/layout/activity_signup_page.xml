@@ -5,7 +5,7 @@
     android:id="@+id/registerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/whitisPurple"
+    android:background="@color/backgroundColor"
     android:paddingStart="30dp"
     android:paddingTop="20dp"
     android:paddingEnd="30dp"
@@ -16,13 +16,14 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
-        app:civ_border_color="@color/roseEbony"
+        android:adjustViewBounds="false"
+        app:civ_border_color="@color/purple_200"
         app:civ_border_width="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        tools:src="@drawable/img_6" />
+        tools:src="@drawable/img_5" />
 
     <TextView
         android:id="@+id/registerHeading"
@@ -30,6 +31,7 @@
         android:layout_height="wrap_content"
         android:text="Register"
         android:textAllCaps="true"
+        android:textColor="@color/purple_200"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,6 +46,7 @@
         android:fontFamily="serif"
         android:singleLine="false"
         android:text="Sign up for an account to start donating"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,6 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_picture">
@@ -62,7 +66,9 @@
             android:id="@+id/nameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name" />
+            android:background="@color/darkGrey"
+            android:hint="Full Name"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -70,6 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameInputLayout">
@@ -78,8 +85,10 @@
             android:id="@+id/emailText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/darkGrey"
             android:hint="Email"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
@@ -93,7 +102,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/dateInputLayout"
         app:layout_constraintTop_toTopOf="@+id/dateInputLayout"
-        app:srcCompat="@drawable/ic_baseline_calendar_month_24" />
+        app:srcCompat="@drawable/baseline_calendar_month_24" />
 
     <ImageView
         android:id="@+id/findLocation"
@@ -103,7 +112,7 @@
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ccp"
-        app:srcCompat="@drawable/ic_baseline_location_on_24" />
+        app:srcCompat="@drawable/baseline_location_on_24" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dateInputLayout"
@@ -111,6 +120,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginRight="50dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/emailInputLayout">
@@ -119,18 +129,21 @@
             android:id="@+id/dateText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/darkGrey"
             android:hint="Date of Birth"
-            android:inputType="date" />
+            android:inputType="date"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.hbb20.CountryCodePicker
         android:id="@+id/ccp"
         android:layout_width="95dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
         android:layout_marginTop="18dp"
         android:padding="2dp"
+        app:ccpDialog_textColor="@color/white"
         app:ccp_autoDetectCountry="true"
+        app:ccp_contentColor="@color/white"
         app:ccp_showFullName="false"
         app:ccp_showNameCode="false"
         app:ccp_showPhoneCode="true"
@@ -145,6 +158,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="-10dp"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ccp"
         app:layout_constraintTop_toBottomOf="@+id/dateInputLayout">
@@ -153,8 +167,10 @@
             android:id="@+id/phoneText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/darkGrey"
             android:hint="Phone number"
-            android:inputType="phone" />
+            android:inputType="phone"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -162,17 +178,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/locationInputLayout"
-        app:passwordToggleEnabled="true">
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/white">
 
         <EditText
             android:id="@+id/passwordText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/darkGrey"
             android:hint="Password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -180,17 +200,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout"
-        app:passwordToggleEnabled="true">
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/white">
 
         <EditText
             android:id="@+id/repasswordText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/darkGrey"
             android:hint="Re-Type Password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -199,6 +223,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Start Donating"
+        app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rePasswordInputLayout" />
@@ -208,6 +233,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:text="Remember Me"
+        android:textColor="@color/white"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -217,7 +243,7 @@
         android:id="@+id/passwordIndicatorText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/falured"
+        android:textColor="@android:color/holo_red_dark"
         app:layout_constraintEnd_toEndOf="@+id/rePasswordInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/rePasswordInputLayout"
         tools:text="Password didn't match" />
@@ -239,6 +265,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/findLocation"
         app:layout_constraintTop_toBottomOf="@+id/phoneInputLayout">
@@ -248,9 +275,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@color/darkGrey"
             android:ems="10"
             android:hint="Location"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -258,7 +288,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current Location"
-        android:textColor="@color/roseEbony"
+        android:textColor="@color/white"
         android:textSize="10sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/findLocation" />

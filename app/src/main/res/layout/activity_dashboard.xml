@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#969696"
+    android:background="@color/backgroundColor"
     tools:context=".Activities.DashboardActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -20,8 +20,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#121212"
-            android:backgroundTint="#272727"
+            android:background="@color/backgroundColor"
+            android:elevation="18dp"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.NotificationPermissions.PopupOverlay"
             app:menu="@menu/appbar_nav">
@@ -59,9 +59,8 @@
         android:id="@+id/bottom_navigation_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#121212"
-        app:backgroundTint="#272727"
-        app:elevation="8dp"
+        android:background="@color/backgroundColor"
+        app:elevation="14dp"
         app:itemTextColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

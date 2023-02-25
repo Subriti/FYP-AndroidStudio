@@ -120,6 +120,35 @@ class FeedRecyclerAdapter(
                 createdDatetime?.text = "$seconds seconds ago"
             }
 
+            val reportPost= itemView.findViewById<Button>(R.id.reportBtn)
+            reportPost.setOnClickListener {
+                val builder = AlertDialog.Builder(context)
+                builder.setTitle("Confirm")
+                builder.setMessage("Are you sure you want to report this post?")
+                builder.setPositiveButton("Yes") { dialog, which ->
+                    // Perform the reporting of the post
+
+                   /* PostService.reportPost(
+                        post.post_id,
+                    ) { reportPostSuccess ->
+                        println("Report Post success: $reportPostSuccess")
+                        if (reportPostSuccess) {
+                            Toast.makeText(
+                                context,
+                                "Post was reported successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }*/
+                }
+                builder.setNegativeButton("No") { dialog, which ->
+                    dialog.dismiss()
+                }
+                val dialog = builder.create()
+                dialog.show()
+            }
+
             userProfile.setOnClickListener {
                 //if opened own's profile, open profile fragment
                 if (post.post_by == App.sharedPrefs.userName) {

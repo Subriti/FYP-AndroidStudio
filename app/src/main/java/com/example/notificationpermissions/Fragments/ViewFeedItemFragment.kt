@@ -3,13 +3,13 @@ package com.example.notificationpermissions.Fragments
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Activities.DashboardActivity
@@ -23,8 +23,7 @@ import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
 
-
-class ViewPostFragment : Fragment() {
+class ViewFeedItemFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,52 +43,18 @@ class ViewPostFragment : Fragment() {
 
         val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
 
-        println(postDetails.media_file)
         context?.let {
             Glide.with(it).load(postDetails.media_file).into(postImage)
         }
-/*
-        println(postDetails.post_id)
-        println(postDetails.post_by)
-        println(postDetails.description)
-        println(postDetails.cloth_id)
-        println(postDetails.created_datetime)
-        println(postDetails.donation_status)
-        println(postDetails.location)*/
 
-        val userJSONObject = JSONObject(postDetails.post_by)
-        val name = userJSONObject.getString("user_name")
-        username?.text = name
+        username?.text = postDetails.post_by
 
-        val profilePicture = userJSONObject.getString("profile_picture")
-        println(postDetails.cloth_id)
+        val profilePicture = postDetails.cloth_id
         context?.let {
             Glide.with(it).load(profilePicture).into(userProfile)
         }
-        val location = postDetails.location
-        val clothId = postDetails.cloth_id
 
-        val clothJSONObject = JSONObject(clothId)
-        val clothSize = clothJSONObject.getString("cloth_size")
-        val clothCondition = clothJSONObject.getString("cloth_condition")
-        val clothSeason = clothJSONObject.getString("cloth_season")
-
-        val clothCategory = clothJSONObject.getString("clothes_category_id")
-        val categoryJSONObject = JSONObject(clothCategory)
-        val category = categoryJSONObject.getString("category_name")
-
-        val itemCategoryId = clothJSONObject.getString("item_category_id")
-        val itemCategoryJSONObject = JSONObject(itemCategoryId)
-        val itemCategory = itemCategoryJSONObject.getString("category_name")
-
-        val donationStatus = postDetails.donation_status
-        val donationJSONObject = JSONObject(donationStatus)
-        val status = donationJSONObject.getString("donation_status")
-
-        val customDescription =
-            "${postDetails.description}\nCloth Category: $category \nItem Category: $itemCategory \nCloth Size: $clothSize \nCloth Condition: $clothCondition \nCloth Season: $clothSeason \nDonation Status: $status \nLocation: $location"
-
-        description.text = customDescription
+        description.text = postDetails.description
 
         val dateString = postDetails.created_datetime
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -194,71 +159,9 @@ class ViewPostFragment : Fragment() {
             }
         }
 
-        //hiding and displaying the edit menu
-        println("Post Owner: " + postDetails.post_by)
-        val post = JSONObject(postDetails.post_by)
-        val postOwner = post.getString("user_name")
-        println("Logged in User: " + App.sharedPrefs.userName)
+        //hiding the edit menu when viewing from the grid feed
         val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
-
-        postOptions.isVisible = postOwner == App.sharedPrefs.userName
-        postOptions?.setOnClickListener {
-            val popupMenu = PopupMenu(context, postOptions)
-
-            // Inflating popup menu from popup_menu.xml file
-            popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
-
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                println(menuItem.title)
-                if (menuItem.title?.equals("Edit Post") == true) {
-                    view.findNavController().navigate(
-                        R.id.action_viewPostFragment_to_editPostFragment,
-                        Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
-                }
-                if (menuItem.title == "Mark as Donated") {
-
-                }
-                if (menuItem.title == "Delete Post") {
-                    val builder = AlertDialog.Builder(context)
-                    builder.setTitle("Confirm")
-                    builder.setMessage("Are you sure you want to delete this post?")
-                    builder.setPositiveButton("Yes") { dialog, which ->
-                        // Perform the deletion of the post
-                        PostService.deletePost(
-                            postDetails.post_id,
-                        ) { deleteUserSuccess ->
-                            println("Delete Post success: $deleteUserSuccess")
-                            if (deleteUserSuccess) {
-                                PostService.posts.remove(postDetails)
-                                PostService.AllPosts.remove(postDetails)
-                                println(PostService.InterestedUsersMapList)
-                                println(PostService.InterestedUsersMapList[postDetails.post_id])
-                                PostService.InterestedUsersMapList.remove(postDetails.post_id)
-                                Toast.makeText(
-                                    context,
-                                    "Post was deleted successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                view.findNavController()
-                                    .navigate(R.id.action_viewPostFragment_to_profileFragment)
-                            }
-
-                        }
-                    }
-                    builder.setNegativeButton("No") { dialog, which ->
-                        dialog.dismiss()
-                    }
-                    val dialog = builder.create()
-                    dialog.show()
-                }
-                // Toast message on menu item clicked
-                Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT)
-                    .show()
-                true
-            }
-            // Showing the popup menu
-            popupMenu.show()
-        }
+        postOptions.isVisible = false
         return view
     }
 }

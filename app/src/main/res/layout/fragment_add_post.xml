@@ -16,8 +16,7 @@
             android:id="@+id/addPost_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#121212"
-            android:backgroundTint="#272727"
+            android:background="@color/darkGrey"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.NotificationPermissions.PopupOverlay">
 
@@ -30,7 +29,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
-                    android:background="#272727"
+                    android:background="@color/darkGrey"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_close_24" />
 
@@ -52,7 +51,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerInParent="true"
                     android:layout_marginEnd="10dp"
-                    android:background="#272727"
+                    android:background="@color/darkGrey"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_check_24" />
             </RelativeLayout>
@@ -64,7 +63,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_below="@id/app_bar_layout_addPost"
-        android:background="@color/whitisPurple"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,6 +78,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Delivery:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView18" />
@@ -90,6 +89,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothSeason" />
@@ -102,6 +102,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Cloth Condition:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -114,6 +115,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Season: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView17" />
@@ -122,8 +124,9 @@
             android:id="@+id/spinnerClothSeason"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginTop="23dp"
+            android:layout_marginTop="25dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothCondition" />
@@ -134,6 +137,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothSize" />
@@ -146,6 +150,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Cloth Size:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView15" />
@@ -156,6 +161,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerItemCategory" />
@@ -168,6 +174,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Item Category: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView11" />
@@ -178,6 +185,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerCategory" />
@@ -189,6 +197,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
+            android:textColorHint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/picture_to_be_posted">
@@ -197,9 +206,11 @@
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/darkGrey"
                 android:hint="Write a Description"
                 android:inputType="textMultiLine|textImeMultiLine"
-                android:maxLines="6" />
+                android:maxLines="6"
+                android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
@@ -209,7 +220,7 @@
             android:layout_marginTop="44dp"
             app:layout_constraintStart_toEndOf="@+id/picture_to_be_posted"
             app:layout_constraintTop_toTopOf="@+id/picture_to_be_posted"
-            app:srcCompat="@drawable/ic_baseline_location_on_24" />
+            app:srcCompat="@drawable/baseline_location_on_24" />
 
         <TextView
             android:id="@+id/locationText"
@@ -218,7 +229,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginRight="12dp"
             android:text=" Current Location"
-            android:textColor="@color/roseEbony"
+            android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -253,8 +264,9 @@
             android:id="@+id/spinnerCategory"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/locationInputLayout" />
@@ -264,8 +276,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
+            android:layout_marginTop="4dp"
             android:padding="10dp"
             android:text="Category: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locationInputLayout" />

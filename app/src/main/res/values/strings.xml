@@ -26,66 +26,66 @@
     <string name="description">Write a Description</string>
 
     <string-array name="filterBy_array">
-        <item>General Category</item>
-        <item>Item Category</item>
-        <item>Available Location</item>
-        <item>Cloth Sizes</item>
-        <item>Cloth Condition</item>
-        <item>Cloth Season</item>
+        <item><font fgcolor='#FFFFFFFF'>General Category</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Item Category</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Available Location</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Cloth Sizes</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Cloth Condition</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Cloth Season</font></item>
     </string-array>
 
     <string-array name="location_array">
-        <item>Kathmandu</item>
-        <item>Biratnagar</item>
-        <item>Lalitpur</item>
-        <item>Itahari</item>
-        <item>Mustang</item>
-        <item>Nagarkot</item>
+        <item><font fgcolor='#FFFFFFFF'>Kathmandu</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Biratnagar</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Lalitpur</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Itahari</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Mustang</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Nagarkot</font></item>
     </string-array>
 
 
     <string-array name="clothCategory_array">
-        <item>Unisex Clothing</item>
-        <item>Men\'s Clothing</item>
-        <item>Women\'s Clothing</item>
-        <item>Infant\'s Clothing</item>
-        <item>Children\'s Clothing</item>
+        <item><font fgcolor='#FFFFFFFF'>Unisex Clothing</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Men\'s Clothing</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Women\'s Clothing</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Infant\'s Clothing</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Children\'s Clothing</font></item>
     </string-array>
 
     <string-array name="itemCategory_array">
-        <item>Shirt</item>
-        <item>Pant</item>
-        <item>Jacket</item>
-        <item>T-shirt</item>
-        <item>Sweater</item>
+        <item><font fgcolor='#FFFFFFFF'>Shirt</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Pant</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Jacket</font></item>
+        <item><font fgcolor='#FFFFFFFF'>T-shirt</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Sweater</font></item>
     </string-array>
 
     <string-array name="clothSizes_array">
-        <item>(XS) Extra Small</item>
-        <item>(S) Small</item>
-        <item>(M) Medium</item>
-        <item>(L) Large</item>
-        <item>(XL) Extra Large</item>
-        <item>(XXL) Double Extra Large</item>
+        <item><font fgcolor='#FFFFFFFF'>(XS) Extra Small</font></item>
+        <item><font fgcolor='#FFFFFFFF'>(S) Small</font></item>
+        <item><font fgcolor='#FFFFFFFF'>(M) Medium</font></item>
+        <item><font fgcolor='#FFFFFFFF'>(L) Large</font></item>
+        <item><font fgcolor='#FFFFFFFF'>(XL) Extra Large</font></item>
+        <item><font fgcolor='#FFFFFFFF'>(XXL) Double Extra Large</font></item>
     </string-array>
 
     <string-array name="clothCondition_array">
-        <item>Rarely Used</item>
-        <item>Heavily Used</item>
-        <item>Fairly Used</item>
+        <item><font fgcolor='#FFFFFFFF'>Rarely Used</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Heavily Used</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Fairly Used</font></item>
     </string-array>
 
     <string-array name="clothSeason_array">
-        <item>Summer</item>
-        <item>Winter</item>
-        <item>Rainy</item>
-        <item>Autumn</item>
+        <item><font fgcolor='#FFFFFFFF'>Summer</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Winter</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Rainy</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Autumn</font></item>
     </string-array>
 
     <string-array name="clothDelivery_array">
-        <item>Available Anywhere</item>
-        <item>Not Available</item>
-        <item>Available near my location</item>
-        <item>Available within city</item>
+        <item><font fgcolor='#FFFFFFFF'>Available Anywhere</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Not Available</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Available near my location</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Available within city</font></item>
     </string-array>
 </resources>

@@ -11,12 +11,12 @@ import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 
-class PostRecycleAdapter(
+class FeedGridRecyclerAdapter (
     private val context: Context,
     private val imageUrls: List<String>,
     val itemClick: (Post) -> Unit
 ) :
-    RecyclerView.Adapter<PostRecycleAdapter.ViewHolder>() {
+    RecyclerView.Adapter<FeedGridRecyclerAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
@@ -30,7 +30,7 @@ class PostRecycleAdapter(
             .load(imageUrl)
             .into(holder.imageView)
 
-        holder.bindPost(PostService.posts[position])
+        holder.bindPost(PostService.AllPosts[position])
     }
 
     override fun getItemCount(): Int {
@@ -39,7 +39,7 @@ class PostRecycleAdapter(
 
     inner class ViewHolder(itemView: View, val itemClick: (Post) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById<ImageView>(R.id.postImage)
+        val imageView: ImageView = itemView.findViewById(R.id.postImage)
 
         fun bindPost(post: Post) {
             itemView.setOnClickListener {
@@ -48,4 +48,3 @@ class PostRecycleAdapter(
         }
     }
 }
-

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -62,10 +63,14 @@ class UserViewProfileFragment : Fragment() {
         phoneNumber.text = "  ${newPostDetails?.user_phone}"
         location.text = "  ${newPostDetails?.location}"
 
+        val blockBtn= view.findViewById<Button>(R.id.blockUser)
+        blockBtn.setOnClickListener {
+            //write backend code to block the user and store details
+        }
+
         imgButton = view.findViewById(R.id.editProfile)
         imgButton.text = "Message"
         imgButton.setOnClickListener {
-
             //checking if the user's chatroom already exists
             MessageService.getChatRoomId(App.sharedPrefs.userName, newPostDetails?.post_by!!) { complete ->
                 if (complete) {

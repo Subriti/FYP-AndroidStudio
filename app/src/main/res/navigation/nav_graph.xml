@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_viewFeedItemFragment"
+            app:destination="@id/viewFeedItemFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -114,5 +117,17 @@
         <action
             android:id="@+id/action_individualChatRoomFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewFeedItemFragment"
+        android:name="com.example.notificationpermissions.Fragments.ViewFeedItemFragment"
+        android:label="Post"
+        tools:layout="@layout/view_user_post_item" >
+        <action
+            android:id="@+id/action_viewFeedItemFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_viewFeedItemFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

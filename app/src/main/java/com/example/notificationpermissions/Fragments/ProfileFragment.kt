@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -53,6 +54,8 @@ class ProfileFragment : Fragment() {
         phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
         location.text = "  ${App.sharedPrefs.location}"
 
+        val blockBtn= view.findViewById<Button>(R.id.blockUser)
+        blockBtn.isVisible= false
 
         imgButton = view.findViewById<Button>(R.id.editProfile)
         imgButton.setOnClickListener {
