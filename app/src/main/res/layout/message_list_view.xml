@@ -18,7 +18,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/messageUserimage"
+        app:layout_constraintStart_toEndOf="@+id/Userimage"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +31,7 @@
             android:layout_marginBottom="8dp">
 
             <TextView
-                android:id="@+id/messageBodyLabel"
+                android:id="@+id/message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
@@ -53,15 +53,15 @@
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/messageBodyLabel"
-                app:layout_constraintTop_toBottomOf="@+id/messageBodyLabel"
+                app:layout_constraintStart_toStartOf="@+id/message"
+                app:layout_constraintTop_toBottomOf="@+id/message"
                 tools:text="Mar 11, 10:30 PM" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/messageUserimage"
+        android:id="@+id/Userimage"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="8dp"

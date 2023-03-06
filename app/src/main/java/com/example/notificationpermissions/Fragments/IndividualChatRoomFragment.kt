@@ -45,13 +45,13 @@ import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
-class IndividualChatRoomFragment : Fragment(), OnClickListener{
-    var messageText: TextView? =null
-    var messageList:RecyclerView?=null
+class IndividualChatRoomFragment : Fragment(), OnClickListener {
+    var messageText: TextView? = null
+    var messageList: RecyclerView? = null
     lateinit var webSocketClient: WebSocketClient
 
     lateinit var messageAdapter: MessageAdapter
-    var chatDetails:ChatRoom?= null
+    var chatDetails: ChatRoom? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,11 +66,11 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         chatDetails = arguments?.getSerializable(EXTRA_CHAT_ROOM) as ChatRoom
         createWebSocketClient()
 
-        val recieverName= view.findViewById<TextView>(R.id.recieverUsername)
-        val recieverProfile= view.findViewById<ImageView>(R.id.recieverProfile)
-        messageText= view.findViewById(R.id.messageText)
-        val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
-        val backButton= view.findViewById<ImageView>(R.id.backButton)
+        val recieverName = view.findViewById<TextView>(R.id.recieverUsername)
+        val recieverProfile = view.findViewById<ImageView>(R.id.recieverProfile)
+        messageText = view.findViewById(R.id.messageText)
+        val sendMessage = view.findViewById<ImageView>(R.id.sendMessage)
+        val backButton = view.findViewById<ImageView>(R.id.backButton)
         // backButton.isVisible=false
 
         backButton.setOnClickListener {
@@ -80,7 +80,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
             (activity as DashboardActivity?)!!.supportActionBar!!.show()
 */
             //view.findNavController().popBackStack(R.id.homeFragment, false)
-            println(view.findNavController().backQueue.last().destination )
+            println(view.findNavController().backQueue.last().destination)
             println(view.findNavController().findDestination(R.id.individualChatRoomFragment))
 
             if (view.findNavController().backQueue.last().destination == view.findNavController()
@@ -108,7 +108,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
               }*/
         }
 
-        val phoneButton= view.findViewById<ImageView>(R.id.recieverPhone)
+        val phoneButton = view.findViewById<ImageView>(R.id.recieverPhone)
         phoneButton.setOnClickListener {
             //get receiver's phone number: intent to call the number
             val phoneNumber = chatDetails!!.recieverPhone
@@ -131,8 +131,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         }
 
         fun getUserChatRoomMessages() {
-            MessageService.getChatRoomMessages(chatDetails!!.chatRoomId) {
-                    getChatRoomMessages ->
+            MessageService.getChatRoomMessages(chatDetails!!.chatRoomId) { getChatRoomMessages ->
                 println("Get Chat Room Messages success: $getChatRoomMessages")
                 if (getChatRoomMessages) {
                     //adapter ma halera display
@@ -142,9 +141,9 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                         view.findViewById(R.id.messageListView)
                     messageList?.adapter = messageAdapter
                     val layoutManager = LinearLayoutManager(context)
-                    layoutManager.stackFromEnd = true;
+                    layoutManager.stackFromEnd = true
                     messageList?.layoutManager = layoutManager
-                    messageList?.scrollToPosition((messageList?.adapter?.itemCount)!! - 1);
+                    messageList?.scrollToPosition((messageList?.adapter?.itemCount)!! - 1)
                     messageAdapter.notifyDataSetChanged()
                 }
             }
@@ -157,11 +156,12 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
     private fun createWebSocketClient() {
         val uri: URI = try {
             // Connect to local host
-            val encodedPath= URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
+            val encodedPath = URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
-           URI("ws://192.168.1.101:8080/api/messageSocket/$encodedPath")
+            URI("ws://192.168.1.101:8080/api/messageSocket/$encodedPath")
             //URI("ws://100.64.232.254:8080/api/messageSocket/$encodedPath")
-            //URI("ws://100.64.254.24:8080/api/messageSocket/$encodedPath")
+            //URI("ws://100.64.252.7:8080/api/messageSocket/$encodedPath")
+            //URI("ws://192.168.100.48:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -208,44 +208,47 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                         println(timeStamp)*/
 
                         val recieverId = jsonBody.getString("reciever_user_id")
-                        val reciever= JSONObject(recieverId)
-                        val rID= reciever.getString("user_id")
+                        val reciever = JSONObject(recieverId)
+                        val rID = reciever.getString("user_id")
 
                         val senderId = jsonBody.getString("sender_user_id")
-                        val sender= JSONObject(senderId)
-                        val sID= sender.getString("user_id")
+                        val sender = JSONObject(senderId)
+                        val sID = sender.getString("user_id")
 
                         val chatRoomId = jsonBody.getString("chat_room_id")
 
-                        var userName= ""
-                        var profile= ""
-                        var token= ""
-                        var phone=""
+                        var userName = ""
+                        var profile = ""
+                        var token = ""
+                        var phone = ""
 
-                        if (sID==App.sharedPrefs.userID){
-                            userName= App.sharedPrefs.userName
-                            profile= App.sharedPrefs.profilePicture
-                            token= App.sharedPrefs.token
-                            phone=App.sharedPrefs.phoneNumber
+                        if (sID == App.sharedPrefs.userID) {
+                            userName = App.sharedPrefs.userName
+                            profile = App.sharedPrefs.profilePicture
+                            token = App.sharedPrefs.token
+                            phone = App.sharedPrefs.phoneNumber
 
                             val title = "Message from ${App.sharedPrefs.userName}"
-                            val message ="Message: ${messageBody}"
+                            val message = "Message: ${messageBody}"
+                            val data = mapOf("token" to token)
                             PushNotification(
-                                NotificationData(title, message),
+                                NotificationData(title, message, data),
                                 chatDetails?.recieverFCMtoken.toString()
                             )
                                 .also { sendNotification(it) }
-                        }else{
-                            userName= chatDetails?.recieverUserName.toString()
-                            profile= chatDetails?.recieverProfilePicture.toString()
-                            token= chatDetails?.recieverFCMtoken.toString()
-                            phone= chatDetails?.recieverPhone.toString()
+                        } else {
+                            userName = chatDetails?.recieverUserName.toString()
+                            profile = chatDetails?.recieverProfilePicture.toString()
+                            token = chatDetails?.recieverFCMtoken.toString()
+                            phone = chatDetails?.recieverPhone.toString()
 
                             //send notification as well
                             val title = "Message from ${chatDetails?.recieverUserName.toString()}"
-                            val message ="Message: ${messageBody}"
+                            val message = "Message: ${messageBody}"
+
+                            val data = mapOf("token" to token)
                             PushNotification(
-                                NotificationData(title, message),
+                                NotificationData(title, message, data),
                                 App.sharedPrefs.token
                             )
                                 .also { sendNotification(it) }
@@ -262,11 +265,11 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
                             token,
                             chatRoomId,
                             phone
-                        );
+                        )
                         MessageService.messages.add(newMessages)
                         messageAdapter.notifyDataSetChanged()
-                        if (messageAdapter.itemCount >0){
-                            messageList?.smoothScrollToPosition(messageAdapter.itemCount-1)
+                        if (messageAdapter.itemCount > 0) {
+                            messageList?.smoothScrollToPosition(messageAdapter.itemCount - 1)
                         }
                     }
                 }
@@ -326,36 +329,37 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener{
         val dateTimeWithTimezone = sdf.format(Calendar.getInstance().time)
 
         //send full detail for adding the msg
-        val jsonBody= JSONObject()
+        val jsonBody = JSONObject()
         jsonBody.put("message_body", messageText?.text.toString())
         //jsonBody.put("timestamp", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time))
         jsonBody.put("timestamp", dateTimeWithTimezone)
 
-        val reciever= JSONObject()
-        reciever.put("user_id",chatDetails?.receiverUserId)
+        val reciever = JSONObject()
+        reciever.put("user_id", chatDetails?.receiverUserId)
         jsonBody.put("reciever_user_id", reciever)
 
-        val sender= JSONObject()
-        sender.put("user_id",App.sharedPrefs.userID)
-        jsonBody.put("sender_user_id",sender)
+        val sender = JSONObject()
+        sender.put("user_id", App.sharedPrefs.userID)
+        jsonBody.put("sender_user_id", sender)
 
-        jsonBody.put("chat_room_id", chatDetails?.chatRoomId )
-        println("JSON BOdy is "+jsonBody)
+        jsonBody.put("chat_room_id", chatDetails?.chatRoomId)
+        println("JSON BOdy is " + jsonBody)
 
-        when (view?.id) {
+        when (view.id) {
             //R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())
             R.id.sendMessage -> webSocketClient.send(jsonBody.toString())
         }
         messageAdapter.notifyDataSetChanged()
-        if (messageAdapter.itemCount >0){
-            messageList?.smoothScrollToPosition(messageAdapter.itemCount-1)
+        if (messageAdapter.itemCount > 0) {
+            messageList?.smoothScrollToPosition(messageAdapter.itemCount - 1)
         }
-        messageText?.text=""
+        messageText?.text = ""
         hideKeyboard()
     }
 
     fun hideKeyboard() {
-        val inputManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         if (inputManager.isAcceptingText) {
             inputManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)

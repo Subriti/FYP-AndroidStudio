@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
+import com.example.notificationpermissions.Utilities.POST_ID_EXTRA
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,6 +21,9 @@ class AlertDetails : AppCompatActivity() {
 
         val builder = this.let { it1 -> AlertDialog.Builder(it1) }
         val dialogView = layoutInflater.inflate(R.layout.confirmation_prompt, null)
+
+        val postId = intent.getStringExtra(POST_ID_EXTRA)
+        println(postId)
 
         if (builder != null) {
             builder.setView(dialogView)
@@ -48,21 +52,32 @@ class AlertDetails : AppCompatActivity() {
                                         println(ratingBar.numStars)
 
                                         //how to uniquely identify which notification belongs to which post
-                                        PostService.updateRating("", rating, SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
-                                            Calendar.getInstance().time)){
-                                                updateSuccess ->
-                                            println("Update Transaction Rating success: $updateSuccess")
-                                            if (updateSuccess) {
-                                                PostService.updateDonationStatus(
-                                                    "", "3"    // 3 -> completed status
-                                                ) { updateSuccess ->
-                                                    println("Update Donation status success: $updateSuccess")
-                                                    if (updateSuccess) {
-                                                        Toast.makeText(
-                                                            this,
-                                                            "Thank you for your time and effort",
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
+                                        if (postId != null) {
+                                            PostService.updateRating(postId, rating, SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
+                                                Calendar.getInstance().time)){ updateSuccess ->
+                                                println("Update Transaction Rating success: $updateSuccess")
+                                                if (updateSuccess) {
+                                                    PostService.updateDonationStatus(
+                                                        postId, "3"    // 3 -> completed status
+                                                    ) { updateSuccess ->
+                                                        println("Update Donation status success: $updateSuccess")
+                                                        if (updateSuccess) {
+                                                            Toast.makeText(
+                                                                this,
+                                                                "Thank you for your time and effort",
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+
+                                                            //remove post from feed
+                                                            for (i in PostService.AllPosts){
+                                                                if (i.post_id==postId){
+                                                                    PostService.AllPosts.remove(i)
+                                                                    println("AllPost size is "+PostService.AllPosts.size)
+                                                                }
+                                                            }
+                                                            val intent = Intent(this, DashboardActivity::class.java)
+                                                            startActivity(intent)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -73,12 +88,10 @@ class AlertDetails : AppCompatActivity() {
                                     }
                                     .show()
                             }
-
                         }
                         else{
                             val intent = Intent(this, DashboardActivity::class.java)
                             startActivity(intent)
-
                         }
                     } catch (e: Exception) {
                         Toast.makeText(

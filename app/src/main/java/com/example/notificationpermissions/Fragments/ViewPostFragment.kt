@@ -1,6 +1,7 @@
 package com.example.notificationpermissions.Fragments
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.example.notificationpermissions.Notifications.PushNotification
 import com.example.notificationpermissions.Notifications.RetrofitInstance
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
@@ -301,6 +303,9 @@ class ViewPostFragment : Fragment() {
                                             val message =
                                                 "Share your experience on the donation process with ${App.sharedPrefs.userName} :)"
 
+                                            // Pass the ID along with the notification payload
+                                            val data = mapOf("post_id" to postDetails.post_id)
+
                                             println("Reciever Id $recieverId")
                                             println("RecieverName: $recieverName")        
 
@@ -308,20 +313,27 @@ class ViewPostFragment : Fragment() {
                                                 println("Get FCM Token success: $response")
                                                 println("Recipient Token during notification sending is:${AuthService.recipientToken}")
                                                 PushNotification(
-                                                    NotificationData(title, message),
+                                                    NotificationData(title, message, data),
                                                     AuthService.recipientToken
                                                 ) .also { sendNotification(it) }
 
+                                                //add notification to the database
+                                                NotificationService.addNotification(
+                                                    title,
+                                                    message,
+                                                    postDetails.post_id,
+                                                    App.sharedPrefs.userID,
+                                                    AuthService.recipientToken,
+                                                    recieverId
+                                                ) { createSuccess ->
+                                                    println("Create Notification success: $createSuccess")
+                                                    if (createSuccess) {
+                                                       println("Notification added")
+                                                    }
+                                                }
                                                 //go to profile
                                                 view.findNavController()
-                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment,
-                                                        Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
-
-
-                                                //post laii grey; unavailable banaune // donation sttus complete vayesii huncha auto
-
-
-                                            }
+                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment) }
                                         }
                                     }
                                 }

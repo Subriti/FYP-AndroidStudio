@@ -58,6 +58,15 @@ class ProfileFragment : Fragment() {
         val blockBtn= view.findViewById<Button>(R.id.blockUser)
         blockBtn.isVisible= false
 
+        PostService.getRating(App.sharedPrefs.userID) { complete ->
+            if (complete) {
+                val rating= view.findViewById<TextView>(R.id.userRating)
+                rating.text= App.sharedPrefs.rating.toString()
+                val donations= view.findViewById<TextView>(R.id.userDonations)
+                donations.text= App.sharedPrefs.clothDonated.toString()
+                }
+            }
+
         imgButton = view.findViewById<Button>(R.id.editProfile)
         imgButton.setOnClickListener {
             view.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)

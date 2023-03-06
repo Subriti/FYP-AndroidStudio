@@ -35,6 +35,47 @@ object PostService {
 
     var clothId = ""
 
+    var notificationPost: Post? = null
+
+    fun findPost(post_id: String, complete: (Boolean) -> Unit) {
+        val findRequest = object : JsonObjectRequest(
+            Method.GET,
+            "$URL_FIND_POST$post_id",
+            null,
+            Response.Listener { response ->
+                println("Find Post Response " + response)
+                try {
+                    val postId = response.getString("post_id")
+                    val postBy = response.getString("post_by")
+                    val media_file=  response.getString("media_file")
+                    val description=  response.getString("description")
+                    val created_datetime= response.getString("created_datetime")
+                    val location= response.getString("location")
+                    val cloth_id= response.getString("cloth_id")
+                    val donation_status= response.getString("donation_status")
+
+                    notificationPost= Post(post_id, postBy,media_file, description, created_datetime, location, cloth_id, donation_status)
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not find user: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(findRequest)
+    }
+
     fun createPost(
         post_by: String,
         media_file: String,
@@ -270,6 +311,12 @@ object PostService {
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
+
+        //bc it takes object of Post
+        val post = JSONObject()
+        post.put("post_id", postId)
+        jsonBody.put("post_id", post)
+
         jsonBody.put("rating", rating)
         jsonBody.put("transaction_date", transaction_datetime)
 
@@ -279,7 +326,7 @@ object PostService {
         val updateRequest = object :
             JsonObjectRequest(
                 Method.PUT,
-                "$URL_UPDATE_RATING$postId",
+                "$URL_UPDATE_RATING",
                 null,
                 Response.Listener { response ->
                     println("Update Rating Response $response")
@@ -307,6 +354,45 @@ object PostService {
             10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(updateRequest)
+    }
+
+    fun getRating(userId: String, complete: (Boolean) -> Unit) {
+        val getRatingRequest = object :
+            JsonObjectRequest(Method.GET, "$URL_GET_RATING$userId", null, Response.Listener {
+                //this is where we parse the json object
+                    response ->
+                        println("GET Rating Response " + response)
+                        try {
+                            App.sharedPrefs.clothDonated = response.getInt("cloth_donated")
+                            App.sharedPrefs.rating = response.getDouble("rating").toFloat()
+                            complete(true)
+                        } catch (e: JSONException) {
+                            Log.d("JSON", "EXC: " + e.localizedMessage)
+                            complete(false)
+                        }
+                    },
+                    Response.ErrorListener {
+                        //this is where we deal with our error
+                            error ->
+                        Log.d("ERROR", "Could not get rating: $error")
+                        complete(false)
+                    }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                return headers
+            }
+        }
+        getRatingRequest.retryPolicy = DefaultRetryPolicy(
+            30000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(getRatingRequest)
     }
 
     fun deletePost(postId: String, complete: (Boolean) -> Unit) {
@@ -529,7 +615,11 @@ object PostService {
                             profilePicture,
                             donationStatus
                         )
-                        AllPosts.add(newPosts)
+
+                        //removing donated and ongoing status posts from feed
+                        if (status!="Ongoing" && status!="Donated"){
+                            AllPosts.add(newPosts)
+                        }
                         DetailedPosts.add(newPost)
                     }
                     complete(true)

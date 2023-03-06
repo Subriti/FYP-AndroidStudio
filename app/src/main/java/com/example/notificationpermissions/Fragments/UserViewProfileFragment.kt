@@ -68,6 +68,16 @@ class UserViewProfileFragment : Fragment() {
             //write backend code to block the user and store details
         }
 
+        val rating= view.findViewById<TextView>(R.id.userRating)
+        val donations= view.findViewById<TextView>(R.id.userDonations)
+
+        PostService.getRating(newPostDetails?.user_id!!) { complete ->
+            if (complete) {
+                rating.text= App.sharedPrefs.rating.toString()
+                donations.text= App.sharedPrefs.clothDonated.toString()
+            }
+        }
+
         imgButton = view.findViewById(R.id.editProfile)
         imgButton.text = "Message"
         imgButton.setOnClickListener {

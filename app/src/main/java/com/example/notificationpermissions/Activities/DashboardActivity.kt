@@ -8,33 +8,27 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.notificationpermissions.Fragments.AddPostFragment
-import com.example.notificationpermissions.Fragments.ChatFragment
 import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
+import com.example.notificationpermissions.Fragments.NotificationFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import tech.gusavila92.websocketclient.WebSocketClient
-import java.net.URI
-import java.net.URISyntaxException
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -156,8 +150,14 @@ class DashboardActivity : AppCompatActivity() {
         }
         else if (item.itemId == R.id.nav_notifications){
             Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show()
-            ShowNotification()
+            //ShowNotification()
+
+            //open notification fragment
+            // Initialize NavController
+            val navController = Navigation.findNavController(this, R.id.nav_fragment)
+            navController.navigate(R.id.notificationFragment)
         }
+
         else if(item.itemId== R.id.nav_logout){
             UserDataService.logout()
             val intent= Intent(this, MainActivity::class.java)

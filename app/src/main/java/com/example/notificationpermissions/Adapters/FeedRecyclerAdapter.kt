@@ -20,12 +20,14 @@ import com.example.notificationpermissions.Notifications.PushNotification
 import com.example.notificationpermissions.Notifications.RetrofitInstance
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
@@ -229,20 +231,40 @@ class FeedRecyclerAdapter(
                                 getUsers(post)
 
                                 //send Notification to the owner when liked by someone
-                                val title = "Your post was liked by someone"
+                                val title = "Someone was interested on your post"//"Your post was liked by someone"
                                 val message =
                                     "${App.sharedPrefs.userName} was interested on your post"
-
+                                val data = mapOf("post_id" to post.post_id)
                                 AuthService.getFCMToken(post.post_by) { response ->
                                     println("Get FCM Token success: $response")
 
                                     //to specific post owners; TOPIC ko satta post.postowner ko token: get from database
                                     println("Recipient Token during notification sending is:${AuthService.recipientToken}")
                                     PushNotification(
-                                        NotificationData(title, message),
+                                        NotificationData(title, message, data),
                                         AuthService.recipientToken
                                     )
                                         .also { sendNotification(it) }
+
+                                    AuthService.findUserByName(post.post_by){ response ->
+                                        println("Get User Details success: $response")
+                                        if (response){
+                                            //add notification to the database
+                                            NotificationService.addNotification(
+                                                title,
+                                                message,
+                                                post.post_id,
+                                                App.sharedPrefs.userID,
+                                                AuthService.recipientToken,
+                                                AuthService.userId
+                                            ) { createSuccess ->
+                                                println("Create Notification success: $createSuccess")
+                                                if (createSuccess) {
+                                                    println("Notification added")
+                                                }
+                                            }
+                                        }
+                                    }
 
                                     //for sending to multiple recipients
                                     /*val recipientTokens = listOf("token1", "token2", "token3")
