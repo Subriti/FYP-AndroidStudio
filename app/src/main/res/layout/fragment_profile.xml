@@ -101,10 +101,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:drawableEnd="@drawable/baseline_stars_24"
-        android:text="rating  "
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editProfile" />
+        app:layout_constraintTop_toTopOf="@+id/editProfile"
+        tools:text="rating  " />
 
     <TextView
         android:id="@+id/userDonations"
@@ -112,10 +112,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:drawableEnd="@drawable/baseline_done_all_24"
-        android:text="clothes donated   "
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userRating" />
+        app:layout_constraintTop_toBottomOf="@+id/userRating"
+        tools:text="clothes donated   " />
 
     <TextView
         android:id="@+id/UserLocation"

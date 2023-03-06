@@ -61,9 +61,9 @@ class ProfileFragment : Fragment() {
         PostService.getRating(App.sharedPrefs.userID) { complete ->
             if (complete) {
                 val rating= view.findViewById<TextView>(R.id.userRating)
-                rating.text= App.sharedPrefs.rating.toString()
+                rating.text= "Rating:  "+App.sharedPrefs.rating.toString()+" "
                 val donations= view.findViewById<TextView>(R.id.userDonations)
-                donations.text= App.sharedPrefs.clothDonated.toString()
+                donations.text= "Clothes Donated:     "+App.sharedPrefs.clothDonated.toString()+" "
                 }
             }
 

@@ -39,9 +39,8 @@ object NotificationService {
                         val recieverId = notification.getString("recieverId")
 
                         val newNotification = Notification(
-                           notificationId, message, data, senderId,  token, recieverId)
+                           notificationId, title, message, data, senderId,  token, recieverId)
                         notifications.add(newNotification)
-                        println(notifications)
                     }
                     complete(true)
                 } catch (e: JSONException) {

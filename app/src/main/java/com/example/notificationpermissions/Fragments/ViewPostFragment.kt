@@ -178,13 +178,19 @@ class ViewPostFragment : Fragment() {
 
                 //check if the user already liked, or is newly liked
                 if (!alreadyLiked) {
-                    PostService.addInterestedUser(
-                        App.sharedPrefs.userID, postDetails.post_id
-                    ) { addUserSuccess ->
-                        println("Add Interested User success: $addUserSuccess")
-                        if (addUserSuccess) {
-                            //on success display users ig
-                            getUsers(postDetails)
+                    println("view post: postby "+postDetails.post_by)
+                    val json=JSONObject(postDetails.post_by)
+                    val postBy= json.getString("user_name")
+                    println(postBy)
+                    if (postBy != App.sharedPrefs.userName) {
+                        PostService.addInterestedUser(
+                            App.sharedPrefs.userID, postDetails.post_id
+                        ) { addUserSuccess ->
+                            println("Add Interested User success: $addUserSuccess")
+                            if (addUserSuccess) {
+                                //on success display users ig
+                                getUsers(postDetails)
+                            }
                         }
                     }
                 }

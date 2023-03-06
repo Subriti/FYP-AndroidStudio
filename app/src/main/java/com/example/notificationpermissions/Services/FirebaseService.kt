@@ -42,18 +42,16 @@ class FirebaseService: FirebaseMessagingService() {
 
     private fun showNotification(message: RemoteMessage) {
 
-        println(message)
-
         //intent actually should be the current post liked ko viewPostFragment
         var intent = Intent(this, DashboardActivity::class.java)
 
         if (message.data["title"]=="Please Rate the Donor"){
-            intent = Intent(this, AlertDetails::class.java)
             println(message.data["data"])
             val post= JSONObject(message.data["data"])
             val id= post.getString("post_id")
             println(id)
             //sending the post Id with each notification intent to recognize notifications
+            intent = Intent(this, AlertDetails::class.java)
             intent.putExtra(POST_ID_EXTRA, id)
         }
 
@@ -67,8 +65,15 @@ class FirebaseService: FirebaseMessagingService() {
             PostService.findPost(post_id) { success ->
                 println(success)
                 if (success) {
-                    intent = Intent(this, ViewPostFragment::class.java)
-                    intent.putExtra(EXTRA_POST,  PostService.notificationPost)
+                    intent = Intent(this, DashboardActivity::class.java)
+
+                    println(PostService.notificationPost?.post_id)
+
+                    if (PostService.notificationPost != null) {
+                        intent.putExtra(EXTRA_POST, PostService.notificationPost)
+                    }
+
+                    println(intent)
                 }
             }
         }
@@ -81,6 +86,7 @@ class FirebaseService: FirebaseMessagingService() {
             createNotificationChannel(notificationManager)
         }
 
+        println(intent)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,

@@ -27,7 +27,6 @@ import com.example.notificationpermissions.Utilities.EXTRA_POST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
@@ -122,7 +121,7 @@ class FeedRecyclerAdapter(
                 createdDatetime?.text = "$seconds seconds ago"
             }
 
-            val reportPost= itemView.findViewById<Button>(R.id.reportBtn)
+            val reportPost = itemView.findViewById<Button>(R.id.reportBtn)
             reportPost.setOnClickListener {
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Confirm")
@@ -130,19 +129,19 @@ class FeedRecyclerAdapter(
                 builder.setPositiveButton("Yes") { dialog, which ->
                     // Perform the reporting of the post
 
-                   /* PostService.reportPost(
-                        post.post_id,
-                    ) { reportPostSuccess ->
-                        println("Report Post success: $reportPostSuccess")
-                        if (reportPostSuccess) {
-                            Toast.makeText(
-                                context,
-                                "Post was reported successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                    /* PostService.reportPost(
+                         post.post_id,
+                     ) { reportPostSuccess ->
+                         println("Report Post success: $reportPostSuccess")
+                         if (reportPostSuccess) {
+                             Toast.makeText(
+                                 context,
+                                 "Post was reported successfully",
+                                 Toast.LENGTH_SHORT
+                             ).show()
+                         }
 
-                    }*/
+                     }*/
                 }
                 builder.setNegativeButton("No") { dialog, which ->
                     dialog.dismiss()
@@ -156,8 +155,10 @@ class FeedRecyclerAdapter(
                 if (post.post_by == App.sharedPrefs.userName) {
                     //itemView.findNavController().popBackStack(R.id.homeFragment, false)
                     itemView.findNavController()
-                        .navigate(R.id.action_homeFragment_to_profileFragment, null,
-                            NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build())
+                        .navigate(
+                            R.id.action_homeFragment_to_profileFragment, null,
+                            NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                        )
                 } else {
                     //open user profile with posts
                     itemView.findNavController().navigate(
@@ -186,21 +187,28 @@ class FeedRecyclerAdapter(
                         listView.adapter = adapter
 
                         //not working
-                        listView.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(
-                                parent: AdapterView<*>, view: View?, position: Int, id: Long
-                            ) {
-                                val selected = "Selected user: ${listView.selectedItem as String}"
-                                println("Selected user: : $selected")
-                                Toast.makeText(context,"$selected selected",Toast.LENGTH_SHORT).show()
+                        listView.onItemSelectedListener =
+                            object : AdapterView.OnItemSelectedListener {
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>, view: View?, position: Int, id: Long
+                                ) {
+                                    val selected =
+                                        "Selected user: ${listView.selectedItem as String}"
+                                    println("Selected user: : $selected")
+                                    Toast.makeText(
+                                        context,
+                                        "$selected selected",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 
-                                //select garresi open user profile?
+                                    //select garresi open user profile?
 
+                                }
+
+                                override fun onNothingSelected(parent: AdapterView<*>?) {
+                                    // do nothing
+                                }
                             }
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // do nothing
-                            }
-                        }
                         val dialog: AlertDialog = builder.create()
                         dialog.show()
                     }
@@ -221,61 +229,64 @@ class FeedRecyclerAdapter(
 
                     //check if the user already liked, or is newly liked
                     if (!alreadyLiked) {
-                        PostService.addInterestedUser(
-                            App.sharedPrefs.userID,
-                            post.post_id
-                        ) { addUserSuccess ->
-                            println("Add Interested User success: $addUserSuccess")
-                            if (addUserSuccess) {
-                                //on success display users ig
-                                getUsers(post)
+                        if (post.post_by != App.sharedPrefs.userName) {
+                            PostService.addInterestedUser(
+                                App.sharedPrefs.userID,
+                                post.post_id
+                            ) { addUserSuccess ->
+                                println("Add Interested User success: $addUserSuccess")
+                                if (addUserSuccess) {
+                                    //on success display users ig
+                                    getUsers(post)
 
-                                //send Notification to the owner when liked by someone
-                                val title = "Someone was interested on your post"//"Your post was liked by someone"
-                                val message =
-                                    "${App.sharedPrefs.userName} was interested on your post"
-                                val data = mapOf("post_id" to post.post_id)
-                                AuthService.getFCMToken(post.post_by) { response ->
-                                    println("Get FCM Token success: $response")
+                                    //send Notification to the owner when liked by someone
+                                    val title =
+                                        "Someone was interested on your post"//"Your post was liked by someone"
+                                    val message =
+                                        "${App.sharedPrefs.userName} was interested on your post"
+                                    val data = mapOf("post_id" to post.post_id)
+                                    AuthService.getFCMToken(post.post_by) { response ->
+                                        println("Get FCM Token success: $response")
 
-                                    //to specific post owners; TOPIC ko satta post.postowner ko token: get from database
-                                    println("Recipient Token during notification sending is:${AuthService.recipientToken}")
-                                    PushNotification(
-                                        NotificationData(title, message, data),
-                                        AuthService.recipientToken
-                                    )
-                                        .also { sendNotification(it) }
+                                        //to specific post owners; TOPIC ko satta post.postowner ko token: get from database
+                                        println("Recipient Token during notification sending is:${AuthService.recipientToken}")
+                                        PushNotification(
+                                            NotificationData(title, message, data),
+                                            AuthService.recipientToken
+                                        )
+                                            .also { sendNotification(it) }
 
-                                    AuthService.findUserByName(post.post_by){ response ->
-                                        println("Get User Details success: $response")
-                                        if (response){
-                                            //add notification to the database
-                                            NotificationService.addNotification(
-                                                title,
-                                                message,
-                                                post.post_id,
-                                                App.sharedPrefs.userID,
-                                                AuthService.recipientToken,
-                                                AuthService.userId
-                                            ) { createSuccess ->
-                                                println("Create Notification success: $createSuccess")
-                                                if (createSuccess) {
-                                                    println("Notification added")
+                                        AuthService.findUserByName(post.post_by) { response ->
+                                            println("Get User Details success: $response")
+                                            if (response) {
+                                                //add notification to the database
+                                                NotificationService.addNotification(
+                                                    title,
+                                                    message,
+                                                    post.post_id,
+                                                    App.sharedPrefs.userID,
+                                                    AuthService.recipientToken,
+                                                    AuthService.userId
+                                                ) { createSuccess ->
+                                                    println("Create Notification success: $createSuccess")
+                                                    if (createSuccess) {
+                                                        println("Notification added")
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
 
-                                    //for sending to multiple recipients
-                                    /*val recipientTokens = listOf("token1", "token2", "token3")
+                                        //for sending to multiple recipients
+                                        /*val recipientTokens = listOf("token1", "token2", "token3")
                                     for (token in recipientTokens) {
                                         PushNotification(NotificationData(title, message), token)
                                             .also { sendNotification(it) }
                                     }*/
-                                }
-                                //to all people subscribed to the topic; like general announcements
-                                /* PushNotification(NotificationData(title,message), TOPIC)
+                                    }
+                                    //to all people subscribed to the topic; like general announcements
+                                    /* PushNotification(NotificationData(title,message), TOPIC)
                                      .also { sendNotification(it) }*/
+                                }
                             }
                         }
                     }

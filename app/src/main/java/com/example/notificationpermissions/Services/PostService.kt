@@ -55,6 +55,8 @@ object PostService {
                     val donation_status= response.getString("donation_status")
 
                     notificationPost= Post(post_id, postBy,media_file, description, created_datetime, location, cloth_id, donation_status)
+                    println(notificationPost!!.media_file)
+
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)

@@ -2,15 +2,14 @@ package com.example.notificationpermissions.Activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.RatingBar
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.POST_ID_EXTRA
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,6 +23,27 @@ class AlertDetails : AppCompatActivity() {
 
         val postId = intent.getStringExtra(POST_ID_EXTRA)
         println(postId)
+
+        /*val post = intent.getStringExtra(EXTRA_POST)
+        println(post)
+
+        val json= JSONObject(post)
+        val postId= json.getString("post_id")
+        println(postId)*/
+
+        val userName = findViewById<TextView>(R.id.postBy)
+        val media = findViewById<ImageView>(R.id.postMedia)
+
+        PostService.findPost(postId!!) { success ->
+            println(success)
+            if (success) {
+                val json= JSONObject(PostService.notificationPost?.post_by)
+                val username= json.getString("user_name")
+                userName.text = username
+                Glide.with(applicationContext).load(PostService.notificationPost?.media_file)
+                    .into(media)
+            }
+        }
 
         if (builder != null) {
             builder.setView(dialogView)
@@ -41,20 +61,25 @@ class AlertDetails : AppCompatActivity() {
                             val builder = this.let { it1 -> AlertDialog.Builder(it1) }
                             val dialogView = layoutInflater.inflate(R.layout.rating_prompt, null)
 
-                            val ratingBar= dialogView.findViewById<RatingBar>(R.id.ratingBar)
+                            val ratingBar = dialogView.findViewById<RatingBar>(R.id.ratingBar)
 
                             if (builder != null) {
                                 builder.setView(dialogView)
                                     .setPositiveButton("Rate") { _, _ ->
                                         //access the rating and use PostService.updateTrasaction rating to update the rating
-                                        val rating= ratingBar.rating
+                                        val rating = ratingBar.rating
                                         println(rating)
                                         println(ratingBar.numStars)
 
                                         //how to uniquely identify which notification belongs to which post
                                         if (postId != null) {
-                                            PostService.updateRating(postId, rating, SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
-                                                Calendar.getInstance().time)){ updateSuccess ->
+                                            PostService.updateRating(
+                                                postId,
+                                                rating,
+                                                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
+                                                    Calendar.getInstance().time
+                                                )
+                                            ) { updateSuccess ->
                                                 println("Update Transaction Rating success: $updateSuccess")
                                                 if (updateSuccess) {
                                                     PostService.updateDonationStatus(
@@ -69,13 +94,16 @@ class AlertDetails : AppCompatActivity() {
                                                             ).show()
 
                                                             //remove post from feed
-                                                            for (i in PostService.AllPosts){
-                                                                if (i.post_id==postId){
+                                                            for (i in PostService.AllPosts) {
+                                                                if (i.post_id == postId) {
                                                                     PostService.AllPosts.remove(i)
-                                                                    println("AllPost size is "+PostService.AllPosts.size)
+                                                                    println("AllPost size is " + PostService.AllPosts.size)
                                                                 }
                                                             }
-                                                            val intent = Intent(this, DashboardActivity::class.java)
+                                                            val intent = Intent(
+                                                                this,
+                                                                DashboardActivity::class.java
+                                                            )
                                                             startActivity(intent)
                                                         }
                                                     }
@@ -88,8 +116,7 @@ class AlertDetails : AppCompatActivity() {
                                     }
                                     .show()
                             }
-                        }
-                        else{
+                        } else {
                             val intent = Intent(this, DashboardActivity::class.java)
                             startActivity(intent)
                         }
@@ -106,4 +133,4 @@ class AlertDetails : AppCompatActivity() {
                 .show()
         }
     }
-    }
+}

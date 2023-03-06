@@ -8,6 +8,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -25,9 +26,12 @@ import com.example.notificationpermissions.Fragments.AddPostFragment
 import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
 import com.example.notificationpermissions.Fragments.NotificationFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
+import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
+import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
@@ -107,6 +111,23 @@ class DashboardActivity : AppCompatActivity() {
             println("FROM SERVER: $response")
             clientSocket.close()
         }*/
+
+        try{
+            val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
+            println(notificationDetails)
+            if (notificationDetails!=null){
+                val navController = Navigation.findNavController(this, R.id.nav_fragment)
+                navController.navigate(R.id.viewPostFragment, Bundle().apply {
+                    putSerializable(
+                        EXTRA_POST,
+                        PostService.notificationPost
+                    )
+                })
+            }
+        }
+        catch(e:Exception){
+            Log.d("Notification Intent", "EXC: " + e.localizedMessage)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

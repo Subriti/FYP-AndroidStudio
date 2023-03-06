@@ -24,20 +24,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/whitisPurple"
         app:layout_constraintEnd_toStartOf="@+id/postImg"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/Userimage"
         app:layout_constraintTop_toTopOf="@+id/Userimage"
-        app:layout_constraintVertical_bias="0.0"
         tools:text="Subriti Aryal was interested on your post" />
 
     <ImageView
         android:id="@+id/postImg"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
