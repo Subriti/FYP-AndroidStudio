@@ -510,7 +510,16 @@ object PostService {
                             clothId,
                             donationStatus
                         )
-                        posts.add(newPost)
+
+                        val donationJSONObject = JSONObject(donationStatus)
+                        val status = donationJSONObject.getString("donation_status")
+
+                        println(status)
+
+                        //excluding donated and ongoing status posts from user's profile
+                        if (status!="Ongoing" && status!="Donated"){
+                            posts.add(newPost)
+                        }
                     }
                     complete(true)
                 } catch (e: JSONException) {
@@ -543,6 +552,7 @@ object PostService {
 
     fun getAllPosts(complete: (Boolean) -> Unit) {
         AllPosts.clear()
+        DetailedPosts.clear()
         val getPostRequest =
             object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
                 //this is where we parse the json object
@@ -636,8 +646,9 @@ object PostService {
                         if (status!="Ongoing" && status!="Donated"){
                             AllPosts.add(newPosts)
                             clothes.add(newCloth)
+
+                            DetailedPosts.add(newPost)
                         }
-                        DetailedPosts.add(newPost)
                     }
                     complete(true)
                 } catch (e: JSONException) {

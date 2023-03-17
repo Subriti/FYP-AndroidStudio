@@ -24,6 +24,7 @@ import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Activities.LoginActivity
 import com.example.notificationpermissions.Adapters.FeedGridRecyclerAdapter
 import com.example.notificationpermissions.Adapters.FeedRecyclerAdapter
+import com.example.notificationpermissions.Adapters.UserAdapter
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.EXTRA_POST
@@ -47,6 +48,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     var imageUrlsList = mutableListOf<String>()
 
     var initialLoad = true
+    lateinit var userListAdapter: UserAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,10 +64,11 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         //gives a spinner search text for searching in array
         val spinnerSearch = view.findViewById<AutoCompleteTextView>(R.id.spinner_search)
-        spinnerSearch.isVisible=false
+        spinnerSearch.isVisible = false
 
         val array = resources.getStringArray(R.array.clothCategory_array)
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, array)
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, array)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSearch.setAdapter(adapter)
         spinnerSearch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -80,17 +83,25 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
 
+        //Rough Codes
 
-        val searchView= view.findViewById<SearchView>(R.id.searchView)
+        val searchView = view.findViewById<SearchView>(R.id.searchView)
+        searchView.isVisible = false
         searchView.setOnClickListener {
             println("Search view clicked")
         }
         val searchTextView = searchView.findViewById<AutoCompleteTextView>(R.id.search_src_text)
+        searchTextView.isVisible = false
         searchTextView.setOnClickListener {
             println("Search TextView clicked")
         }
-        val arrayStrings= arrayOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape")
-        val searchAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, arrayStrings)
+        val arrayStrings =
+            arrayOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape")
+        val searchAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            arrayStrings
+        )
         searchTextView.setAdapter(searchAdapter)
         searchTextView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -105,7 +116,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             override fun afterTextChanged(s: Editable?) {
                 // log the text entered in the searchTextView
                 Log.d("SearchView", "Text entered: ${s.toString()}")
-println("Text entered: ${s.toString()}")
+                println("Text entered: ${s.toString()}")
                 // show/hide the auto-completion dropdown based on the text entered
                 if (s.toString().isEmpty()) {
                     searchTextView.dismissDropDown()
@@ -114,6 +125,15 @@ println("Text entered: ${s.toString()}")
                 }
             }
         })
+
+
+        /*val cardview = view.findViewById<CardView>(R.id.cardView3)
+        //now user intentionally wants to filter the data according to some category
+        cardview.setOnClickListener {
+            println(initialLoad)
+            println("Card view selected")
+            initialLoad = false
+        }*/
 
 
         //broad filter
@@ -176,16 +196,7 @@ println("Text entered: ${s.toString()}")
 
         noDataText = view.findViewById(R.id.noDataTextView)
 
-        /*val cardview = view.findViewById<CardView>(R.id.cardView3)
-        //now user intentionally wants to filter the data according to some category
-        cardview.setOnClickListener {
-            println(initialLoad)
-            println("Card view selected")
-            initialLoad = false
-        }*/
-
         postRV = view.findViewById(R.id.feedRecyclerView)
-
 
         PostService.getAllPosts { complete ->
             if (complete) {

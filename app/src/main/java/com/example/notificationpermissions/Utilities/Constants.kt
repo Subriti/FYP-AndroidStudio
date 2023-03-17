@@ -19,6 +19,7 @@ const val URL_FIND_USER= "${BASE_URL}user/findUser/"
 const val URL_FIND_USER_BY_ID= "${BASE_URL}user/findUserByID/"
 const val URL_FIND_USER_BY_TOKEN= "${BASE_URL}user/findUserByToken/"
 const val URL_FIND_USER_BY_NAME= "${BASE_URL}user/findUserByName"
+const val URL_GET_ALL_USERS= "${BASE_URL}user/showUsers"
 
 const val URL_RESET_PASSWORD= "${BASE_URL}user/resetPassword/"
 
@@ -32,6 +33,8 @@ const val URL_ADD_CLOTH= "${BASE_URL}clothes/addClothes"
 const val URL_CREATE_POST= "${BASE_URL}post/addPost"
 const val URL_GET_ALL_POST= "${BASE_URL}post/showPosts"
 const val URL_GET_USER_POSTS= "${BASE_URL}post/showUserPosts/"
+
+
 
 const val URL_GET_USER_NOTIFICATIONS= "${BASE_URL}notification/showUserNotifications/"
 const val URL_CREATE_NOTIFICATIONS= "${BASE_URL}notification/addNotification"
@@ -66,6 +69,9 @@ const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
 
 //for viewing user's individual post
 const val EXTRA_POST= "post"
+
+//for viewing user's profile
+const val EXTRA_USER= "user"
 
 
 //for viewing user's individual chat room

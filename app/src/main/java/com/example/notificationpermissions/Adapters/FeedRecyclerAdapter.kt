@@ -156,8 +156,8 @@ class FeedRecyclerAdapter(
                     //itemView.findNavController().popBackStack(R.id.homeFragment, false)
                     itemView.findNavController()
                         .navigate(
-                            R.id.action_homeFragment_to_profileFragment, null,
-                            NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                            R.id.action_homeFragment_to_profileFragment, null//,
+                            //NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
                         )
                 } else {
                     //open user profile with posts

@@ -1,37 +1,38 @@
 package com.example.notificationpermissions.Activities
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.AlertDialog
 import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.notificationpermissions.Adapters.UserAdapter
 import com.example.notificationpermissions.Fragments.AddPostFragment
 import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
-import com.example.notificationpermissions.Fragments.NotificationFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
-import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
+import com.example.notificationpermissions.Utilities.EXTRA_USER
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
@@ -167,6 +168,56 @@ class DashboardActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_search) {
             Toast.makeText(this, "Click Search Icon.", Toast.LENGTH_SHORT).show()
+
+            AuthService.getAllUsers { complete ->
+                println("Get users success--> $complete")
+                if (complete) {
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                    val inflater = LayoutInflater.from(this)
+                    val dialogView: View =
+                        inflater.inflate(R.layout.search_user_dialog, null)
+                    builder.setView(dialogView)
+
+                    val autoCompleteTextView: AutoCompleteTextView= dialogView.findViewById(R.id.spinner_search2)
+                    val userRV: RecyclerView = dialogView.findViewById(R.id.usersRV)
+
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+
+                    val userAdapter = UserAdapter(this, AuthService.userList) { user ->
+                        val navController =
+                            Navigation.findNavController(this, R.id.nav_fragment)
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(
+                                EXTRA_USER,
+                                user
+                            )
+                        })
+                        dialog.dismiss()
+                    }
+                    autoCompleteTextView.setAdapter(userAdapter)
+
+
+                    val layoutManager = LinearLayoutManager(this)
+                    userRV.layoutManager = layoutManager
+
+                    var adapter =
+                        UserAdapter(this, AuthService.userList) { user ->
+                            //on Click do something--> open individual user's profile
+                            val navController =
+                                Navigation.findNavController(this, R.id.nav_fragment)
+                            navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                                putSerializable(
+                                    EXTRA_USER,
+                                    user
+                                )
+                            })
+                            dialog.dismiss()
+                        }
+                    userRV.adapter = adapter
+                }
+            }
+
         } else if (item.itemId == R.id.nav_notifications) {
             Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show()
             //ShowNotification()
