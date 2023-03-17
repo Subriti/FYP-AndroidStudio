@@ -39,7 +39,7 @@ class DashboardActivity : AppCompatActivity() {
     //assigned in each fragment to know the current fragment and to manage the appBar accordingly
     lateinit var currentFragment: Fragment
     lateinit var toolbar: Toolbar
-    var destination: NavDestination? =null
+    var destination: NavDestination? = null
 /*
     lateinit var webSocketClient: WebSocketClient*/
 
@@ -112,10 +112,10 @@ class DashboardActivity : AppCompatActivity() {
             clientSocket.close()
         }*/
 
-        try{
+        try {
             val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
             println(notificationDetails)
-            if (notificationDetails!=null){
+            if (notificationDetails != null) {
                 val navController = Navigation.findNavController(this, R.id.nav_fragment)
                 navController.navigate(R.id.viewPostFragment, Bundle().apply {
                     putSerializable(
@@ -124,8 +124,7 @@ class DashboardActivity : AppCompatActivity() {
                     )
                 })
             }
-        }
-        catch(e:Exception){
+        } catch (e: Exception) {
             Log.d("Notification Intent", "EXC: " + e.localizedMessage)
         }
     }
@@ -138,26 +137,26 @@ class DashboardActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         println(currentFragment)
         val item = menu.findItem(R.id.nav_search)
-        val item1=menu.findItem(R.id.nav_notifications)
-        val item2= menu.findItem(R.id.nav_logout)
+        val item1 = menu.findItem(R.id.nav_notifications)
+        val item2 = menu.findItem(R.id.nav_logout)
 
         if (currentFragment::class.java == AddPostFragment::class.java && currentFragment::class.java == IndividualChatRoomFragment::class.java) {
             item.isVisible = false
-            item1.isVisible=false
-            item2.isVisible=false
+            item1.isVisible = false
+            item2.isVisible = false
         }
         if (currentFragment::class.java == ProfileFragment::class.java) {
             item.isVisible = false
-            item1.isVisible=false
-            item2.isVisible=true
+            item1.isVisible = false
+            item2.isVisible = true
 
             supportActionBar!!.show()
         }
 
         if (currentFragment::class.java != AddPostFragment::class.java && currentFragment::class.java != ProfileFragment::class.java && currentFragment::class.java != IndividualChatRoomFragment::class.java) {
             item.isVisible = true
-            item1.isVisible=true
-            item2.isVisible=false
+            item1.isVisible = true
+            item2.isVisible = false
 
             supportActionBar!!.show()
         }
@@ -166,10 +165,9 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_search){
+        if (item.itemId == R.id.nav_search) {
             Toast.makeText(this, "Click Search Icon.", Toast.LENGTH_SHORT).show()
-        }
-        else if (item.itemId == R.id.nav_notifications){
+        } else if (item.itemId == R.id.nav_notifications) {
             Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show()
             //ShowNotification()
 
@@ -177,107 +175,11 @@ class DashboardActivity : AppCompatActivity() {
             // Initialize NavController
             val navController = Navigation.findNavController(this, R.id.nav_fragment)
             navController.navigate(R.id.notificationFragment)
-        }
-
-        else if(item.itemId== R.id.nav_logout){
+        } else if (item.itemId == R.id.nav_logout) {
             UserDataService.logout()
-            val intent= Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private fun ShowNotification(/*messageBody: String*/) {
-        val intent = Intent(this, AlertDetails::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0 /* Request code */, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val channelId = getString(R.string.default_notification_channel_id)
-        val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder =
-            NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_baseline_circle_notifications_24)
-                .setContentTitle("Test Message")
-                /* .setContentText(messageBody)*/
-
-                .setContentText("This is test. First Notification")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent)
-                .build()
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-        notificationManager.notify(1 /* ID of notification */, notificationBuilder)
-    }
-
- /*   private fun createWebSocketClient() {
-        val uri: URI = try {
-            // Connect to local host
-            URI("ws://192.168.1.109:8080/api/messageSocket")
-        } catch (e: URISyntaxException) {
-            e.printStackTrace()
-            return
-        }
-        webSocketClient = object : WebSocketClient(uri) {
-            override fun onOpen() {
-                Log.i("WebSocket", "Session is starting")
-                webSocketClient.send("Hello World!")
-            }
-
-            override fun onTextReceived(s: String) {
-                Log.i("WebSocket", "Message received")
-                runOnUiThread {
-                    try {
-                        val chatFragment = ChatFragment()
-                        val serverMessage= chatFragment.view?.findViewById<TextView>(R.id.serverMsg)
-                        println(serverMessage)
-                        serverMessage?.text = s
-                        println(s)
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-
-            override fun onBinaryReceived(data: ByteArray) {}
-            override fun onPingReceived(data: ByteArray) {}
-            override fun onPongReceived(data: ByteArray) {}
-            override fun onException(e: Exception) {
-                println(e.message)
-            }
-
-            override fun onCloseReceived() {
-                Log.i("WebSocket", "Connection Closed ")
-                println("onCloseReceived")
-            }
-        }
-        webSocketClient.setConnectTimeout(10000)
-        webSocketClient.setReadTimeout(60000)
-        webSocketClient.enableAutomaticReconnection(5000)
-        webSocketClient.connect()
-    }*/
-
-    /*fun sendMessage(view: View) {
-        Toast.makeText(this, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
-        Log.i("WebSocket", "Send Button was clicked")
-        val chatFragment = ChatFragment()
-        val messageText= chatFragment.view?.findViewById<TextView>(R.id.messageText)
-        println(messageText?.text.toString())
-        when (view.id) {
-            R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())
-        }
-        println("Message sent to the server ")
-    }*/
 }

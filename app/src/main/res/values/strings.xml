@@ -58,6 +58,14 @@
         <item><font fgcolor='#FFFFFFFF'>Jacket</font></item>
         <item><font fgcolor='#FFFFFFFF'>T-shirt</font></item>
         <item><font fgcolor='#FFFFFFFF'>Sweater</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Kurtha</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Saree</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Suit</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Jeans</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Coat/Blazor</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Bag</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Hoodie</font></item>
+        <item><font fgcolor='#FFFFFFFF'>Crop-Tops</font></item>
     </string-array>
 
     <string-array name="clothSizes_array">

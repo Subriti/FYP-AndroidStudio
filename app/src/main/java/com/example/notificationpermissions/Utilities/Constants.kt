@@ -3,8 +3,8 @@ package com.example.notificationpermissions.Utilities
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
 //const val BASE_URL = "http://192.168.137.26:8080/api/"
-const val BASE_URL = "http://192.168.1.101:8080/api/"
-//const val BASE_URL = "http://100.64.252.7:8080/api/"
+const val BASE_URL = "http://192.168.1.103:8080/api/"
+//const val BASE_URL = "http://100.64.228.240:8080/api/"
 //const val BASE_URL = "http://192.168.100.48:8080/api/"
 //const val BASE_URL = "http://192.168.137.77:8080/api/"
 
@@ -50,6 +50,10 @@ const val URL_GET_RATING= "${BASE_URL}transaction/getRating/"
 const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
 
 const val URL_FIND_POST= "${BASE_URL}post/findPost/"
+
+const val URL_GET_RECIEVED_DONATIONS= "${BASE_URL}transaction/showRecievedTransactions/"
+const val URL_GET_GIVEN_DONATIONS= "${BASE_URL}transaction/showGivenTransactions/"
+const val URL_GET_ONGOING_TRANSACTIONS= "${BASE_URL}transaction/showOngoingTransactions/"
 
 
 const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
