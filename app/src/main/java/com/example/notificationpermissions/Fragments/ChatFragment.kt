@@ -53,11 +53,10 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
         fun getUserChatRooms() {
             MessageService.getChatRooms {
                     getChatRooms ->
-                println("Get Chat Rooms success: $getChatRooms")
+                println("Get Chat Rooms success: $getChatRooms ${MessageService.userChatRooms.size}")
                 if (getChatRooms) {
-                    if (MessageService.userChatRooms.isNotEmpty()) {
+                    if (MessageService.map.isNotEmpty()) {
                         noDataText.visibility = View.GONE
-                    println(MessageService.userChatRooms)
                     for (i in MessageService.map)
                     {
                         println(i.key)
@@ -84,7 +83,7 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
                             }
                         }
                     }
-                } else if (MessageService.userChatRooms.isEmpty()) {
+                } else if (MessageService.map.isEmpty()) {
                         noDataText.visibility = View.VISIBLE
                     }
                 } else {
@@ -94,24 +93,7 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
             }
         }
         getUserChatRooms()
-        /*if (MessageService.userChatRooms.isEmpty()){
-            getUserChatRooms()
-        }else{*/
-            chatRoomAdapter =
-                ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
-                        userchat->
-                    //on Click do something--> open individual chat room
-                    view.findNavController()
-                        .navigate(
-                            R.id.action_chatFragment_to_individualChatRoomFragment,
-                            Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
-                }
-            val chatRoomList =
-                view.findViewById<RecyclerView>(R.id.chatRoomList)
-            chatRoomList.adapter = chatRoomAdapter
-            val layoutManager = LinearLayoutManager(context)
-            chatRoomList.layoutManager = layoutManager
-       // }
+       
         return view
     }
     private fun checkIfFragmentAttached(operation: Context.() -> Unit) {

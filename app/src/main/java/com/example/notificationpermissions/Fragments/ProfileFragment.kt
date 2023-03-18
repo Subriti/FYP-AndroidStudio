@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.PostRecycleAdapter
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
@@ -89,8 +90,11 @@ class ProfileFragment : Fragment() {
         /* if (postDetails != null) {
          }*/
 
+        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
         PostService.getUserPosts(App.sharedPrefs.userID) { complete ->
             if (complete) {
+                if (PostService.posts.isNotEmpty()) {
+                    noDataText.visibility = View.GONE
                 var imageUrlsList = mutableListOf<String>()
                 for (url in PostService.posts) {
                     imageUrlsList.add(url.media_file)
@@ -115,6 +119,12 @@ class ProfileFragment : Fragment() {
                 val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
                 postRV.layoutManager = layoutManager
                 postRV.adapter = adapter
+            }else if (PostService.posts.isEmpty()) {
+                    noDataText.visibility = View.VISIBLE
+                }
+            } else {
+                noDataText.visibility = View.VISIBLE
+                noDataText.text= "Posts could not be loaded"
             }
         }
         return view

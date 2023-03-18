@@ -34,7 +34,8 @@ const val URL_CREATE_POST= "${BASE_URL}post/addPost"
 const val URL_GET_ALL_POST= "${BASE_URL}post/showPosts"
 const val URL_GET_USER_POSTS= "${BASE_URL}post/showUserPosts/"
 
-
+const val URL_ADD_REPORT= "${BASE_URL}report/addReport"
+const val URL_UPDATE_REPORT_STATUS= "${BASE_URL}report/updateReport/"
 
 const val URL_GET_USER_NOTIFICATIONS= "${BASE_URL}notification/showUserNotifications/"
 const val URL_CREATE_NOTIFICATIONS= "${BASE_URL}notification/addNotification"

@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.navigation.NavOptions
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -24,6 +24,7 @@ import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -127,26 +128,73 @@ class FeedRecyclerAdapter(
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Confirm")
                 builder.setMessage("Are you sure you want to report this post?")
+
+                // Add an EditText with TextInputLayout to the dialog
+                val feedbackEditText = EditText(context)
+                feedbackEditText.hint = "Enter feedback here"
+                feedbackEditText.setPadding(16, 16, 16, 16) // Add padding to the EditText
+                val feedbackInputLayout = TextInputLayout(context)
+                feedbackInputLayout.boxBackgroundMode =
+                    TextInputLayout.BOX_BACKGROUND_OUTLINE // Set box background mode to outline
+                feedbackInputLayout.addView(feedbackEditText)
+                feedbackInputLayout.hint = "Feedback" // Set hint for the TextInputLayout
+                feedbackInputLayout.setPadding(32, 32, 32, 32) // Add padding to the TextInputLayout
+                feedbackInputLayout.boxBackgroundColor = ContextCompat.getColor(
+                    context,
+                    R.color.white
+                ) // Set background color for the box
+                feedbackInputLayout.boxStrokeColor =
+                    ContextCompat.getColor(context, R.color.black) // Set stroke color for the box
+                feedbackInputLayout.boxStrokeWidth = 2 // Set stroke width for the box
+                feedbackInputLayout.isHintEnabled = true // Enable hint for the box
+
+                // Set margins for the TextInputLayout
+                val layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                layoutParams.setMargins(32, 32, 32, 32)
+                feedbackInputLayout.layoutParams = layoutParams
+
+                builder.setView(feedbackInputLayout)
+
                 builder.setPositiveButton("Yes") { dialog, which ->
                     // Perform the reporting of the post
+                    println(feedbackEditText.text.toString())
 
-                    /* PostService.reportPost(
-                         post.post_id,
-                     ) { reportPostSuccess ->
-                         println("Report Post success: $reportPostSuccess")
-                         if (reportPostSuccess) {
-                             Toast.makeText(
-                                 context,
-                                 "Post was reported successfully",
-                                 Toast.LENGTH_SHORT
-                             ).show()
-                         }
+                    PostService.reportPost(
+                        App.sharedPrefs.userID,
+                        post.post_id,
+                        feedbackEditText.text.toString(),
+                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time)
+                    ) { reportPostSuccess ->
+                        println("Report Post success: $reportPostSuccess")
+                        if (reportPostSuccess) {
+                            Toast.makeText(
+                                context,
+                                "Post was reported successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
-                     }*/
+                    }
                 }
                 builder.setNegativeButton("No") { dialog, which ->
                     dialog.dismiss()
                 }
+
+                /*// Add a TextView to the dialog
+                val feedbackTextView = TextView(context)
+                feedbackTextView.text = "Please provide feedback:"
+                builder.setView(feedbackTextView)*/
+
+                /*// Add an EditText to the dialog
+                val feedbackEditText = EditText(context)
+                feedbackEditText.hint = "Enter feedback here"
+                feedbackEditText.setPadding(50, 16, 50, 16) // Add padding to the EditText
+                builder.setView(feedbackEditText)*/
+
+
                 val dialog = builder.create()
                 dialog.show()
             }

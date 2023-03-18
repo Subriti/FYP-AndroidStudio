@@ -1079,4 +1079,53 @@ object PostService {
         App.sharedPrefs.requestQueue.add(addInterestedUsers)
     }
 
+    fun reportPost(reported_by: String, post_id: String, feedback:String, reportDate: String, complete: (Boolean) -> Unit
+    ) {
+        val jsonBody = JSONObject()
+
+        //bc it takes object of UserId
+        val userId = JSONObject()
+        userId.put("user_id", reported_by)
+
+        //bc it takes object of PostId
+        val postId = JSONObject()
+        postId.put("post_id", post_id)
+
+        jsonBody.put("reported_by", userId)
+        jsonBody.put("post_id", postId)
+        jsonBody.put("feedback",feedback)
+        jsonBody.put("report_date", reportDate)
+
+        val requestBody = jsonBody.toString()
+        println(requestBody)
+
+        val addReport = object : JsonObjectRequest(
+            Method.POST,
+            URL_ADD_REPORT,
+            null,
+            Response.Listener { response ->
+                println("Add Report Response " + response)
+                complete(true)
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not add report: $error")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(addReport)
+    }
+
 }

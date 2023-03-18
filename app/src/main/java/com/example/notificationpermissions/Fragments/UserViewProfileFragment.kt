@@ -54,9 +54,13 @@ class UserViewProfileFragment : Fragment() {
         imgButton = view.findViewById(R.id.editProfile)
         imgButton.text = "Message"
 
+        val noDataText = view.findViewById<TextView>(R.id.noDataTextView)
 
         var postDetails = arguments?.getSerializable(EXTRA_POST) as Post?
-        var newPostDetails: PostDetails? = null
+        var newPostDetails: PostDetails?
+
+
+        //two approaches to land to this page; from feed i.e. posts made by the user and when user is specifically searched.
 
         for (details in PostService.DetailedPosts) {
             if (postDetails != null) {
@@ -70,13 +74,13 @@ class UserViewProfileFragment : Fragment() {
                         Glide.with(it).load(newPostDetails?.user_profile).into(imgGallery)
                     }
 
-                    if (newPostDetails?.hide_email=="true") {
+                    if (newPostDetails?.hide_email == "true") {
                         email.text = "  Confidential"
                     } else {
                         email.text = "  ${newPostDetails?.user_email}"
                     }
 
-                    if (newPostDetails?.hide_number=="true") {
+                    if (newPostDetails?.hide_number == "true") {
                         phoneNumber.text = "  Confidential"
                     } else {
                         phoneNumber.text = "  ${newPostDetails?.user_phone}"
@@ -91,20 +95,23 @@ class UserViewProfileFragment : Fragment() {
 
                     PostService.getRating(newPostDetails?.user_id!!) { complete ->
                         if (complete) {
-                            rating.text= App.sharedPrefs.rating.toString()
-                            donations.text= App.sharedPrefs.clothDonated.toString()
+                            rating.text = App.sharedPrefs.rating.toString()
+                            donations.text = App.sharedPrefs.clothDonated.toString()
                         }
                     }
 
                     imgButton.setOnClickListener {
                         //checking if the user's chatroom already exists
-                        MessageService.getChatRoomId(App.sharedPrefs.userName, newPostDetails?.post_by!!) { complete ->
+                        MessageService.getChatRoomId(
+                            App.sharedPrefs.userName,
+                            newPostDetails?.post_by!!
+                        ) { complete ->
                             if (complete) {
-                                println("Get Char Room Id success "+complete)
+                                println("Get Char Room Id success " + complete)
                                 println(MessageService.chatRoomId)
-                                var id= MessageService.chatRoomId
+                                var id = MessageService.chatRoomId
 
-                                if (id==""){
+                                if (id == "") {
                                     id = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
                                 }
 
@@ -112,7 +119,7 @@ class UserViewProfileFragment : Fragment() {
                                 val recieverFCMtoken = newPostDetails?.fcm_token
                                 val recieverProfilePicture = newPostDetails?.user_profile
                                 val recieverUserName = newPostDetails?.post_by
-                                val recieverPhone= newPostDetails?.user_phone
+                                val recieverPhone = newPostDetails?.user_phone
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -124,47 +131,63 @@ class UserViewProfileFragment : Fragment() {
                                 )
                                 view.findNavController()
                                     .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
-                                        Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
+                                        Bundle().apply {
+                                            putSerializable(
+                                                EXTRA_CHAT_ROOM,
+                                                newChatRoom
+                                            )
+                                        })
                             }
                         }
                     }
 
                     PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->
                         if (complete) {
-                            var imageUrlsList = mutableListOf<String>()
-                            for (url in PostService.posts) {
-                                imageUrlsList.add(url.media_file)
-                            }
+                            if (PostService.posts.isNotEmpty()) {
+                                noDataText.visibility = View.GONE
+                                var imageUrlsList = mutableListOf<String>()
+                                for (url in PostService.posts) {
+                                    imageUrlsList.add(url.media_file)
+                                }
 
-                            adapter = PostRecycleAdapter(
-                                requireContext(),
-                                imageUrlsList) { post ->
-                                //do something on click; open full post details
-                                view.findNavController().navigate(
-                                    R.id.action_userViewProfileFragment2_to_viewPostFragment,
-                                    Bundle().apply { putSerializable(EXTRA_POST, post) })
-                            }
-                        }
-                        var spanCount = 2
-                        val orientation = resources.configuration.orientation
-                        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            spanCount = 3
-                        }
+                                adapter = PostRecycleAdapter(
+                                    requireContext(),
+                                    imageUrlsList
+                                ) { post ->
+                                    //do something on click; open full post details
+                                    view.findNavController().navigate(
+                                        R.id.action_userViewProfileFragment2_to_viewPostFragment,
+                                        Bundle().apply { putSerializable(EXTRA_POST, post) })
+                                }
 
-                        val layoutManager = GridLayoutManager(context, spanCount)
-                        val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                        postRV.layoutManager = layoutManager
-                        postRV.adapter = adapter
+                                var spanCount = 2
+                                val orientation = resources.configuration.orientation
+                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                    spanCount = 3
+                                }
+
+                                val layoutManager = GridLayoutManager(context, spanCount)
+                                val postRV =
+                                    view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                                postRV.layoutManager = layoutManager
+                                postRV.adapter = adapter
+                            } else if (PostService.posts.isEmpty()) {
+                                noDataText.visibility = View.VISIBLE
+                            }
+                        } else {
+                            noDataText.visibility = View.VISIBLE
+                            noDataText.text = "Posts could not be loaded"
+                        }
                     }
                 }
             }
         }
 
 
-        var newUserDetails: User? = null
-
         //navigating from search user to profile view (the user might not have any posts, hence a new approach is followed)
+        var newUserDetails: User?
         var userDetails= arguments?.getSerializable(EXTRA_USER) as User?
+
         for (details in AuthService.userList) {
             if (userDetails != null) {
                 if (details.user_name == userDetails.user_name) {
@@ -176,13 +199,13 @@ class UserViewProfileFragment : Fragment() {
                         Glide.with(it).load(newUserDetails?.user_profile).into(imgGallery)
                     }
 
-                    if (newUserDetails?.hide_email=="true") {
+                    if (newUserDetails?.hide_email == "true") {
                         email.text = "  Confidential"
                     } else {
                         email.text = "  ${newUserDetails?.email}"
                     }
 
-                    if (newUserDetails?.hide_phone=="true") {
+                    if (newUserDetails?.hide_phone == "true") {
                         phoneNumber.text = "  Confidential"
                     } else {
                         phoneNumber.text = "  ${newUserDetails?.phone_number}"
@@ -197,20 +220,23 @@ class UserViewProfileFragment : Fragment() {
 
                     PostService.getRating(newUserDetails?.user_id!!) { complete ->
                         if (complete) {
-                            rating.text= App.sharedPrefs.rating.toString()
-                            donations.text= App.sharedPrefs.clothDonated.toString()
+                            rating.text = App.sharedPrefs.rating.toString()
+                            donations.text = App.sharedPrefs.clothDonated.toString()
                         }
                     }
 
                     imgButton.setOnClickListener {
                         //checking if the user's chatroom already exists
-                        MessageService.getChatRoomId(App.sharedPrefs.userName, newUserDetails?.user_name!!) { complete ->
+                        MessageService.getChatRoomId(
+                            App.sharedPrefs.userName,
+                            newUserDetails?.user_name!!
+                        ) { complete ->
                             if (complete) {
-                                println("Get Char Room Id success "+complete)
+                                println("Get Char Room Id success " + complete)
                                 println(MessageService.chatRoomId)
-                                var id= MessageService.chatRoomId
+                                var id = MessageService.chatRoomId
 
-                                if (id==""){
+                                if (id == "") {
                                     id = "${App.sharedPrefs.userName}+ ${newUserDetails?.user_name}"
                                 }
 
@@ -218,7 +244,7 @@ class UserViewProfileFragment : Fragment() {
                                 val recieverFCMtoken = newUserDetails?.fcm_token
                                 val recieverProfilePicture = newUserDetails?.user_profile
                                 val recieverUserName = newUserDetails?.user_name
-                                val recieverPhone= newUserDetails?.phone_number
+                                val recieverPhone = newUserDetails?.phone_number
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -230,37 +256,53 @@ class UserViewProfileFragment : Fragment() {
                                 )
                                 view.findNavController()
                                     .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
-                                        Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, newChatRoom) })
+                                        Bundle().apply {
+                                            putSerializable(
+                                                EXTRA_CHAT_ROOM,
+                                                newChatRoom
+                                            )
+                                        })
                             }
                         }
                     }
 
                     PostService.getOtherUserPosts(newUserDetails?.user_id.toString()) { complete ->
                         if (complete) {
-                            var imageUrlsList = mutableListOf<String>()
-                            for (url in PostService.posts) {
-                                imageUrlsList.add(url.media_file)
-                            }
+                            if (PostService.posts.isNotEmpty()) {
+                                noDataText.visibility = View.GONE
+                                var imageUrlsList = mutableListOf<String>()
+                                for (url in PostService.posts) {
+                                    imageUrlsList.add(url.media_file)
+                                }
 
-                            adapter = PostRecycleAdapter(
-                                requireContext(),
-                                imageUrlsList) { post ->
-                                //do something on click; open full post details
-                                view.findNavController().navigate(
-                                    R.id.action_userViewProfileFragment2_to_viewPostFragment,
-                                    Bundle().apply { putSerializable(EXTRA_POST, post) })
-                            }
-                        }
-                        var spanCount = 2
-                        val orientation = resources.configuration.orientation
-                        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            spanCount = 3
-                        }
+                                adapter = PostRecycleAdapter(
+                                    requireContext(),
+                                    imageUrlsList
+                                ) { post ->
+                                    //do something on click; open full post details
+                                    view.findNavController().navigate(
+                                        R.id.action_userViewProfileFragment2_to_viewPostFragment,
+                                        Bundle().apply { putSerializable(EXTRA_POST, post) })
+                                }
 
-                        val layoutManager = GridLayoutManager(context, spanCount)
-                        val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                        postRV.layoutManager = layoutManager
-                        postRV.adapter = adapter
+                                var spanCount = 2
+                                val orientation = resources.configuration.orientation
+                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                    spanCount = 3
+                                }
+
+                                val layoutManager = GridLayoutManager(context, spanCount)
+                                val postRV =
+                                    view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                                postRV.layoutManager = layoutManager
+                                postRV.adapter = adapter
+                            } else if (PostService.posts.isEmpty()) {
+                                noDataText.visibility = View.VISIBLE
+                            }
+                        } else {
+                            noDataText.visibility = View.VISIBLE
+                            noDataText.text = "Posts could not be loaded"
+                        }
                     }
                 }
             }

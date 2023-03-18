@@ -210,12 +210,26 @@ class DashboardActivity : AppCompatActivity() {
                         //on Click do something--> open individual user's profile
                         val navController =
                             Navigation.findNavController(this, R.id.nav_fragment)
-                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
-                            putSerializable(
-                                EXTRA_USER,
-                                user
+
+                        //if opened own's profile, open profile fragment
+                        if (user.user_name == App.sharedPrefs.userName) {
+                            navController.navigate(
+                                R.id.profileFragment
                             )
-                        })
+
+                        } else {
+                            //open user profile
+                            navController.navigate(
+                                R.id.userViewProfileFragment2,
+                                Bundle().apply {
+                                    putSerializable(
+                                        EXTRA_USER,
+                                        user
+                                    )
+                                }
+                            )
+                        }
+
                         dialog.dismiss()
                     }
                     userRV.adapter = adapter
