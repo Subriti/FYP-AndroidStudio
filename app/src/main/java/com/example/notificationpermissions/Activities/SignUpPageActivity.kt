@@ -112,13 +112,27 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         phonecode = findViewById<CountryCodePicker>(R.id.ccp)
 
         val privateEmail= findViewById<CheckBox>(R.id.privateEmail)
-        if(privateEmail.isChecked){
-            hideEmail= true
+        privateEmail.setOnClickListener {
+            if (privateEmail.isChecked) {
+                hideEmail = true
+                println(hideEmail)
+            }
+            if (!privateEmail.isChecked) {
+                hideEmail = false
+                println(hideEmail)
+            }
         }
 
         val privateNumber= findViewById<CheckBox>(R.id.privateNumber)
-        if (privateNumber.isChecked){
-            hideNumber= true
+        privateNumber.setOnClickListener {
+            if (privateNumber.isChecked) {
+                hideNumber = true
+                println(hideNumber)
+            }
+            if (!privateNumber.isChecked) {
+                hideNumber = false
+                println(hideNumber)
+            }
         }
 
         val indicatorText = findViewById<TextView>(R.id.passwordIndicatorText)
@@ -285,7 +299,10 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             locationTxt.text.toString(),
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
             //imageUrl //should me imgURL ig bc img selected chaina vane feri error aucha
-            imgURL
+            imgURL,
+            hideEmail,
+            hideNumber,
+            false
         ) { createSuccess ->
             println("Register User success: $createSuccess")
             if (createSuccess) {

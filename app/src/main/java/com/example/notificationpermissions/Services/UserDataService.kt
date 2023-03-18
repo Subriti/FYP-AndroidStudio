@@ -12,7 +12,6 @@ object UserDataService {
     var signupDate=""
     var profilePicture=""
 
-
     fun logout(){
         userId = ""
         userName = ""
@@ -31,9 +30,9 @@ object UserDataService {
         App.sharedPrefs.phoneNumber=""
         App.sharedPrefs.dateOfBirth=""
         App.sharedPrefs.isLoggedIn= false
-        App.sharedPrefs.hideEmail=true
-        App.sharedPrefs.hidePhone=true
-        App.sharedPrefs.isAdmin= false
+        App.sharedPrefs.hideUserEmail="false"
+        App.sharedPrefs.hideUserPhone="false"
+        App.sharedPrefs.isAdmin= "false"
 
         PostService.posts.clear()
         MessageService.clearMessages()

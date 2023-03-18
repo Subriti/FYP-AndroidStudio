@@ -41,6 +41,9 @@ class EditProfileFragment : Fragment() {
     private lateinit var storageReference: StorageReference
     private lateinit var imgURL: String
 
+    private var updateHideEmail= false
+    private var updateHideNumber= false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -73,6 +76,40 @@ class EditProfileFragment : Fragment() {
         dateOfBirth.text = (App.sharedPrefs.dateOfBirth).subSequence(0, 10)
         phoneNumber.text = App.sharedPrefs.phoneNumber
         location.text = App.sharedPrefs.location
+
+        //if they are hidden, check the box already at the time of edit
+        val privateEmail= view.findViewById<CheckBox>(R.id.privateEmail2)
+        privateEmail.isChecked = App.sharedPrefs.hideUserEmail=="true"
+        updateHideEmail= App.sharedPrefs.hideUserEmail=="true"
+        println("Update Hide Email: "+updateHideEmail)
+
+        val privateNumber= view.findViewById<CheckBox>(R.id.privateNumber2)
+        privateNumber.isChecked = App.sharedPrefs.hideUserPhone=="true"
+        updateHideNumber= App.sharedPrefs.hideUserPhone=="true"
+        println("Update Hide Phone: "+updateHideNumber)
+
+        privateEmail.setOnClickListener {
+            if (privateEmail.isChecked) {
+                updateHideEmail = true
+                println(updateHideEmail)
+            }
+            if (!privateEmail.isChecked) {
+                updateHideEmail = false
+                println(updateHideEmail)
+            }
+        }
+
+        privateNumber.setOnClickListener {
+            if (privateNumber.isChecked) {
+                updateHideNumber = true
+                println(updateHideNumber)
+            }
+            if (!privateNumber.isChecked) {
+                updateHideNumber = false
+                println(updateHideNumber)
+            }
+        }
+
 
         imgButton = view.findViewById<Button>(R.id.choosePhoto)
         imgButton.setOnClickListener {
@@ -156,7 +193,9 @@ class EditProfileFragment : Fragment() {
             dateOfBirth.text.toString(),
             phoneNumber.text.toString(),
             location.text.toString(),
-            imgURL
+            imgURL,
+            updateHideEmail,
+            updateHideNumber
         ) { updateSuccess ->
             println("Update User success: $updateSuccess")
             if (updateSuccess) {
@@ -175,8 +214,12 @@ class EditProfileFragment : Fragment() {
                 /*DashboardActivity().destination!!.label =
                     "${App.sharedPrefs.userName}"*/
 
-                val intent = Intent(activity, DashboardActivity::class.java)
-                startActivity(intent)
+                /*val intent = Intent(activity, DashboardActivity::class.java)
+                startActivity(intent)*/
+
+                //back to profile fragment
+                view?.findNavController()?.navigate(R.id.action_editProfileFragment_to_profileFragment)
+                
                 enableSpinner(false)
             }
         }

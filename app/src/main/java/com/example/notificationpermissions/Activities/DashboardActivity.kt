@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -269,7 +268,7 @@ class DashboardActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun onUserSearch(selectedUser:String, dialog: AlertDialog, userRV: RecyclerView){
+    fun onUserSearch(selectedUser: String, dialog: AlertDialog, userRV: RecyclerView) {
         if (selectedUser != "") {
             var newList = mutableListOf<User>()
             for (user in AuthService.userList) {
@@ -307,22 +306,29 @@ class DashboardActivity : AppCompatActivity() {
                                     this@DashboardActivity,
                                     R.id.nav_fragment
                                 )
-                            navController.navigate(
-                                R.id.userViewProfileFragment2,
-                                Bundle().apply {
-                                    putSerializable(
-                                        EXTRA_USER,
-                                        user
-                                    )
-                                }//,NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
-                            )
+
+                            //if opened own's profile, open profile fragment
+                            if (user.user_name == App.sharedPrefs.userName) {
+                                navController.navigate(
+                                    R.id.profileFragment
+                                )
+
+                            } else {
+                                //open user profile
+                                navController.navigate(
+                                    R.id.userViewProfileFragment2,
+                                    Bundle().apply {
+                                        putSerializable(
+                                            EXTRA_USER,
+                                            user
+                                        )
+                                    }
+                                )
+                            }
+
                             dialog.dismiss()
                         }
-
                     }
-
-
-                    //adapter.notifyDataSetChanged()
                     userRV.adapter = adapter
                 }
 

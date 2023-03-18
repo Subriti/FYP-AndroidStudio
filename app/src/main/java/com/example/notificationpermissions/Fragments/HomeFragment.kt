@@ -210,7 +210,11 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 } else if (PostService.AllPosts.isEmpty()) {
                     noDataText.visibility = View.VISIBLE
                 }
+            }else {
+                noDataText.visibility = View.VISIBLE
+                noDataText.text= "Post Feed could not be loaded"
             }
+
             if (PostService.getAllPostError is AuthFailureError) {
                 progressDialog.dismiss()
                 println("Session expired. Please Login again.")

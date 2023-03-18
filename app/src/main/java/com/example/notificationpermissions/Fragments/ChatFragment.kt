@@ -18,6 +18,7 @@ import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.ChatRoomAdapter
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.MessageService
+import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
 
 class ChatFragment : Fragment()/*, OnClickListener*/{
@@ -47,11 +48,15 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
         //sendMessage.setOnClickListener(this)
         sendMessage.isVisible=false
 
+        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
+
         fun getUserChatRooms() {
             MessageService.getChatRooms {
                     getChatRooms ->
                 println("Get Chat Rooms success: $getChatRooms")
                 if (getChatRooms) {
+                    if (MessageService.userChatRooms.isNotEmpty()) {
+                        noDataText.visibility = View.GONE
                     println(MessageService.userChatRooms)
                     for (i in MessageService.map)
                     {
@@ -79,6 +84,12 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
                             }
                         }
                     }
+                } else if (MessageService.userChatRooms.isEmpty()) {
+                        noDataText.visibility = View.VISIBLE
+                    }
+                } else {
+                    noDataText.visibility = View.VISIBLE
+                    noDataText.text= "Chat Rooms could not be loaded"
                 }
             }
         }

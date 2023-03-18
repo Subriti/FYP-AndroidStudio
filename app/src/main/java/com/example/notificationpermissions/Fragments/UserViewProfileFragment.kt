@@ -70,8 +70,18 @@ class UserViewProfileFragment : Fragment() {
                         Glide.with(it).load(newPostDetails?.user_profile).into(imgGallery)
                     }
 
-                    email.text = "  ${newPostDetails?.user_email}"
-                    phoneNumber.text = "  ${newPostDetails?.user_phone}"
+                    if (newPostDetails?.hide_email=="true") {
+                        email.text = "  Confidential"
+                    } else {
+                        email.text = "  ${newPostDetails?.user_email}"
+                    }
+
+                    if (newPostDetails?.hide_number=="true") {
+                        phoneNumber.text = "  Confidential"
+                    } else {
+                        phoneNumber.text = "  ${newPostDetails?.user_phone}"
+                    }
+
                     location.text = "  ${newPostDetails?.location}"
 
                     blockBtn.setOnClickListener {
@@ -166,8 +176,18 @@ class UserViewProfileFragment : Fragment() {
                         Glide.with(it).load(newUserDetails?.user_profile).into(imgGallery)
                     }
 
-                    email.text = "  ${newUserDetails?.email}"
-                    phoneNumber.text = "  ${newUserDetails?.phone_number}"
+                    if (newUserDetails?.hide_email=="true") {
+                        email.text = "  Confidential"
+                    } else {
+                        email.text = "  ${newUserDetails?.email}"
+                    }
+
+                    if (newUserDetails?.hide_phone=="true") {
+                        phoneNumber.text = "  Confidential"
+                    } else {
+                        phoneNumber.text = "  ${newUserDetails?.phone_number}"
+                    }
+
                     location.text = "  ${newUserDetails?.location}"
 
                     blockBtn.setOnClickListener {

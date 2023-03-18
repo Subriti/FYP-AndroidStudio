@@ -20,6 +20,8 @@ class PostDetails(
     val cloth_size: String,
     val cloth_condition: String,
     val cloth_season: String,
-    val donation_status: String
+    val donation_status: String,
+    val hide_email: String,
+    val hide_number: String
 ) :
     Serializable

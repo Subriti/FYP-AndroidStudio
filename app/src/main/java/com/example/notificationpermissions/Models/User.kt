@@ -9,9 +9,9 @@ class User(
     val email: String,
     val phone_number: String,
     val location: String,
-    val fcm_token: String/*,
-    val is_admin: Boolean,
-    val hide_email: Boolean,
-    val hide_phone: Boolean*/
+    val fcm_token: String,
+    //val is_admin: Boolean,
+    val hide_email: String,
+    val hide_phone: String
 ) :
     Serializable

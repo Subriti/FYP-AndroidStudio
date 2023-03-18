@@ -23,7 +23,7 @@ object NotificationService {
                     response ->
                 try {
                     for (x in 0 until response.length()) {
-                        println(response)
+                        println("Notification response: $response")
                         val notification = response.getJSONObject(x)
                         val notificationId = notification.getString("notification_id")
                         val title = notification.getString("title")
@@ -42,6 +42,7 @@ object NotificationService {
                            notificationId, title, message, data, senderId,  token, recieverId)
                         notifications.add(newNotification)
                     }
+                    println("Notification Array Size ${notifications.size}")
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)

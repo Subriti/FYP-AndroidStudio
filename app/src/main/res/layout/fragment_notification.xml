@@ -8,6 +8,21 @@
     tools:ignore="MissingDefaultResource"
     android:id="@+id/frameLayout">
 
+    <TextView
+        android:id="@+id/noDataTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:text="No Notifications were found."
+        android:textColor="@color/whitisPurple"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/notificationRV"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/notificationRV" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notificationRV"
         android:layout_width="0dp"

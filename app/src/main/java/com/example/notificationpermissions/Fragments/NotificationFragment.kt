@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.RatingBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -39,45 +40,54 @@ class NotificationFragment : Fragment() {
         val notificationRV = view.findViewById<RecyclerView>(R.id.notificationRV)
         println("in notification fragment")
 
+        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
         NotificationService.getUserNotifications(App.sharedPrefs.userID) { complete ->
             if (complete) {
-                adapter = NotificationAdapter(
-                    requireContext(),
-                    NotificationService.notifications
-                ) { notification ->
-                    //open post details (eta pachi conditions launa parcha for if post likes ho ki rating ko notif)
-                    println(notification.data)
-                    val json = JSONObject(notification.data)
-                    val postId = json.getString("post_id")
+                if (NotificationService.notifications.isNotEmpty()) {
+                    noDataText.visibility = View.GONE
+                    adapter = NotificationAdapter(
+                        requireContext(),
+                        NotificationService.notifications
+                    ) { notification ->
+                        //open post details (eta pachi conditions launa parcha for if post likes ho ki rating ko notif)
+                        println(notification.data)
+                        val json = JSONObject(notification.data)
+                        val postId = json.getString("post_id")
 
-                    if (notification.title == "Please Rate the Donor") {
-                        //create rating Dialog Box
-                        ratingDialog(postId)
-                    } else {
-                        PostService.findPost(postId) { success ->
-                            println(success)
-                            if (success) {
-                                view.findNavController()
-                                    .navigate(
-                                        R.id.action_notificationFragment_to_viewPostFragment,
-                                        Bundle().apply {
-                                            putSerializable(
-                                                EXTRA_POST,
-                                                PostService.notificationPost
-                                            )
-                                        })
+                        if (notification.title == "Please Rate the Donor") {
+                            //create rating Dialog Box
+                            ratingDialog(postId)
+                        } else {
+                            PostService.findPost(postId) { success ->
+                                println(success)
+                                if (success) {
+                                    view.findNavController()
+                                        .navigate(
+                                            R.id.action_notificationFragment_to_viewPostFragment,
+                                            Bundle().apply {
+                                                putSerializable(
+                                                    EXTRA_POST,
+                                                    PostService.notificationPost
+                                                )
+                                            })
+                                }
                             }
                         }
                     }
+                    val layoutManager = LinearLayoutManager(context)
+                    notificationRV.layoutManager = layoutManager
+                    notificationRV.adapter = adapter
+                } else if (NotificationService.notifications.isEmpty()) {
+                    noDataText.visibility = View.VISIBLE
                 }
-                val layoutManager = LinearLayoutManager(context)
-                notificationRV.layoutManager = layoutManager
-                notificationRV.adapter = adapter
+            } else {
+                noDataText.visibility = View.VISIBLE
+                noDataText.text= "Notifications could not be loaded"
             }
         }
         return view
     }
-    fun ratingDialog(postId: String) {
+    private fun ratingDialog(postId: String) {
         val builder = AlertDialog.Builder(requireContext())
         val dialogView = layoutInflater.inflate(R.layout.confirmation_prompt, null)
 

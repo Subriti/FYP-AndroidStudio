@@ -571,6 +571,8 @@ object PostService {
                         val phoneNum = userJSONObject.getString("phone_number")
                         val profilePicture = userJSONObject.getString("profile_picture")
                         val fcmToken = userJSONObject.getString("fcm_token")
+                        val hideEmail = userJSONObject.getString("hide_email")
+                        val hidePhone = userJSONObject.getString("hide_phone")
 
                         val mediaFile = post.getString("media_file")
                         val description = post.getString("description")
@@ -621,8 +623,11 @@ object PostService {
                             clothSize,
                             clothCondition,
                             clothSeason,
-                            donationStatus
+                            donationStatus,
+                            hideEmail,
+                            hidePhone
                         )
+
                         val newPosts = Post(
                             postId,
                             username,

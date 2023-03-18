@@ -39,6 +39,9 @@ object AuthService {
         location: String,
         signup_date: String,
         profile_picture: String,
+        hideEmail:Boolean,
+        hidePhone: Boolean,
+        isAdmin:Boolean,
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
@@ -50,6 +53,9 @@ object AuthService {
         jsonBody.put("location", location)
         jsonBody.put("signup_date", signup_date)
         jsonBody.put("profile_picture", profile_picture)
+        jsonBody.put("hide_email", hideEmail)
+        jsonBody.put("hide_phone", hidePhone)
+        jsonBody.put("is_admin", isAdmin)
 
         val requestBody = jsonBody.toString()
         print(requestBody)
@@ -96,7 +102,17 @@ object AuthService {
                     App.sharedPrefs.phoneNumber = response.getString("phone_number")
                     App.sharedPrefs.dateOfBirth = response.getString("birth_date")
                     App.sharedPrefs.authToken = response.getString("token")
+
+                    App.sharedPrefs.isAdmin= response.getString("is_admin")
+
+                    App.sharedPrefs.hideUserEmail = response.getString("hide_email")
+                    println("Hide User Email: "+App.sharedPrefs.hideUserEmail)
+
+                    App.sharedPrefs.hideUserPhone = response.getString("hide_phone")
+                    println("Hide User Phone: "+App.sharedPrefs.hideUserPhone)
+
                     App.sharedPrefs.isLoggedIn = true
+
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)
@@ -441,6 +457,8 @@ object AuthService {
         phone_number: String,
         location: String,
         profile_picture: String,
+        hide_email: Boolean,
+        hide_phone: Boolean,
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
@@ -450,9 +468,11 @@ object AuthService {
         jsonBody.put("phone_number", phone_number)
         jsonBody.put("location", location)
         jsonBody.put("profile_picture", profile_picture)
+        jsonBody.put("hide_email", hide_email)
+        jsonBody.put("hide_phone", hide_phone)
 
         val requestBody = jsonBody.toString()
-        print(requestBody)
+        println(requestBody)
 
         val updateRequest = object : JsonObjectRequest(Method.PUT,
             "$URL_UPDATE_USER${App.sharedPrefs.userID}",
@@ -460,9 +480,16 @@ object AuthService {
             Response.Listener { response ->
                 println("Update User Response $response")
                 val token = response.getString("token")
+                val hideEmail = response.getString("hide_email")
+                val hidePhone = response.getString("hide_phone")
                 if (token != "token") {
                     App.sharedPrefs.authToken = token
                 }
+                App.sharedPrefs.hideUserEmail= hideEmail
+                App.sharedPrefs.hideUserPhone= hidePhone
+                println("Updated hide email ${App.sharedPrefs.hideUserEmail}")
+                println("Updated hide phone ${App.sharedPrefs.hideUserPhone}")
+
                 complete(true)
             },
             Response.ErrorListener { error ->
@@ -506,6 +533,8 @@ object AuthService {
                         val phoneNumber= user.getString("phone_number")
                         val location= user.getString("location")
                         val fcmToken= user.getString("fcm_token")
+                        val hideEmail= user.getString("hide_email")
+                        val hidePhone= user.getString("hide_phone")
 
                         val newUser = User(
                             userId,
@@ -514,7 +543,9 @@ object AuthService {
                             email,
                             phoneNumber,
                             location,
-                            fcmToken
+                            fcmToken,
+                            hideEmail,
+                            hidePhone
                         )
                         userList.add(newUser)
                     }
