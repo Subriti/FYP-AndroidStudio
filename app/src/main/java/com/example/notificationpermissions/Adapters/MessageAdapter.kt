@@ -90,10 +90,10 @@ class SenderMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
 }
 
 class ReceiverMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val userImage = itemView.findViewById<ImageView>(R.id.messageUserimage)
+    val userImage = itemView.findViewById<ImageView>(R.id.Userimage)
     val timeStamp = itemView.findViewById<TextView>(R.id.timeStampLabel)
     //val userName = itemView.findViewById<TextView>(R.id.messageUserName)
-    val messageBody = itemView.findViewById<TextView>(R.id.messageBodyLabel)
+    val messageBody = itemView.findViewById<TextView>(R.id.message)
 }
 
 @SuppressLint("NewApi")

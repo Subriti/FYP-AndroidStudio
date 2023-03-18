@@ -130,4 +130,13 @@
             android:id="@+id/action_viewFeedItemFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.example.notificationpermissions.Fragments.NotificationFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notification" >
+        <action
+            android:id="@+id/action_notificationFragment_to_viewPostFragment"
+            app:destination="@id/viewPostFragment" />
+    </fragment>
 </navigation>

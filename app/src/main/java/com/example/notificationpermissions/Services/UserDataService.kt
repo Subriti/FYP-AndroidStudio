@@ -31,6 +31,10 @@ object UserDataService {
         App.sharedPrefs.phoneNumber=""
         App.sharedPrefs.dateOfBirth=""
         App.sharedPrefs.isLoggedIn= false
+        App.sharedPrefs.hideEmail=true
+        App.sharedPrefs.hidePhone=true
+        App.sharedPrefs.isAdmin= false
+
         PostService.posts.clear()
         MessageService.clearMessages()
         MessageService.clearChatRooms()

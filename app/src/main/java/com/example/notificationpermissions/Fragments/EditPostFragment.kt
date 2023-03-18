@@ -54,8 +54,8 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_post, container, false)
 
-        postSpinner= view.findViewById(R.id.postSpinner)
-        postSpinner.visibility= View.INVISIBLE
+        postSpinner = view.findViewById(R.id.postSpinner)
+        postSpinner.visibility = View.INVISIBLE
 
         (activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
@@ -95,14 +95,14 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
         println(postDetails)
 
-        picture= view.findViewById(R.id.picture_to_be_posted)
+        picture = view.findViewById(R.id.picture_to_be_posted)
         context?.let {
             Glide.with(it).load(postDetails.media_file).into(picture)
         }
         desc = view.findViewById(R.id.description)
-        desc.text=postDetails.description
+        desc.text = postDetails.description
 
-        locationTxt.text=postDetails.location
+        locationTxt.text = postDetails.location
 
         //submit button for adding post
         editPost = view.findViewById(R.id.edit_post)
@@ -114,12 +114,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             val cloth = json.getString("cloth_id")
 
             PostService.updateCloth(
-                cloth,
-                category,
-                itemCategory,
-                clothSize,
-                clothCondition,
-                clothSeason
+                cloth, category, itemCategory, clothSize, clothCondition, clothSeason
             ) { response ->
                 println("Update Cloth Response $response")
                 if (response) {
@@ -132,11 +127,11 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         println("Update Post Response $response")
                         if (response) {
                             //get back to viewPostFragment
-                            view.findNavController().navigate(R.id.action_editPostFragment_to_viewPostFragment)
+                            view.findNavController()
+                                .navigate(R.id.action_editPostFragment_to_viewPostFragment,
+                                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
                             Toast.makeText(
-                                requireContext(),
-                                "Post was successfully updated",
-                                Toast.LENGTH_LONG
+                                requireContext(), "Post was successfully updated", Toast.LENGTH_LONG
                             ).show()
                             enableSpinner(false)
                         }
@@ -178,7 +173,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             spinnerCategory.adapter = adapter
 
             println(clothesCategoryId.toInt())
-            spinnerCategory.setSelection(clothesCategoryId.toInt()-1)
+            spinnerCategory.setSelection(clothesCategoryId.toInt() - 1)
             spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>, view: View, position: Int, id: Long
@@ -205,7 +200,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             spinnerItemCategory.adapter = adapter
 
             println(clothesItemCategoryId.toInt())
-            spinnerItemCategory.setSelection(clothesItemCategoryId.toInt()-6)
+            spinnerItemCategory.setSelection(clothesItemCategoryId.toInt() - 6)
             spinnerItemCategory.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(
@@ -222,6 +217,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 }
         }
 
+        var isInitialSelection = true // flag variable to track initial selection
 
         val spinnerClothSize: Spinner = view.findViewById(R.id.spinnerClothSize)
         ArrayAdapter.createFromResource(
@@ -232,28 +228,32 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             // Apply the adapter to the spinner
             spinnerClothSize.adapter = adapter
 
+            spinnerClothSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>, view: View, position: Int, id: Long
+                ) {
+                    if (!isInitialSelection) {
+                        spinnerClothSize.setSelection(position)
+                        clothSize = spinnerClothSize.selectedItem.toString()
+                        println("Selected cloth size: $clothSize")
+                    }
+                    isInitialSelection = false // set flag to false after initial selection
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // do nothing
+                }
+            }
+
 
             for (i in 0 until spinnerClothSize.count) {
+                println(clothesSize)
+                println(spinnerClothSize.getItemAtPosition(i))
                 if (spinnerClothSize.getItemAtPosition(i) == clothesSize) {
+                    println(i)
                     spinnerClothSize.setSelection(i)
                     break
                 }
-            }
-            //spinnerClothSize.setSelection(0)
-
-        }
-        spinnerClothSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>, view: View, position: Int, id: Long
-            ) {
-                //val item = parent.getItemAtPosition(position).toString()
-                spinnerClothSize.setSelection(position)
-                clothSize = spinnerClothSize.selectedItem as String
-                println("Selected cloth size: $clothSize")
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // do nothing
             }
         }
 
@@ -280,7 +280,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             ) {
                 //val item = parent.getItemAtPosition(position).toString()
                 spinnerClothCondition.setSelection(position)
-                clothCondition = spinnerClothCondition.selectedItem as String
+                clothCondition = spinnerClothCondition.selectedItem.toString()
                 println("Selected cloth condition: $clothCondition")
             }
 
@@ -310,7 +310,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 parent: AdapterView<*>, view: View, position: Int, id: Long
             ) {
                 spinnerClothSeason.setSelection(position)
-                clothSeason = spinnerClothSeason.selectedItem as String
+                clothSeason = spinnerClothSeason.selectedItem.toString()
                 println("Selected cloth season: $clothSeason")
             }
 
@@ -334,7 +334,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 parent: AdapterView<*>, view: View, position: Int, id: Long
             ) {
                 spinnerClothDelivery.setSelection(position)
-                clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem as String}"
+                clothDelivery = "Cloth Delivery: ${spinnerClothDelivery.selectedItem}"
                 println("Selected cloth delivery: $clothDelivery")
             }
 

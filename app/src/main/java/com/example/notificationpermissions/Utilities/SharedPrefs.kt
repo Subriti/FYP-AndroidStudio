@@ -19,6 +19,23 @@ class SharedPrefs(context: Context) {
     val LOCATION= "location"
     val PHONE_NUMBER= "phoneNumber"
     val DATE_OF_BIRTH= "dateOfBirth"
+    val RATING= 1.0
+    val CLOTH_DONATED= 0
+    val HIDE_EMAIL="true"
+    val HIDE_PHONE="true"
+    val IS_ADMIN="false"
+
+    var hideEmail: Boolean
+        get() = prefs.getBoolean(HIDE_EMAIL, true)
+        set(value) = prefs.edit().putBoolean(HIDE_EMAIL, value).apply()
+
+    var hidePhone: Boolean
+        get() = prefs.getBoolean(HIDE_PHONE, true)
+        set(value) = prefs.edit().putBoolean(HIDE_PHONE, value).apply()
+
+    var isAdmin: Boolean
+        get() = prefs.getBoolean(IS_ADMIN, false)
+        set(value) = prefs.edit().putBoolean(IS_ADMIN, value).apply()
 
     val FCM_TOKEN= "fcmToken"
     var token: String
@@ -60,6 +77,14 @@ class SharedPrefs(context: Context) {
     var dateOfBirth: String
         get() = prefs.getString(DATE_OF_BIRTH, "")!!
         set(value) = prefs.edit().putString(DATE_OF_BIRTH, value).apply()
+
+    var rating: Float
+        get() = prefs.getFloat(RATING.toString(), 0.0F)!!
+        set(value) = prefs.edit().putFloat(RATING.toString(), value).apply()
+
+    var clothDonated: Int
+        get() = prefs.getInt(CLOTH_DONATED.toString(), 0)!!
+        set(value) = prefs.edit().putInt(CLOTH_DONATED.toString(), value).apply()
 
     val requestQueue= Volley.newRequestQueue(context)
 }

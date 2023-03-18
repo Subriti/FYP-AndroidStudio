@@ -6,17 +6,29 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
-import com.example.notificationpermissions.Utilities.App
+import com.example.notificationpermissions.Models.Clothes
+import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 
 
 object AuthService {
-
     var isFound = false
-    var recipientToken=""
+    var recipientToken = ""
+
+    var userId = ""
+    var userName = ""
+    var email = ""
+    var birthDate = ""
+    var location = ""
+    var phoneNumber = ""
+    var profilePicture = ""
+    var fcmToken = ""
+
+    val userList = ArrayList<User>()
 
     fun registerUser(
         name: String,
@@ -160,6 +172,137 @@ object AuthService {
         App.sharedPrefs.requestQueue.add(findRequest)
     }
 
+    fun findUser(token: String, complete: (Boolean) -> Unit) {
+        val findRequest = object : JsonObjectRequest(
+            Method.GET,
+            "$URL_FIND_USER_BY_TOKEN$token",
+            null,
+            Response.Listener { response ->
+                println("Find User Response " + response)
+                try {
+                    userId = response.getString("user_id")
+                    userName = response.getString("user_name")
+                    email = response.getString("email")
+                    birthDate = response.getString("birth_date")
+                    location = response.getString("location")
+                    phoneNumber = response.getString("phone_number")
+                    profilePicture = response.getString("profile_picture")
+                    fcmToken = response.getString("fcm_token")
+
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not find user: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(findRequest)
+    }
+
+    fun findUserByID(userID: String, complete: (Boolean) -> Unit) {
+        val findRequest = object : JsonObjectRequest(
+            Method.GET,
+            "$URL_FIND_USER_BY_ID$userID",
+            null,
+            Response.Listener { response ->
+                println("Find User Response " + response)
+                try {
+                    userId = response.getString("user_id")
+                    userName = response.getString("user_name")
+                    email = response.getString("email")
+                    birthDate = response.getString("birth_date")
+                    location = response.getString("location")
+                    phoneNumber = response.getString("phone_number")
+                    profilePicture = response.getString("profile_picture")
+                    fcmToken = response.getString("fcm_token")
+
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not find user: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        App.sharedPrefs.requestQueue.add(findRequest)
+    }
+
+    fun findUserByName(name: String, complete: (Boolean) -> Unit) {
+        val jsonBody = JSONObject()
+        jsonBody.put("user_name", name)
+
+        val requestBody = jsonBody.toString()
+        print(requestBody)
+
+        val findRequest = object : JsonObjectRequest(
+            Method.POST,
+            "$URL_FIND_USER_BY_NAME",
+            null,
+            Response.Listener { response ->
+                println("Find User Response " + response)
+                try {
+                    userId = response.getString("user_id")
+                    userName = response.getString("user_name")
+                    email = response.getString("email")
+                    birthDate = response.getString("birth_date")
+                    location = response.getString("location")
+                    phoneNumber = response.getString("phone_number")
+                    profilePicture = response.getString("profile_picture")
+                    fcmToken = response.getString("fcm_token")
+
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not find user: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+        }
+        findRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+
+        App.sharedPrefs.requestQueue.add(findRequest)
+    }
+
     fun getFCMToken(postOwner: String, complete: (Boolean) -> Unit) {
         val jsonBody = JSONObject()
         jsonBody.put("user_name", postOwner)
@@ -194,15 +337,17 @@ object AuthService {
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
                 return headers
             }
+
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
+
             override fun getBody(): ByteArray {
                 return requestBody.toByteArray()
             }
         }
         getFCMTokenRequest.retryPolicy = DefaultRetryPolicy(
-                10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getFCMTokenRequest)
     }
@@ -233,9 +378,11 @@ object AuthService {
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
                 return headers
             }
+
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
+
             override fun getBody(): ByteArray {
                 return requestBody.toByteArray()
             }
@@ -312,9 +459,9 @@ object AuthService {
             null,
             Response.Listener { response ->
                 println("Update User Response $response")
-                val token=response.getString("token")
-                if (token!="token") {
-                    App.sharedPrefs.authToken=token
+                val token = response.getString("token")
+                if (token != "token") {
+                    App.sharedPrefs.authToken = token
                 }
                 complete(true)
             },
@@ -342,4 +489,56 @@ object AuthService {
         App.sharedPrefs.requestQueue.add(updateRequest)
     }
 
+    fun getAllUsers(complete: (Boolean) -> Unit) {
+        userList.clear()
+        val getUserRequest =
+            object : JsonArrayRequest(Method.GET, "$URL_GET_ALL_USERS", null, Response.Listener {
+                //this is where we parse the json object
+                    response ->
+                println(response)
+                try {
+                    for (x in 0 until response.length()) {
+                        val user = response.getJSONObject(x)
+                        val userId = user.getString("user_id")
+                        val userName = user.getString("user_name")
+                        val userProfile = user.getString("profile_picture")
+                        val email= user.getString("email")
+                        val phoneNumber= user.getString("phone_number")
+                        val location= user.getString("location")
+                        val fcmToken= user.getString("fcm_token")
+
+                        val newUser = User(
+                            userId,
+                            userName,
+                            userProfile,
+                            email,
+                            phoneNumber,
+                            location,
+                            fcmToken
+                        )
+                        userList.add(newUser)
+                    }
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            }, Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not retrieve users: $error")
+                complete(false)
+            }) {
+                override fun getBodyContentType(): String {
+                    return "application/json; charset=utf-8"
+                }
+
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
+                    return headers
+                }
+            }
+        App.sharedPrefs.requestQueue.add(getUserRequest)
+    }
 }

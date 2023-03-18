@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
 
+//this fragment manages the grid view feed
 class ViewFeedItemFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -131,14 +132,17 @@ class ViewFeedItemFragment : Fragment() {
 
                 //check if the user already liked, or is newly liked
                 if (!alreadyLiked) {
-                    PostService.addInterestedUser(
-                        App.sharedPrefs.userID,
-                        postDetails.post_id
-                    ) { addUserSuccess ->
-                        println("Add Interested User success: $addUserSuccess")
-                        if (addUserSuccess) {
-                            //on success display users ig
-                            getUsers(postDetails)
+                    println(postDetails.post_by)
+                    if (postDetails.post_by != App.sharedPrefs.userName) {
+                        PostService.addInterestedUser(
+                            App.sharedPrefs.userID,
+                            postDetails.post_id
+                        ) { addUserSuccess ->
+                            println("Add Interested User success: $addUserSuccess")
+                            if (addUserSuccess) {
+                                //on success display users ig
+                                getUsers(postDetails)
+                            }
                         }
                     }
                 }

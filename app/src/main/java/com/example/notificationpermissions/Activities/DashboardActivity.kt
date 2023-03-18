@@ -1,47 +1,51 @@
 package com.example.notificationpermissions.Activities
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.AlertDialog
 import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.notificationpermissions.Adapters.UserAdapter
 import com.example.notificationpermissions.Fragments.AddPostFragment
-import com.example.notificationpermissions.Fragments.ChatFragment
 import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
+import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
+import com.example.notificationpermissions.Utilities.EXTRA_POST
+import com.example.notificationpermissions.Utilities.EXTRA_USER
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import tech.gusavila92.websocketclient.WebSocketClient
-import java.net.URI
-import java.net.URISyntaxException
 
 
 class DashboardActivity : AppCompatActivity() {
     //assigned in each fragment to know the current fragment and to manage the appBar accordingly
     lateinit var currentFragment: Fragment
     lateinit var toolbar: Toolbar
-    var destination: NavDestination? =null
+    var destination: NavDestination? = null
+
+    var adapter: UserAdapter? = null
 /*
     lateinit var webSocketClient: WebSocketClient*/
 
@@ -113,6 +117,22 @@ class DashboardActivity : AppCompatActivity() {
             println("FROM SERVER: $response")
             clientSocket.close()
         }*/
+
+        try {
+            val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
+            println(notificationDetails)
+            if (notificationDetails != null) {
+                val navController = Navigation.findNavController(this, R.id.nav_fragment)
+                navController.navigate(R.id.viewPostFragment, Bundle().apply {
+                    putSerializable(
+                        EXTRA_POST,
+                        PostService.notificationPost
+                    )
+                })
+            }
+        } catch (e: Exception) {
+            Log.d("Notification Intent", "EXC: " + e.localizedMessage)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -123,26 +143,26 @@ class DashboardActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         println(currentFragment)
         val item = menu.findItem(R.id.nav_search)
-        val item1=menu.findItem(R.id.nav_notifications)
-        val item2= menu.findItem(R.id.nav_logout)
+        val item1 = menu.findItem(R.id.nav_notifications)
+        val item2 = menu.findItem(R.id.nav_logout)
 
         if (currentFragment::class.java == AddPostFragment::class.java && currentFragment::class.java == IndividualChatRoomFragment::class.java) {
             item.isVisible = false
-            item1.isVisible=false
-            item2.isVisible=false
+            item1.isVisible = false
+            item2.isVisible = false
         }
         if (currentFragment::class.java == ProfileFragment::class.java) {
             item.isVisible = false
-            item1.isVisible=false
-            item2.isVisible=true
+            item1.isVisible = false
+            item2.isVisible = true
 
             supportActionBar!!.show()
         }
 
         if (currentFragment::class.java != AddPostFragment::class.java && currentFragment::class.java != ProfileFragment::class.java && currentFragment::class.java != IndividualChatRoomFragment::class.java) {
             item.isVisible = true
-            item1.isVisible=true
-            item2.isVisible=false
+            item1.isVisible = true
+            item2.isVisible = false
 
             supportActionBar!!.show()
         }
@@ -151,112 +171,163 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_search){
-            Toast.makeText(this, "Click Search Icon.", Toast.LENGTH_SHORT).show()
-        }
-        else if (item.itemId == R.id.nav_notifications){
+        if (item.itemId == R.id.nav_search) {
+            Toast.makeText(this, "Search Icon was clicked.", Toast.LENGTH_SHORT).show()
+
+            AuthService.getAllUsers { complete ->
+                println("Get users success--> $complete")
+                if (complete) {
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                    val inflater = LayoutInflater.from(this)
+                    val dialogView: View =
+                        inflater.inflate(R.layout.search_user_dialog, null)
+                    builder.setView(dialogView)
+
+                    val autoCompleteTextView: AutoCompleteTextView =
+                        dialogView.findViewById(R.id.spinner_search2)
+                    val userRV: RecyclerView = dialogView.findViewById(R.id.usersRV)
+
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+
+                    val userAdapter = UserAdapter(this, AuthService.userList) { user ->
+                        val navController =
+                            Navigation.findNavController(this, R.id.nav_fragment)
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(
+                                EXTRA_USER,
+                                user
+                            )
+                        })
+                        dialog.dismiss()
+                    }
+                    autoCompleteTextView.setAdapter(userAdapter)
+
+
+                    val layoutManager = LinearLayoutManager(this)
+                    userRV.layoutManager = layoutManager
+
+                    adapter = UserAdapter(this, AuthService.userList) { user ->
+                        //on Click do something--> open individual user's profile
+                        val navController =
+                            Navigation.findNavController(this, R.id.nav_fragment)
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(
+                                EXTRA_USER,
+                                user
+                            )
+                        })
+                        dialog.dismiss()
+                    }
+                    userRV.adapter = adapter
+
+
+                    autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+                            //on Text change, keep searching for users
+                            println("On Text Change")
+                            onUserSearch(s.toString(), dialog, userRV)
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val selectedUser = s.toString()
+                            println("After Text Change")
+
+                            // do something with searchText
+                            onUserSearch(selectedUser, dialog, userRV)
+                        }
+                    })
+                }
+            }
+
+        } else if (item.itemId == R.id.nav_notifications) {
             Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show()
-            ShowNotification()
-        }
-        else if(item.itemId== R.id.nav_logout){
+            //ShowNotification()
+
+            //open notification fragment
+            // Initialize NavController
+            val navController = Navigation.findNavController(this, R.id.nav_fragment)
+            navController.navigate(R.id.notificationFragment)
+        } else if (item.itemId == R.id.nav_logout) {
             UserDataService.logout()
-            val intent= Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun ShowNotification(/*messageBody: String*/) {
-        val intent = Intent(this, AlertDetails::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0 /* Request code */, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val channelId = getString(R.string.default_notification_channel_id)
-        val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder =
-            NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_baseline_circle_notifications_24)
-                .setContentTitle("Test Message")
-                /* .setContentText(messageBody)*/
+    fun onUserSearch(selectedUser:String, dialog: AlertDialog, userRV: RecyclerView){
+        if (selectedUser != "") {
+            var newList = mutableListOf<User>()
+            for (user in AuthService.userList) {
+                //when multiple user names matches with the typed name; show a list of matching names
+                if (user.user_name.contains(selectedUser)) {
+                    println("Name contains substring")
+                    newList.add(user)
+                    println(newList.size)
+                    println(user.user_name)
+                    adapter = UserAdapter(applicationContext, newList as ArrayList<User>) { user ->
+                        println(user.user_name)
+                        println(newList.size)
+                        //on Click do something--> open individual user's profile
+                        val navController =
+                            Navigation.findNavController(
+                                this@DashboardActivity,
+                                R.id.nav_fragment
+                            )
+                        navController.navigate(
+                            R.id.userViewProfileFragment2,
+                            Bundle().apply {
+                                putSerializable(
+                                    EXTRA_USER,
+                                    user
+                                )
+                            })
+                        dialog.dismiss()
 
-                .setContentText("This is test. First Notification")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent)
-                .build()
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                        //when a specific user's name is typed, redirect to their profile
+                        if (user.user_name == selectedUser) {
+                            println("Name matches completely")
+                            //on Click do something--> open individual user's profile
+                            val navController =
+                                Navigation.findNavController(
+                                    this@DashboardActivity,
+                                    R.id.nav_fragment
+                                )
+                            navController.navigate(
+                                R.id.userViewProfileFragment2,
+                                Bundle().apply {
+                                    putSerializable(
+                                        EXTRA_USER,
+                                        user
+                                    )
+                                }//,NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                            )
+                            dialog.dismiss()
+                        }
 
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-        notificationManager.notify(1 /* ID of notification */, notificationBuilder)
-    }
-
- /*   private fun createWebSocketClient() {
-        val uri: URI = try {
-            // Connect to local host
-            URI("ws://192.168.1.109:8080/api/messageSocket")
-        } catch (e: URISyntaxException) {
-            e.printStackTrace()
-            return
-        }
-        webSocketClient = object : WebSocketClient(uri) {
-            override fun onOpen() {
-                Log.i("WebSocket", "Session is starting")
-                webSocketClient.send("Hello World!")
-            }
-
-            override fun onTextReceived(s: String) {
-                Log.i("WebSocket", "Message received")
-                runOnUiThread {
-                    try {
-                        val chatFragment = ChatFragment()
-                        val serverMessage= chatFragment.view?.findViewById<TextView>(R.id.serverMsg)
-                        println(serverMessage)
-                        serverMessage?.text = s
-                        println(s)
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
                     }
+
+
+                    //adapter.notifyDataSetChanged()
+                    userRV.adapter = adapter
                 }
-            }
 
-            override fun onBinaryReceived(data: ByteArray) {}
-            override fun onPingReceived(data: ByteArray) {}
-            override fun onPongReceived(data: ByteArray) {}
-            override fun onException(e: Exception) {
-                println(e.message)
-            }
 
-            override fun onCloseReceived() {
-                Log.i("WebSocket", "Connection Closed ")
-                println("onCloseReceived")
             }
         }
-        webSocketClient.setConnectTimeout(10000)
-        webSocketClient.setReadTimeout(60000)
-        webSocketClient.enableAutomaticReconnection(5000)
-        webSocketClient.connect()
-    }*/
-
-    /*fun sendMessage(view: View) {
-        Toast.makeText(this, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
-        Log.i("WebSocket", "Send Button was clicked")
-        val chatFragment = ChatFragment()
-        val messageText= chatFragment.view?.findViewById<TextView>(R.id.messageText)
-        println(messageText?.text.toString())
-        when (view.id) {
-            R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())
-        }
-        println("Message sent to the server ")
-    }*/
+    }
 }

@@ -3,9 +3,9 @@ package com.example.notificationpermissions.Utilities
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
 //const val BASE_URL = "http://192.168.137.26:8080/api/"
-const val BASE_URL = "http://192.168.1.101:8080/api/"
-//const val BASE_URL = "http://100.64.254.24:8080/api/"
-//const val BASE_URL = "http://192.168.172.41:8080/api/"
+const val BASE_URL = "http://192.168.1.102:8080/api/"
+//const val BASE_URL = "http://100.64.228.240:8080/api/"
+//const val BASE_URL = "http://192.168.100.48:8080/api/"
 //const val BASE_URL = "http://192.168.137.77:8080/api/"
 
 const val URL_LOGIN= "${BASE_URL}user/loginUser"
@@ -17,7 +17,9 @@ const val URL_GET_FCM_TOKEN= "${BASE_URL}user/getFCMToken"
 const val URL_FIND_USER= "${BASE_URL}user/findUser/"
 
 const val URL_FIND_USER_BY_ID= "${BASE_URL}user/findUserByID/"
-
+const val URL_FIND_USER_BY_TOKEN= "${BASE_URL}user/findUserByToken/"
+const val URL_FIND_USER_BY_NAME= "${BASE_URL}user/findUserByName"
+const val URL_GET_ALL_USERS= "${BASE_URL}user/showUsers"
 
 const val URL_RESET_PASSWORD= "${BASE_URL}user/resetPassword/"
 
@@ -32,6 +34,11 @@ const val URL_CREATE_POST= "${BASE_URL}post/addPost"
 const val URL_GET_ALL_POST= "${BASE_URL}post/showPosts"
 const val URL_GET_USER_POSTS= "${BASE_URL}post/showUserPosts/"
 
+
+
+const val URL_GET_USER_NOTIFICATIONS= "${BASE_URL}notification/showUserNotifications/"
+const val URL_CREATE_NOTIFICATIONS= "${BASE_URL}notification/addNotification"
+
 const val URL_GET_INTERESTED_USERS_BY_POST= "${BASE_URL}interestedUsers/getUsersByPost/"
 const val URL_ADD_INTERESTED_USERS= "${BASE_URL}interestedUsers/addInterestedUsers"
 const val URL_DELETE_INTERESTED_USERS= "${BASE_URL}interestedUsers/deleteInterestedUsers"
@@ -41,10 +48,15 @@ const val URL_UPDATE_POST= "${BASE_URL}post/updatePost/"
 const val URL_UPDATE_DONATION_STATUS= "${BASE_URL}post/updateDonationStatus/"
 
 const val URL_ADD_TRANSACTION= "${BASE_URL}transaction/addTransaction"
-const val URL_UPDATE_RATING= "${BASE_URL}transaction/updateTransaction/"
+const val URL_UPDATE_RATING= "${BASE_URL}transaction/updateTransaction"
+const val URL_GET_RATING= "${BASE_URL}transaction/getRating/"
 const val URL_DELETE_POST= "${BASE_URL}post/deletePost/"
 
 const val URL_FIND_POST= "${BASE_URL}post/findPost/"
+
+const val URL_GET_RECIEVED_DONATIONS= "${BASE_URL}transaction/showRecievedTransactions/"
+const val URL_GET_GIVEN_DONATIONS= "${BASE_URL}transaction/showGivenTransactions/"
+const val URL_GET_ONGOING_TRANSACTIONS= "${BASE_URL}transaction/showOngoingTransactions/"
 
 
 const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
@@ -58,9 +70,14 @@ const val BROADCAST_USER_DATA_CHANGE= "BROADCAST_USER_DATA_CHANGE"
 //for viewing user's individual post
 const val EXTRA_POST= "post"
 
+//for viewing user's profile
+const val EXTRA_USER= "user"
+
 
 //for viewing user's individual chat room
 const val EXTRA_CHAT_ROOM= "chat"
+
+const val POST_ID_EXTRA= "postId"
 
 //for fcm
 const val FCM_BASE_URL = "https://fcm.googleapis.com"

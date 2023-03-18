@@ -37,9 +37,17 @@ class PostRecycleAdapter(
         val donation = JSONObject(post.donation_status)
         val donationId = donation.getString("donation_status_id")
         val donationStatus = donation.getString("donation_status")
+
+        //if donation ongoing; show post with grey tint
         if (donationId =="2" || donationStatus=="Ongoing"){
             val greyColor = Color.argb(150, 128, 128, 128)
             holder.imageView.setColorFilter(greyColor, PorterDuff.Mode.SRC_OVER)
+        }
+
+        //if donation completed; show post with red tint
+        if (donationId =="3" || donationStatus=="Donated"){
+            val redColor = Color.argb(150, 255, 0, 0)
+            holder.imageView.setColorFilter(redColor, PorterDuff.Mode.SRC_OVER)
         }
         holder.bindPost(post)
     }

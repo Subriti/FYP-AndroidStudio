@@ -17,9 +17,9 @@ import java.util.*
 class ChatRoomAdapter(val context: Context, val chatRoom: ArrayList<ChatRoom>,
                       private val itemClick: (ChatRoom) -> Unit ): RecyclerView.Adapter<ChatRoomAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View, val itemClick: (ChatRoom) -> Unit): RecyclerView.ViewHolder(itemView){
-        val userImage= itemView?.findViewById<ImageView>(R.id.messageUserimage)
+        val userImage= itemView?.findViewById<ImageView>(R.id.Userimage)
         val userName= itemView?.findViewById<TextView>(R.id.messageUserName)
-        val messageBody= itemView?.findViewById<TextView>(R.id.messageBodyLabel)
+        val messageBody= itemView?.findViewById<TextView>(R.id.message)
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindMessage(context: Context, chatRoom: ChatRoom){
