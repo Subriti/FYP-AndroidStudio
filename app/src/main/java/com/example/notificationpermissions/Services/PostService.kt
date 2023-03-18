@@ -553,6 +553,7 @@ object PostService {
     fun getAllPosts(complete: (Boolean) -> Unit) {
         AllPosts.clear()
         DetailedPosts.clear()
+        clothes.clear()
         val getPostRequest =
             object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
                 //this is where we parse the json object
@@ -614,9 +615,9 @@ object PostService {
                             customDescription,
                             createdDatetime,
                             location,
-                            clothId,
-                            category,
-                            itemCategory,
+                            cloth_Id,
+                            categoryId,
+                            itemcategoryId,
                             clothSize,
                             clothCondition,
                             clothSeason,
@@ -639,14 +640,14 @@ object PostService {
                             itemcategoryId,
                             clothSize,
                             clothCondition,
-                            clothSeason
+                            clothSeason,
+                            mediaFile
                         )
 
                         //excluding donated and ongoing status posts from feed
                         if (status!="Ongoing" && status!="Donated"){
                             AllPosts.add(newPosts)
                             clothes.add(newCloth)
-
                             DetailedPosts.add(newPost)
                         }
                     }
@@ -702,7 +703,8 @@ object PostService {
                             itemCategory,
                             clothSize,
                             clothCondition,
-                            clothSeason
+                            clothSeason,
+                            ""
                         )
                         clothes.add(newCloth)
                     }

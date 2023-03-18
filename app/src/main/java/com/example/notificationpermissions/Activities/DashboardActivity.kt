@@ -3,6 +3,8 @@ package com.example.notificationpermissions.Activities
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -26,6 +28,7 @@ import com.example.notificationpermissions.Adapters.UserAdapter
 import com.example.notificationpermissions.Fragments.AddPostFragment
 import com.example.notificationpermissions.Fragments.IndividualChatRoomFragment
 import com.example.notificationpermissions.Fragments.ProfileFragment
+import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.PostService
@@ -41,6 +44,8 @@ class DashboardActivity : AppCompatActivity() {
     lateinit var currentFragment: Fragment
     lateinit var toolbar: Toolbar
     var destination: NavDestination? = null
+
+    var adapter: UserAdapter? = null
 /*
     lateinit var webSocketClient: WebSocketClient*/
 
@@ -167,7 +172,7 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_search) {
-            Toast.makeText(this, "Click Search Icon.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Search Icon was clicked.", Toast.LENGTH_SHORT).show()
 
             AuthService.getAllUsers { complete ->
                 println("Get users success--> $complete")
@@ -178,7 +183,8 @@ class DashboardActivity : AppCompatActivity() {
                         inflater.inflate(R.layout.search_user_dialog, null)
                     builder.setView(dialogView)
 
-                    val autoCompleteTextView: AutoCompleteTextView= dialogView.findViewById(R.id.spinner_search2)
+                    val autoCompleteTextView: AutoCompleteTextView =
+                        dialogView.findViewById(R.id.spinner_search2)
                     val userRV: RecyclerView = dialogView.findViewById(R.id.usersRV)
 
                     val dialog: AlertDialog = builder.create()
@@ -201,20 +207,49 @@ class DashboardActivity : AppCompatActivity() {
                     val layoutManager = LinearLayoutManager(this)
                     userRV.layoutManager = layoutManager
 
-                    var adapter =
-                        UserAdapter(this, AuthService.userList) { user ->
-                            //on Click do something--> open individual user's profile
-                            val navController =
-                                Navigation.findNavController(this, R.id.nav_fragment)
-                            navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
-                                putSerializable(
-                                    EXTRA_USER,
-                                    user
-                                )
-                            })
-                            dialog.dismiss()
-                        }
+                    adapter = UserAdapter(this, AuthService.userList) { user ->
+                        //on Click do something--> open individual user's profile
+                        val navController =
+                            Navigation.findNavController(this, R.id.nav_fragment)
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(
+                                EXTRA_USER,
+                                user
+                            )
+                        })
+                        dialog.dismiss()
+                    }
                     userRV.adapter = adapter
+
+
+                    autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+                            //on Text change, keep searching for users
+                            println("On Text Change")
+                            onUserSearch(s.toString(), dialog, userRV)
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            val selectedUser = s.toString()
+                            println("After Text Change")
+
+                            // do something with searchText
+                            onUserSearch(selectedUser, dialog, userRV)
+                        }
+                    })
                 }
             }
 
@@ -232,5 +267,67 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun onUserSearch(selectedUser:String, dialog: AlertDialog, userRV: RecyclerView){
+        if (selectedUser != "") {
+            var newList = mutableListOf<User>()
+            for (user in AuthService.userList) {
+                //when multiple user names matches with the typed name; show a list of matching names
+                if (user.user_name.contains(selectedUser)) {
+                    println("Name contains substring")
+                    newList.add(user)
+                    println(newList.size)
+                    println(user.user_name)
+                    adapter = UserAdapter(applicationContext, newList as ArrayList<User>) { user ->
+                        println(user.user_name)
+                        println(newList.size)
+                        //on Click do something--> open individual user's profile
+                        val navController =
+                            Navigation.findNavController(
+                                this@DashboardActivity,
+                                R.id.nav_fragment
+                            )
+                        navController.navigate(
+                            R.id.userViewProfileFragment2,
+                            Bundle().apply {
+                                putSerializable(
+                                    EXTRA_USER,
+                                    user
+                                )
+                            })
+                        dialog.dismiss()
+
+                        //when a specific user's name is typed, redirect to their profile
+                        if (user.user_name == selectedUser) {
+                            println("Name matches completely")
+                            //on Click do something--> open individual user's profile
+                            val navController =
+                                Navigation.findNavController(
+                                    this@DashboardActivity,
+                                    R.id.nav_fragment
+                                )
+                            navController.navigate(
+                                R.id.userViewProfileFragment2,
+                                Bundle().apply {
+                                    putSerializable(
+                                        EXTRA_USER,
+                                        user
+                                    )
+                                }//,NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                            )
+                            dialog.dismiss()
+                        }
+
+                    }
+
+
+                    //adapter.notifyDataSetChanged()
+                    userRV.adapter = adapter
+                }
+
+
+            }
+        }
     }
 }

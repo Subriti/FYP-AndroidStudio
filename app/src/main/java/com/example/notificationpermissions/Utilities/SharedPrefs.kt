@@ -21,6 +21,21 @@ class SharedPrefs(context: Context) {
     val DATE_OF_BIRTH= "dateOfBirth"
     val RATING= 1.0
     val CLOTH_DONATED= 0
+    val HIDE_EMAIL="true"
+    val HIDE_PHONE="true"
+    val IS_ADMIN="false"
+
+    var hideEmail: Boolean
+        get() = prefs.getBoolean(HIDE_EMAIL, true)
+        set(value) = prefs.edit().putBoolean(HIDE_EMAIL, value).apply()
+
+    var hidePhone: Boolean
+        get() = prefs.getBoolean(HIDE_PHONE, true)
+        set(value) = prefs.edit().putBoolean(HIDE_PHONE, value).apply()
+
+    var isAdmin: Boolean
+        get() = prefs.getBoolean(IS_ADMIN, false)
+        set(value) = prefs.edit().putBoolean(IS_ADMIN, value).apply()
 
     val FCM_TOKEN= "fcmToken"
     var token: String

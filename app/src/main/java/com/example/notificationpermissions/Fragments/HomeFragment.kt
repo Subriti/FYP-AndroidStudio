@@ -5,9 +5,6 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +21,7 @@ import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Activities.LoginActivity
 import com.example.notificationpermissions.Adapters.FeedGridRecyclerAdapter
 import com.example.notificationpermissions.Adapters.FeedRecyclerAdapter
-import com.example.notificationpermissions.Adapters.UserAdapter
+import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.EXTRA_POST
@@ -46,9 +43,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
 
     var imageUrlsList = mutableListOf<String>()
+    var filteredPostList= arrayListOf<Post>()
 
     var initialLoad = true
-    lateinit var userListAdapter: UserAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -87,44 +84,46 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         val searchView = view.findViewById<SearchView>(R.id.searchView)
         searchView.isVisible = false
-        searchView.setOnClickListener {
-            println("Search view clicked")
-        }
+
         val searchTextView = searchView.findViewById<AutoCompleteTextView>(R.id.search_src_text)
         searchTextView.isVisible = false
-        searchTextView.setOnClickListener {
-            println("Search TextView clicked")
-        }
-        val arrayStrings =
-            arrayOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape")
-        val searchAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            arrayStrings
-        )
-        searchTextView.setAdapter(searchAdapter)
-        searchTextView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // do nothing
-            }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // do nothing
-                println(s.toString())
-            }
+        /* searchView.setOnClickListener {
+             println("Search view clicked")
+         }
+         searchTextView.setOnClickListener {
+             println("Search TextView clicked")
+         }
+         val arrayStrings =
+             arrayOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape")
+         val searchAdapter = ArrayAdapter(
+             requireContext(),
+             android.R.layout.simple_dropdown_item_1line,
+             arrayStrings
+         )
+         searchTextView.setAdapter(searchAdapter)
+         searchTextView.addTextChangedListener(object : TextWatcher {
+             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                 // do nothing
+             }
 
-            override fun afterTextChanged(s: Editable?) {
-                // log the text entered in the searchTextView
-                Log.d("SearchView", "Text entered: ${s.toString()}")
-                println("Text entered: ${s.toString()}")
-                // show/hide the auto-completion dropdown based on the text entered
-                if (s.toString().isEmpty()) {
-                    searchTextView.dismissDropDown()
-                } else {
-                    searchTextView.showDropDown()
-                }
-            }
-        })
+             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                 // do nothing
+                 println(s.toString())
+             }
+
+             override fun afterTextChanged(s: Editable?) {
+                 // log the text entered in the searchTextView
+                 Log.d("SearchView", "Text entered: ${s.toString()}")
+                 println("Text entered: ${s.toString()}")
+                 // show/hide the auto-completion dropdown based on the text entered
+                 if (s.toString().isEmpty()) {
+                     searchTextView.dismissDropDown()
+                 } else {
+                     searchTextView.showDropDown()
+                 }
+             }
+         })*/
 
 
         /*val cardview = view.findViewById<CardView>(R.id.cardView3)
@@ -203,6 +202,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 if (PostService.AllPosts.isNotEmpty()) {
                     for (url in PostService.AllPosts) {
                         imageUrlsList.add(url.media_file)
+                        filteredPostList.add(url)
                     }
                     noDataText.visibility = View.GONE
                     setAdapter(imageUrlsList)
@@ -275,35 +275,39 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         println("Selected item : $selected_item")
 
                         imageUrlsList.clear()
+                        filteredPostList.clear()
 
                         //sort the feed according to selected item category.
                         for (p in PostService.AllPosts) {
                             println("Post Id is " + p.post_id)
                             for (c in PostService.clothes) {
-                                println("Cloth Id is " + c.cloth_id)
-                                println("Item Category is " + c.item_category_id)
-                                println("Selected item is " + selected_item)
-                                if (c.item_category_id == selected_item) {
-                                    println("equal")
-                                    imageUrlsList.add(p.media_file)
-                                    println(imageUrlsList)
-                                }
-                                println(viewSelected)
+                                if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                    println("Item Category is " + c.item_category_id)
+                                    println("Selected item is " + selected_item)
+                                    if (c.item_category_id == selected_item) {
+                                        println("equal")
+                                        imageUrlsList.add(p.media_file)
+                                        println(imageUrlsList)
+                                        filteredPostList.add(p)
+                                    }
+                                    println(viewSelected)
 
-                                if (imageUrlsList.isEmpty()) {
-                                    noDataText.visibility = View.VISIBLE
-                                } else {
-                                    noDataText.visibility = View.GONE
-                                }
-                                if (viewSelected == "List") {
-                                    setAdapter(imageUrlsList)
-                                }
-                                if (viewSelected == "Grid") {
-                                    setGridAdapter(imageUrlsList)
+                                    if (imageUrlsList.isEmpty()) {
+                                        noDataText.visibility = View.VISIBLE
+                                    } else {
+                                        noDataText.visibility = View.GONE
+                                    }
+                                    if (viewSelected == "List") {
+                                        setAdapter(imageUrlsList)
+                                    }
+                                    if (viewSelected == "Grid") {
+                                        setGridAdapter(imageUrlsList)
+                                    }
                                 }
                             }
                         }
-                    } else {
+                    }
+                     else {
                         selected_item = (position + 1).toString()
                         println("Selected item : $selected_item")
 
@@ -314,29 +318,34 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 if (!initialLoad) {
 
                                     imageUrlsList.clear()
+                                    filteredPostList.clear()
 
                                     for (p in PostService.AllPosts) {
                                         println("Post Id is " + p.post_id)
                                         for (c in PostService.clothes) {
-                                            println("Cloth Id is " + c.cloth_id)
-                                            println("Clothes Category Id is " + c.clothes_category_id)
-                                            println("Selected item is " + selected_item)
-                                            if (c.clothes_category_id == selected_item) {
-                                                println("equal")
-                                                imageUrlsList.add(p.media_file)
-                                            }
-                                            println("View selected: " + viewSelected)
-                                            if (imageUrlsList.isEmpty()) {
-                                                noDataText.visibility = View.VISIBLE
-                                            } else {
-                                                noDataText.visibility = View.GONE
-                                            }
+                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                                println("Cloth Id is " + c.cloth_id)
+                                                println("Clothes Category Id is " + c.clothes_category_id)
+                                                println("Selected item is " + selected_item)
+                                                if (c.clothes_category_id == selected_item) {
+                                                    println("equal")
+                                                    //imageUrlsList.add(c.cloth_media)
+                                                    imageUrlsList.add(p.media_file) //post ma loop huda cloth repiting ani post ko mediA FILE
+                                                    filteredPostList.add(p)
+                                                }
+                                                println("View selected: " + viewSelected)
+                                                if (imageUrlsList.isEmpty()) {
+                                                    noDataText.visibility = View.VISIBLE
+                                                } else {
+                                                    noDataText.visibility = View.GONE
+                                                }
 
-                                            if (viewSelected == "List") {
-                                                setAdapter(imageUrlsList)
-                                            }
-                                            if (viewSelected == "Grid") {
-                                                setGridAdapter(imageUrlsList)
+                                                if (viewSelected == "List") {
+                                                    setAdapter(imageUrlsList)
+                                                }
+                                                if (viewSelected == "Grid") {
+                                                    setGridAdapter(imageUrlsList)
+                                                }
                                             }
                                         }
                                     }
@@ -347,14 +356,16 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             //sort on the basis of location
                             "3" -> {
                                 imageUrlsList.clear()
+                                filteredPostList.clear()
 
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     println("Location is " + p.post_id)
                                     print("Selected Location is " + spinnerItem.selectedItem.toString())
-                                    if (p.location.contains(spinnerItem.selectedItem.toString())) {
+                                    if (p.location.contains(spinnerItem.selectedItem.toString()) && !filteredPostList.contains(p)) {
                                         println("equal")
                                         imageUrlsList.add(p.media_file)
+                                        filteredPostList.add(p)
                                     }
                                     if (imageUrlsList.isEmpty()) {
                                         noDataText.visibility = View.VISIBLE
@@ -373,27 +384,31 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             //sort on the basis of size
                             "4" -> {
                                 imageUrlsList.clear()
+                                filteredPostList.clear()
 
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        println("Cloth Size is " + c.cloth_size)
-                                        print("Selected Size is " + spinnerItem.selectedItem.toString())
-                                        if (c.cloth_size == spinnerItem.selectedItem.toString()) {
-                                            println("equal")
-                                            imageUrlsList.add(p.media_file)
-                                        }
-                                        if (imageUrlsList.isEmpty()) {
-                                            noDataText.visibility = View.VISIBLE
-                                        } else {
-                                            noDataText.visibility = View.GONE
-                                        }
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                            println("Cloth Size is " + c.cloth_size)
+                                            print("Selected Size is " + spinnerItem.selectedItem.toString())
+                                            if (c.cloth_size == spinnerItem.selectedItem.toString()) {
+                                                println("equal")
+                                                imageUrlsList.add(p.media_file)
+                                                filteredPostList.add(p)
+                                            }
+                                            if (imageUrlsList.isEmpty()) {
+                                                noDataText.visibility = View.VISIBLE
+                                            } else {
+                                                noDataText.visibility = View.GONE
+                                            }
 
-                                        if (viewSelected == "List") {
-                                            setAdapter(imageUrlsList)
-                                        }
-                                        if (viewSelected == "Grid") {
-                                            setGridAdapter(imageUrlsList)
+                                            if (viewSelected == "List") {
+                                                setAdapter(imageUrlsList)
+                                            }
+                                            if (viewSelected == "Grid") {
+                                                setGridAdapter(imageUrlsList)
+                                            }
                                         }
                                     }
                                 }
@@ -401,27 +416,31 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             //sort on the basis of condition
                             "5" -> {
                                 imageUrlsList.clear()
+                                filteredPostList.clear()
 
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        println("Cloth Condition is " + c.cloth_condition)
-                                        print("Selected Condition is " + spinnerItem.selectedItem.toString())
-                                        if (c.cloth_condition == spinnerItem.selectedItem.toString()) {
-                                            println("equal")
-                                            imageUrlsList.add(p.media_file)
-                                        }
-                                        if (imageUrlsList.isEmpty()) {
-                                            noDataText.visibility = View.VISIBLE
-                                        } else {
-                                            noDataText.visibility = View.GONE
-                                        }
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                            println("Cloth Condition is " + c.cloth_condition)
+                                            print("Selected Condition is " + spinnerItem.selectedItem.toString())
+                                            if (c.cloth_condition == spinnerItem.selectedItem.toString()) {
+                                                println("equal")
+                                                imageUrlsList.add(p.media_file)
+                                                filteredPostList.add(p)
+                                            }
+                                            if (imageUrlsList.isEmpty()) {
+                                                noDataText.visibility = View.VISIBLE
+                                            } else {
+                                                noDataText.visibility = View.GONE
+                                            }
 
-                                        if (viewSelected == "List") {
-                                            setAdapter(imageUrlsList)
-                                        }
-                                        if (viewSelected == "Grid") {
-                                            setGridAdapter(imageUrlsList)
+                                            if (viewSelected == "List") {
+                                                setAdapter(imageUrlsList)
+                                            }
+                                            if (viewSelected == "Grid") {
+                                                setGridAdapter(imageUrlsList)
+                                            }
                                         }
                                     }
                                 }
@@ -430,27 +449,31 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             //sort on the basis of season
                             "6" -> {
                                 imageUrlsList.clear()
+                                filteredPostList.clear()
 
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        println("Cloth Season is " + c.cloth_season)
-                                        print("Selected Season is " + spinnerItem.selectedItem.toString())
-                                        if (c.cloth_season == spinnerItem.selectedItem.toString()) {
-                                            println("equal")
-                                            imageUrlsList.add(p.media_file)
-                                        }
-                                        if (imageUrlsList.isEmpty()) {
-                                            noDataText.visibility = View.VISIBLE
-                                        } else {
-                                            noDataText.visibility = View.GONE
-                                        }
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                            println("Cloth Season is " + c.cloth_season)
+                                            print("Selected Season is " + spinnerItem.selectedItem.toString())
+                                            if (c.cloth_season == spinnerItem.selectedItem.toString()) {
+                                                println("equal")
+                                                imageUrlsList.add(p.media_file)
+                                                filteredPostList.add(p)
+                                            }
+                                            if (imageUrlsList.isEmpty()) {
+                                                noDataText.visibility = View.VISIBLE
+                                            } else {
+                                                noDataText.visibility = View.GONE
+                                            }
 
-                                        if (viewSelected == "List") {
-                                            setAdapter(imageUrlsList)
-                                        }
-                                        if (viewSelected == "Grid") {
-                                            setGridAdapter(imageUrlsList)
+                                            if (viewSelected == "List") {
+                                                setAdapter(imageUrlsList)
+                                            }
+                                            if (viewSelected == "Grid") {
+                                                setGridAdapter(imageUrlsList)
+                                            }
                                         }
                                     }
                                 }
@@ -468,14 +491,14 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
 
     private fun setAdapter(imageUrlsList: List<String>) {
-        feedAdapter = FeedRecyclerAdapter(requireContext(), imageUrlsList) {}
+        feedAdapter = FeedRecyclerAdapter(requireContext(), imageUrlsList, filteredPostList) {}
         val layoutManager = LinearLayoutManager(context)
         postRV.layoutManager = layoutManager
         postRV.adapter = feedAdapter
     }
 
     private fun setGridAdapter(imageUrlsList: List<String>) {
-        gridAdapter = FeedGridRecyclerAdapter(requireContext(), imageUrlsList) { post ->
+        gridAdapter = FeedGridRecyclerAdapter(requireContext(), imageUrlsList, filteredPostList) { post ->
             //do something on click; open full post details
             view?.findNavController()?.navigate(R.id.action_homeFragment_to_viewFeedItemFragment,
                 Bundle().apply { putSerializable(EXTRA_POST, post) })

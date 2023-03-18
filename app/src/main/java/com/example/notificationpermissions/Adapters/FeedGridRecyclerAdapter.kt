@@ -10,10 +10,12 @@ import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
+import java.util.ArrayList
 
 class FeedGridRecyclerAdapter (
     private val context: Context,
     private val imageUrls: List<String>,
+    private val postList: ArrayList<Post>,
     val itemClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<FeedGridRecyclerAdapter.ViewHolder>() {
@@ -30,7 +32,7 @@ class FeedGridRecyclerAdapter (
             .load(imageUrl)
             .into(holder.imageView)
 
-        holder.bindPost(PostService.AllPosts[position])
+        holder.bindPost(postList[position])
     }
 
     override fun getItemCount(): Int {

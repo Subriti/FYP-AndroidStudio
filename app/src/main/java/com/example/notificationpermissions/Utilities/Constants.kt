@@ -3,7 +3,7 @@ package com.example.notificationpermissions.Utilities
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
 //const val BASE_URL = "http://192.168.137.26:8080/api/"
-const val BASE_URL = "http://192.168.1.103:8080/api/"
+const val BASE_URL = "http://192.168.1.102:8080/api/"
 //const val BASE_URL = "http://100.64.228.240:8080/api/"
 //const val BASE_URL = "http://192.168.100.48:8080/api/"
 //const val BASE_URL = "http://192.168.137.77:8080/api/"

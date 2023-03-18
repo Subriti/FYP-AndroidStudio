@@ -38,6 +38,7 @@ const val TOPIC = "/topics/interestedUser"
 class FeedRecyclerAdapter(
     private val context: Context,
     private val imageUrls: List<String>,
+    private val postList: ArrayList<Post>,
     private val itemClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<FeedRecyclerAdapter.ViewHolder>() {
@@ -55,7 +56,7 @@ class FeedRecyclerAdapter(
             .load(imageUrl)
             .into(holder.postImage)
 
-        holder.bindPost(PostService.AllPosts[position], context)
+        holder.bindPost(postList[position], context)
     }
 
     override fun getItemCount(): Int {
