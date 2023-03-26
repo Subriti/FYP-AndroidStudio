@@ -18,6 +18,8 @@ import org.json.JSONObject
 object AuthService {
     var isFound = false
     var recipientToken = ""
+    var newPassword=""
+    var resetPhone=""
 
     var userId = ""
     var userName = ""
@@ -448,6 +450,31 @@ object AuthService {
             10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(changePasswordRequest)
+    }
+
+    fun resetPassword(email: String, complete: (Boolean) -> Unit) {
+        val resetPasswordRequest = object : JsonObjectRequest(Method.PUT,
+            "$URL_FORGOT_PASSWORD$email",
+            null,
+            Response.Listener { response ->
+                println("Reset Password Response $response")
+                try {
+                    newPassword = response.getString("Success Message")
+                    resetPhone= response.getString("phone_number")
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not reset password: $error")
+                complete(false)
+            }) {}
+        resetPasswordRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(resetPasswordRequest)
     }
 
     fun updateUser(

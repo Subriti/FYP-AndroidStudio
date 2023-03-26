@@ -1,6 +1,9 @@
 package com.example.notificationpermissions.Fragments
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,12 +11,14 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Utilities.App
 
 
 class ChangePasswordFragment : Fragment() {
@@ -92,9 +97,73 @@ class ChangePasswordFragment : Fragment() {
         resetPassword.setOnClickListener {
             //reset password by sending OTP?
             //sendVerificationCode(number)
+            Toast.makeText(requireContext(), "Reset Clicked.", Toast.LENGTH_LONG).show()
+            //sendCustomMessage("+9779843346520")
+
+            AuthService.resetPassword(App.sharedPrefs.userEmail) { resetPasswordSuccess ->
+                println("Reset Password Success: "+resetPasswordSuccess)
+                if (resetPasswordSuccess) {
+                    checkSmsPermission()
+                }
+            }
         }
         return view
+    }
 
+    private val PERMISSION_REQUEST_SEND_SMS = 123
+
+    private fun checkSmsPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.SEND_SMS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.SEND_SMS),
+                PERMISSION_REQUEST_SEND_SMS
+            )
+        } else {
+            // Permission already granted. Send SMS.
+            sendCustomMessage("${App.sharedPrefs.phoneNumber}")
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String?>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_SEND_SMS) {
+            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted. Send SMS.
+                sendCustomMessage("${App.sharedPrefs.phoneNumber}")
+            } else {
+                // Permission denied. Show a message and don't send SMS.
+                Toast.makeText(requireContext(), "SMS permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun sendCustomMessage(phone: String) {
+        val message =
+            "Your newly generated password is: ${AuthService.newPassword}\nYou are requested to change your password again." // create a custom message to send
+        try {
+            val smsManager = SmsManager.getDefault() // get the default SMS manager
+            smsManager.sendTextMessage(
+                phone,
+                null,
+                message,
+                null,
+                null
+            ) // send the message to the user's phone number
+            println("PASSWORD RESET MESSAGE SENT")
+        } catch (ex: SecurityException) {
+            // handle SecurityException when the app does not have permission to send SMS
+            ex.printStackTrace()
+        } catch (ex: Exception) {
+            // handle other exceptions that may occur
+            ex.printStackTrace()
+        }
     }
 
     private fun enableSpinner(enable: Boolean) {

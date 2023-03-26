@@ -9,6 +9,7 @@
         tools:ignore="CoarseFineLocation" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:name=".Utilities.App"

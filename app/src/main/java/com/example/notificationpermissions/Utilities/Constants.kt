@@ -22,6 +22,7 @@ const val URL_FIND_USER_BY_NAME= "${BASE_URL}user/findUserByName"
 const val URL_GET_ALL_USERS= "${BASE_URL}user/showUsers"
 
 const val URL_RESET_PASSWORD= "${BASE_URL}user/resetPassword/"
+const val URL_FORGOT_PASSWORD="${BASE_URL}user/forgotPassword/"
 
 const val URL_GET_CATEGORY= "${BASE_URL}category/showCategory/1"
 const val URL_GET_ITEMCATEGORY= "${BASE_URL}category/showCategory/2"
