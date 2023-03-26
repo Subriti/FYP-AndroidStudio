@@ -41,7 +41,7 @@ class UserViewProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+       // (activity as DashboardActivity?)!!.currentFragment = this
 
 
         imgGallery = view.findViewById(R.id.profile_image)
@@ -67,6 +67,7 @@ class UserViewProfileFragment : Fragment() {
                 if (details.post_by == postDetails.post_by) {
                     //using the full post details to build the user profile
                     newPostDetails = details
+                    println(newPostDetails)
 
 
                     //user display picture
@@ -106,8 +107,8 @@ class UserViewProfileFragment : Fragment() {
                             App.sharedPrefs.userName,
                             newPostDetails?.post_by!!
                         ) { complete ->
+                            println("Get Chat Room Id success $complete")
                             if (complete) {
-                                println("Get Char Room Id success " + complete)
                                 println(MessageService.chatRoomId)
                                 var id = MessageService.chatRoomId
 
@@ -120,6 +121,7 @@ class UserViewProfileFragment : Fragment() {
                                 val recieverProfilePicture = newPostDetails?.user_profile
                                 val recieverUserName = newPostDetails?.post_by
                                 val recieverPhone = newPostDetails?.user_phone
+                                val hidePhone= newPostDetails?.hide_number
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -127,7 +129,8 @@ class UserViewProfileFragment : Fragment() {
                                     recieverUserName!!,
                                     recieverProfilePicture!!,
                                     recieverFCMtoken!!,
-                                    recieverPhone!!
+                                    recieverPhone!!,
+                                    hidePhone!!
                                 )
                                 view.findNavController()
                                     .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
@@ -245,6 +248,7 @@ class UserViewProfileFragment : Fragment() {
                                 val recieverProfilePicture = newUserDetails?.user_profile
                                 val recieverUserName = newUserDetails?.user_name
                                 val recieverPhone = newUserDetails?.phone_number
+                                val hidePhone= newUserDetails?.hide_phone
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -252,7 +256,8 @@ class UserViewProfileFragment : Fragment() {
                                     recieverUserName!!,
                                     recieverProfilePicture!!,
                                     recieverFCMtoken!!,
-                                    recieverPhone!!
+                                    recieverPhone!!,
+                                    hidePhone!!
                                 )
                                 view.findNavController()
                                     .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
@@ -309,5 +314,10 @@ class UserViewProfileFragment : Fragment() {
         }
 
         return view
+    }
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 }

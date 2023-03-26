@@ -29,7 +29,7 @@ class HistoryFragment : Fragment(){
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         val givenRV = view.findViewById<RecyclerView>(R.id.donationGivenRV)
         val recievedRV= view.findViewById<RecyclerView>(R.id.donationRecievedRV)
@@ -55,7 +55,7 @@ class HistoryFragment : Fragment(){
                 }
             } else {
                 noDataGiven.visibility = View.VISIBLE
-                noDataGiven.text = "Given Donations could not be loaded"
+                noDataGiven.text = "Donations could not be loaded"
             }
         }
 
@@ -75,7 +75,7 @@ class HistoryFragment : Fragment(){
                 }
             } else {
                 noDataRecieved.visibility = View.VISIBLE
-                noDataRecieved.text = "Received Donations could not be loaded"
+                noDataRecieved.text = "Donations could not be loaded"
             }
         }
 
@@ -95,9 +95,14 @@ class HistoryFragment : Fragment(){
             }
         } else {
                 noDataOngoing.visibility = View.VISIBLE
-                noDataOngoing.text = "Ongoing Transactions could not be loaded"
+                noDataOngoing.text = "Transactions could not be loaded"
         }
         }
         return view
+    }
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 }

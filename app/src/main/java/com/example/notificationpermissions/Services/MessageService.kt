@@ -24,15 +24,12 @@ object MessageService {
                 try {
                     println(response)
                     val id= response.toString().split("[\"","\",\"",",","\"]")
-                    println(id)
 
                     val arrayList= ArrayList(id)
 
                     if(arrayList.size>1) {
                         arrayList.removeAt(0)
                         arrayList.removeAt(arrayList.lastIndex)
-
-                        println(arrayList)
 
                         for (i in 0 until arrayList.size step 2) {
                             map[arrayList[i]] = arrayList[i + 1]
@@ -77,6 +74,7 @@ object MessageService {
                     val phoneNumber = response.getString("phone_number")
                     val profilePicture = response.getString("profile_picture")
                     val fcmToken = response.getString("fcm_token")
+                    val hidePhone= response.getString("hide_phone")
 
                     val newChatRoom = ChatRoom(
                         chatRoomId,
@@ -84,10 +82,10 @@ object MessageService {
                         userName,
                         profilePicture,
                         fcmToken,
-                        phoneNumber
+                        phoneNumber,
+                        hidePhone
                     )
                     userChatRooms.add(newChatRoom)
-                    println(userChatRooms)
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)

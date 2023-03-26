@@ -36,7 +36,7 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_chat, container, false)
 
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         //createWebSocketClient()
         val messageText= view.findViewById<TextView>(R.id.messageText)
@@ -59,10 +59,8 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
                         noDataText.visibility = View.GONE
                     for (i in MessageService.map)
                     {
-                        println(i.key)
-                        println(i.value)
                         MessageService.findUser(i.key, i.value) { findUser ->
-                            println("FInd User success: $findUser")
+                            println("Find User success: $findUser")
                             //adapter ma halera display
                             checkIfFragmentAttached {
                                 chatRoomAdapter =
@@ -96,6 +94,12 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
        
         return view
     }
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
+    }
+
     private fun checkIfFragmentAttached(operation: Context.() -> Unit) {
         if (isAdded && context != null) {
             operation(requireContext())

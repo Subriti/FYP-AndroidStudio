@@ -22,6 +22,7 @@ import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
+import com.example.notificationpermissions.Services.ReportService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.google.android.material.textfield.TextInputLayout
@@ -85,7 +86,7 @@ class FeedRecyclerAdapter(
                     for (i in PostService.InterestedUsers) {
                         if (i.user_id == App.sharedPrefs.userID) {
                             alreadyLiked = true
-                            markInterested.setImageResource(R.drawable.liked)
+                            markInterested.setImageResource(R.drawable.interest)
                         }
                     }
                 }
@@ -99,7 +100,6 @@ class FeedRecyclerAdapter(
             description?.text = post.description
             Glide.with(context).load(post.cloth_id).into(userProfile)
 
-            println(post.created_datetime)
             val dateString = post.created_datetime
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
             val date = format.parse(dateString)
@@ -162,11 +162,12 @@ class FeedRecyclerAdapter(
                     // Perform the reporting of the post
                     println(feedbackEditText.text.toString())
 
-                    PostService.reportPost(
+                    ReportService.reportPost(
                         App.sharedPrefs.userID,
                         post.post_id,
                         feedbackEditText.text.toString(),
-                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time)
+                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
+                        false
                     ) { reportPostSuccess ->
                         println("Report Post success: $reportPostSuccess")
                         if (reportPostSuccess) {
@@ -273,7 +274,7 @@ class FeedRecyclerAdapter(
 
             markInterested.setOnClickListener {
                 if (!isLiked) {
-                    markInterested.setImageResource(R.drawable.liked)
+                    markInterested.setImageResource(R.drawable.interest)
                     isLiked = true
 
                     //check if the user already liked, or is newly liked
@@ -340,7 +341,7 @@ class FeedRecyclerAdapter(
                         }
                     }
                 } else {
-                    markInterested.setImageResource(R.drawable.unliked)
+                    markInterested.setImageResource(R.drawable.notinterested)
                     isLiked = false
                     alreadyLiked = false
                     //else check if the photo is liked, if yes dislike it

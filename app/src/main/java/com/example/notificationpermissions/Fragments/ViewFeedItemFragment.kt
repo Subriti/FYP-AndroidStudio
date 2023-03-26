@@ -32,7 +32,7 @@ class ViewFeedItemFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.view_user_post_item, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         val postImage = view.findViewById<ImageView>(R.id.postImage)
         val username = view.findViewById<TextView>(R.id.username)
@@ -167,5 +167,10 @@ class ViewFeedItemFragment : Fragment() {
         val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
         postOptions.isVisible = false
         return view
+    }
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 }

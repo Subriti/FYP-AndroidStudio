@@ -40,7 +40,7 @@ class ProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         //user display picture
         imgGallery = view.findViewById(R.id.profile_image)
@@ -52,7 +52,11 @@ class ProfileFragment : Fragment() {
         val phoneNumber = view.findViewById<TextView>(R.id.UserPhone)
         val email = view.findViewById<TextView>(R.id.UserEmail)
 
-        println("Email hidden: ${App.sharedPrefs.hideUserEmail}")
+        //allow viewing of one's own personal details
+        email.text = "  ${App.sharedPrefs.userEmail}"
+        phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
+
+      /*  println("Email hidden: ${App.sharedPrefs.hideUserEmail}")
         if (App.sharedPrefs.hideUserEmail=="true") {
             email.text = "  Confidential"
         } else {
@@ -64,7 +68,7 @@ class ProfileFragment : Fragment() {
             phoneNumber.text = "  Confidential"
         } else {
             phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
-        }
+        }*/
 
         location.text = "  ${App.sharedPrefs.location}"
 
@@ -128,6 +132,12 @@ class ProfileFragment : Fragment() {
             }
         }
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

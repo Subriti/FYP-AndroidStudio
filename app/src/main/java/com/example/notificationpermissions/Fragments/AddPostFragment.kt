@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.viewpager2.adapter.FragmentViewHolder
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.R
@@ -41,7 +40,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private lateinit var postPicture: ImageView
     private lateinit var cancelPost: ImageView
 
-    private lateinit var filePath: Uri
+    private var filePath: Uri? = null
 
     private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
@@ -71,7 +70,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         postSpinner = view.findViewById(R.id.postSpinner)
         postSpinner.visibility = View.INVISIBLE
 
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
         img = view.findViewById(R.id.picture_to_be_posted)
@@ -321,7 +320,6 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     // UploadImage method
     private fun uploadImage() {
         if (filePath != null) {
-
             // Code for showing progressDialog while uploading
             val progressDialog = ProgressDialog(context)
             progressDialog.setTitle("Uploading...")
@@ -333,7 +331,7 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             )
 
             // adding listeners on upload or failure of image
-            ref.putFile(filePath)
+            ref.putFile(filePath!!)
                 .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
                     // Dismiss dialog
                     enableSpinner(true)
@@ -399,6 +397,11 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         "Uploaded " + progress.toInt() + "%"
                     )
                 }
+        }
+        else{
+            Toast.makeText(
+                context, "Please select a picture to proceed.", Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

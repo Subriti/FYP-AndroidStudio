@@ -25,7 +25,7 @@ class ChangePasswordFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_change_password, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         progressBar = view.findViewById(R.id.progressBar)
         progressBar.visibility = View.INVISIBLE

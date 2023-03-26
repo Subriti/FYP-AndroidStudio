@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_navgraph"
+    app:startDestination="@+id/reportFragment">
+    <fragment
+        android:id="@+id/reportFragment"
+        android:name="com.example.notificationpermissions.Fragments.ReportFragment"
+        android:label="Reported Posts"
+        tools:layout="@layout/fragment_report" >
+        <action
+            android:id="@+id/action_reportFragment_to_viewPostFragment2"
+            app:destination="@id/viewPostFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewPostFragment2"
+        android:name="com.example.notificationpermissions.Fragments.ViewPostFragment"
+        android:label="Post"
+        tools:layout="@layout/view_user_post_item" />
+
+</navigation>

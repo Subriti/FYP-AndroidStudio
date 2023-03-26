@@ -5,10 +5,12 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -52,7 +54,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         // Code for showing progressDialog while getting posts from server
         val progressDialog = ProgressDialog(context)
@@ -212,7 +214,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }else {
                 noDataText.visibility = View.VISIBLE
-                noDataText.text= "Post Feed could not be loaded"
+                noDataText.text= "Feed could not be loaded"
             }
 
             if (PostService.getAllPostError is AuthFailureError) {
@@ -224,7 +226,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     }
                 }
             }
-            if (PostService.getAllPostError is NoConnectionError) {
+            /*if (PostService.getAllPostError is NoConnectionError) {
                 progressDialog.dismiss()
                 println("you aren't connected to internet try again later")
                 val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
@@ -234,7 +236,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         view?.findNavController()?.navigate(R.id.action_homeFragment_self)
                     }
                 builder.create().show()
-            }
+            }*/
         }
         PostService.getAllPostError = null
 
@@ -313,12 +315,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     }
                      else {
                         selected_item = (position + 1).toString()
-                        println("Selected item : $selected_item")
 
                         //sort on the basis of men's, women's or unisex clothing
                         when (selected_filter) {
                             "1" -> {
-                                println(initialLoad)
                                 if (!initialLoad) {
 
                                     imageUrlsList.clear()
@@ -332,7 +332,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                                 println("Clothes Category Id is " + c.clothes_category_id)
                                                 println("Selected item is " + selected_item)
                                                 if (c.clothes_category_id == selected_item) {
-                                                    println("equal")
                                                     //imageUrlsList.add(c.cloth_media)
                                                     imageUrlsList.add(p.media_file) //post ma loop huda cloth repiting ani post ko mediA FILE
                                                     filteredPostList.add(p)
@@ -367,7 +366,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                     println("Location is " + p.post_id)
                                     print("Selected Location is " + spinnerItem.selectedItem.toString())
                                     if (p.location.contains(spinnerItem.selectedItem.toString()) && !filteredPostList.contains(p)) {
-                                        println("equal")
                                         imageUrlsList.add(p.media_file)
                                         filteredPostList.add(p)
                                     }
@@ -397,7 +395,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                             println("Cloth Size is " + c.cloth_size)
                                             print("Selected Size is " + spinnerItem.selectedItem.toString())
                                             if (c.cloth_size == spinnerItem.selectedItem.toString()) {
-                                                println("equal")
                                                 imageUrlsList.add(p.media_file)
                                                 filteredPostList.add(p)
                                             }
@@ -506,6 +503,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             //do something on click; open full post details
             view?.findNavController()?.navigate(R.id.action_homeFragment_to_viewFeedItemFragment,
                 Bundle().apply { putSerializable(EXTRA_POST, post) })
+            viewSelected="List"
         }
         var spanCount = 3
         val orientation = resources.configuration.orientation

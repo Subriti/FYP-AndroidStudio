@@ -54,13 +54,12 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
     var chatDetails: ChatRoom? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_individual_chat_room, container, false)
 
-        (activity as DashboardActivity?)!!.currentFragment = this
+        // (activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
         chatDetails = arguments?.getSerializable(EXTRA_CHAT_ROOM) as ChatRoom
@@ -93,7 +92,8 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                 //NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
 
                 view.findNavController().navigate(
-                    R.id.action_individualChatRoomFragment_to_chatFragment, null,
+                    R.id.action_individualChatRoomFragment_to_chatFragment,
+                    null,
                     NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
                 )
                 (activity as DashboardActivity?)!!.supportActionBar!!.show()
@@ -110,12 +110,21 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
         val phoneButton = view.findViewById<ImageView>(R.id.recieverPhone)
         phoneButton.setOnClickListener {
-            //get receiver's phone number: intent to call the number
-            val phoneNumber = chatDetails!!.recieverPhone
-            val dial = Intent(Intent.ACTION_DIAL)
-            dial.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            dial.data = Uri.parse("tel:$phoneNumber")
-            startActivity(dial)
+            //if the user wants to keep their number confidential; restrict call
+            if (chatDetails?.hidePhone == "true") {
+                Toast.makeText(
+                    requireContext(),
+                    "Restricted action: User's number is confidential",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                //get receiver's phone number: intent to call the number
+                val phoneNumber = chatDetails!!.recieverPhone
+                val dial = Intent(Intent.ACTION_DIAL)
+                dial.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                dial.data = Uri.parse("tel:$phoneNumber")
+                startActivity(dial)
+            }
         }
 
         println(chatDetails!!.recieverPhone)
@@ -137,8 +146,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                     //adapter ma halera display
                     messageAdapter =
                         MessageAdapter(requireContext().applicationContext, MessageService.messages)
-                    messageList =
-                        view.findViewById(R.id.messageListView)
+                    messageList = view.findViewById(R.id.messageListView)
                     messageList?.adapter = messageAdapter
                     val layoutManager = LinearLayoutManager(context)
                     layoutManager.stackFromEnd = true
@@ -159,9 +167,9 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
             val encodedPath = URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
             URI("ws://192.168.1.102:8080/api/messageSocket/$encodedPath")
-            //URI("ws://100.64.228.240:8080/api/messageSocket/$encodedPath")
-            //URI("ws://100.64.252.7:8080/api/messageSocket/$encodedPath")
-            //URI("ws://192.168.100.48:8080/api/messageSocket/$encodedPath")
+            // URI("ws://100.64.219.35:8080/api/messageSocket/$encodedPath")
+            // URI("ws://100.64.209.103:8080/api/messageSocket/$encodedPath")
+            //URI("ws://192.168.199.41:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -234,8 +242,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                             PushNotification(
                                 NotificationData(title, message, data),
                                 chatDetails?.recieverFCMtoken.toString()
-                            )
-                                .also { sendNotification(it) }
+                            ).also { sendNotification(it) }
                         } else {
                             userName = chatDetails?.recieverUserName.toString()
                             profile = chatDetails?.recieverProfilePicture.toString()
@@ -248,10 +255,8 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
                             val data = mapOf("token" to token)
                             PushNotification(
-                                NotificationData(title, message, data),
-                                App.sharedPrefs.token
-                            )
-                                .also { sendNotification(it) }
+                                NotificationData(title, message, data), App.sharedPrefs.token
+                            ).also { sendNotification(it) }
                         }
 
                         val newMessages = Message(

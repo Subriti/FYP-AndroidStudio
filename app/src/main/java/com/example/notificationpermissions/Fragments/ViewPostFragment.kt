@@ -45,7 +45,7 @@ class ViewPostFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.view_user_post_item, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+       // (activity as DashboardActivity?)!!.currentFragment = this
 
         val postImage = view.findViewById<ImageView>(R.id.postImage)
         val username = view.findViewById<TextView>(R.id.username)
@@ -137,7 +137,7 @@ class ViewPostFragment : Fragment() {
                     for (i in PostService.InterestedUsers) {
                         if (i.user_id == App.sharedPrefs.userID) {
                             alreadyLiked = true
-                            markInterested.setImageResource(R.drawable.liked)
+                            markInterested.setImageResource(R.drawable.interest)
                         }
                     }
                 }
@@ -173,7 +173,8 @@ class ViewPostFragment : Fragment() {
         markInterested.setOnClickListener {
             if (!isLiked) {
                 //markInterested.setImageResource(R.drawable.ic_baseline_star_24)
-                markInterested.setImageResource(R.drawable.liked)
+                //markInterested.setImageResource(R.drawable.liked)
+                markInterested.setImageResource(R.drawable.interest)
                 isLiked = true
 
                 //check if the user already liked, or is newly liked
@@ -195,7 +196,8 @@ class ViewPostFragment : Fragment() {
                     }
                 }
             } else {
-                markInterested.setImageResource(R.drawable.unliked)
+               // markInterested.setImageResource(R.drawable.unliked)
+                markInterested.setImageResource(R.drawable.notinterested)
                 isLiked = false
                 //else check if the photo is liked, if yes dislike it
                 PostService.deleteInterestedUserByPosts(
@@ -391,6 +393,12 @@ class ViewPostFragment : Fragment() {
             popupMenu.show()
         }
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 
     val TAG = "DonationProcess"

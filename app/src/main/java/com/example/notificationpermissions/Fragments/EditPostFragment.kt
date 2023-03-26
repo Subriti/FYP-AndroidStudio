@@ -38,12 +38,12 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private lateinit var picture: ImageView
     private lateinit var desc: TextView
-    private lateinit var category: String
-    private lateinit var itemCategory: String
-    private lateinit var clothCondition: String
-    private lateinit var clothSize: String
-    private lateinit var clothSeason: String
-    private lateinit var clothDelivery: String
+    private  var category: String=""
+    private  var itemCategory: String=""
+    private  var clothCondition: String=""
+    private  var clothSize: String=""
+    private  var clothSeason: String=""
+    private  var clothDelivery: String=""
 
     private lateinit var postSpinner: ProgressBar
 
@@ -57,7 +57,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         postSpinner = view.findViewById(R.id.postSpinner)
         postSpinner.visibility = View.INVISIBLE
 
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
         (activity as DashboardActivity?)!!.supportActionBar!!.hide()
 
         fusedLocationProviderClient =
@@ -104,6 +104,16 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
         locationTxt.text = postDetails.location
 
+        cancelPost = view.findViewById(R.id.dont_post_picture)
+        cancelPost.setOnClickListener {
+            //val intent = Intent(context, DashboardActivity::class.java)
+            //startActivity(intent)
+            //get back to viewPostFragment
+            view.findNavController()
+                .navigate(R.id.action_editPostFragment_to_viewPostFragment,
+                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+        }
+
         //submit button for adding post
         editPost = view.findViewById(R.id.edit_post)
         editPost.setOnClickListener {
@@ -126,10 +136,14 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     ) { response ->
                         println("Update Post Response $response")
                         if (response) {
-                            //get back to viewPostFragment
+                            /*//get back to viewPostFragment
                             view.findNavController()
                                 .navigate(R.id.action_editPostFragment_to_viewPostFragment,
-                                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+                                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })*/
+
+                            //get back to profileFragment
+                            view.findNavController()
+                                .navigate(R.id.action_editPostFragment_to_profileFragment)
                             Toast.makeText(
                                 requireContext(), "Post was successfully updated", Toast.LENGTH_LONG
                             ).show()
@@ -143,9 +157,9 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         val clothId = postDetails.cloth_id
 
         val clothJSONObject = JSONObject(clothId)
-        val clothesSize = clothJSONObject.getString("cloth_size")
-        val clothesCondition = clothJSONObject.getString("cloth_condition")
-        val clothesSeason = clothJSONObject.getString("cloth_season")
+         clothSize = clothJSONObject.getString("cloth_size")
+         clothCondition = clothJSONObject.getString("cloth_condition")
+         clothSeason = clothJSONObject.getString("cloth_season")
 
         val clothCategory = clothJSONObject.getString("clothes_category_id")
         val categoryJSONObject = JSONObject(clothCategory)
@@ -157,11 +171,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         val clothesItemCategoryId = itemCategoryJSONObject.getString("category_id")
         val clothesItemCategory = itemCategoryJSONObject.getString("category_name")
 
-        cancelPost = view.findViewById(R.id.dont_post_picture)
-        cancelPost.setOnClickListener {
-            val intent = Intent(context, DashboardActivity::class.java)
-            startActivity(intent)
-        }
+
         val spinnerCategory: Spinner = view.findViewById(R.id.spinnerCategory)
 
         ArrayAdapter.createFromResource(
@@ -174,6 +184,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
             println(clothesCategoryId.toInt())
             spinnerCategory.setSelection(clothesCategoryId.toInt() - 1)
+
             spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>, view: View, position: Int, id: Long
@@ -201,6 +212,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
             println(clothesItemCategoryId.toInt())
             spinnerItemCategory.setSelection(clothesItemCategoryId.toInt() - 6)
+
             spinnerItemCategory.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(
@@ -228,6 +240,17 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             // Apply the adapter to the spinner
             spinnerClothSize.adapter = adapter
 
+            val clothSizesArray = resources.getStringArray(R.array.clothSizes_array)
+            var position = 0
+
+            for (i in clothSizesArray.indices) {
+                if (clothSizesArray[i] == clothSize) {
+                    position = i
+                    break
+                }
+            }
+            spinnerClothSize.setSelection(position)
+
             spinnerClothSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>, view: View, position: Int, id: Long
@@ -246,7 +269,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             }
 
 
-            for (i in 0 until spinnerClothSize.count) {
+            /*for (i in 0 until spinnerClothSize.count) {
                 println(clothesSize)
                 println(spinnerClothSize.getItemAtPosition(i))
                 if (spinnerClothSize.getItemAtPosition(i) == clothesSize) {
@@ -254,7 +277,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     spinnerClothSize.setSelection(i)
                     break
                 }
-            }
+            }*/
         }
 
 
@@ -266,13 +289,24 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
             spinnerClothCondition.adapter = adapter
-            //spinnerClothCondition.setSelection(0)
-            for (i in 0 until spinnerClothCondition.count) {
+
+            val clothConditionArray = resources.getStringArray(R.array.clothCondition_array)
+            var position = 0
+
+            for (i in clothConditionArray.indices) {
+                if (clothConditionArray[i] == clothCondition) {
+                    position = i
+                    break
+                }
+            }
+            spinnerClothCondition.setSelection(position)
+
+            /*for (i in 0 until spinnerClothCondition.count) {
                 if (spinnerClothCondition.getItemAtPosition(i) == clothesCondition) {
                     spinnerClothCondition.setSelection(i)
                     break
                 }
-            }
+            }*/
         }
         spinnerClothCondition.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -297,13 +331,24 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
             spinnerClothSeason.adapter = adapter
-            //spinnerClothSeason.setSelection(0)
-            for (i in 0 until spinnerClothSeason.count) {
+
+            val clothSeasonArray = resources.getStringArray(R.array.clothSeason_array)
+            var position = 0
+
+            for (i in clothSeasonArray.indices) {
+                if (clothSeasonArray[i] == clothSeason) {
+                    position = i
+                    break
+                }
+            }
+            spinnerClothSeason.setSelection(position)
+
+            /*for (i in 0 until spinnerClothSeason.count) {
                 if (spinnerClothSeason.getItemAtPosition(i) == clothesSeason) {
                     spinnerClothSeason.setSelection(i)
                     break
                 }
-            }
+            }*/
         }
         spinnerClothSeason.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -327,7 +372,7 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
             spinnerClothDelivery.adapter = adapter
-            spinnerClothDelivery.setSelection(0)
+            spinnerClothDelivery.setSelection(2)
         }
         spinnerClothDelivery.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(

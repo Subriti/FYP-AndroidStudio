@@ -2,9 +2,9 @@ package com.example.notificationpermissions.Utilities
 
 //const val BASE_URL = "http://10.0.2.2:8080/api/"
 //const val BASE_URL = "http://127.0.0.1:8080/api/"
-//const val BASE_URL = "http://192.168.137.26:8080/api/"
 const val BASE_URL = "http://192.168.1.102:8080/api/"
-//const val BASE_URL = "http://100.64.228.240:8080/api/"
+//const val BASE_URL = "http://192.168.1.103:8080/api/"
+//const val BASE_URL = "http://100.64.219.35:8080/api/"
 //const val BASE_URL = "http://192.168.100.48:8080/api/"
 //const val BASE_URL = "http://192.168.137.77:8080/api/"
 
@@ -34,6 +34,7 @@ const val URL_CREATE_POST= "${BASE_URL}post/addPost"
 const val URL_GET_ALL_POST= "${BASE_URL}post/showPosts"
 const val URL_GET_USER_POSTS= "${BASE_URL}post/showUserPosts/"
 
+const val URL_GET_REPORTS= "${BASE_URL}report/showReport/"
 const val URL_ADD_REPORT= "${BASE_URL}report/addReport"
 const val URL_UPDATE_REPORT_STATUS= "${BASE_URL}report/updateReport/"
 
@@ -58,7 +59,6 @@ const val URL_FIND_POST= "${BASE_URL}post/findPost/"
 const val URL_GET_RECIEVED_DONATIONS= "${BASE_URL}transaction/showRecievedTransactions/"
 const val URL_GET_GIVEN_DONATIONS= "${BASE_URL}transaction/showGivenTransactions/"
 const val URL_GET_ONGOING_TRANSACTIONS= "${BASE_URL}transaction/showOngoingTransactions/"
-
 
 const val URL_GET_USER_MESSAGES= "${BASE_URL}message/showUserMessages/"
 const val URL_GET_USER_CHAT_ROOMS= "${BASE_URL}message/showUserChatRooms/"

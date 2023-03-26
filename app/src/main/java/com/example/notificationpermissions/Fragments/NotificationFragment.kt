@@ -35,7 +35,7 @@ class NotificationFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_notification, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+        //(activity as DashboardActivity?)!!.currentFragment = this
 
         val notificationRV = view.findViewById<RecyclerView>(R.id.notificationRV)
         println("in notification fragment")
@@ -87,6 +87,12 @@ class NotificationFragment : Fragment() {
         }
         return view
     }
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
+    }
+
     private fun ratingDialog(postId: String) {
         val builder = AlertDialog.Builder(requireContext())
         val dialogView = layoutInflater.inflate(R.layout.confirmation_prompt, null)

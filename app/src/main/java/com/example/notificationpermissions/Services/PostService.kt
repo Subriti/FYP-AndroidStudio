@@ -20,6 +20,8 @@ object PostService {
 
     val DetailedPosts = ArrayList<PostDetails>()
 
+    val PostHolders= ArrayList<Post>()
+
     var InterestedUsers = ArrayList<InterestedUsers>()
     //var InterestedUsers: MutableList<InterestedUsers>()
 
@@ -55,7 +57,6 @@ object PostService {
                     val donation_status= response.getString("donation_status")
 
                     notificationPost= Post(post_id, postBy,media_file, description, created_datetime, location, cloth_id, donation_status)
-                    println(notificationPost!!.media_file)
 
                     complete(true)
                 } catch (e: JSONException) {
@@ -66,7 +67,7 @@ object PostService {
             Response.ErrorListener {
                 //this is where we deal with our error
                     error ->
-                Log.d("ERROR", "Could not find user: $error")
+                Log.d("ERROR", "Could not find post: $error")
                 complete(false)
             }) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -483,11 +484,14 @@ object PostService {
 
 
     fun getOtherUserPosts(userId: String, complete: (Boolean) -> Unit) {
+        println("User Posts size: "+posts.size)
         posts.clear()
         val getPostRequest = object :
             JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
                 //this is where we parse the json object
                     response ->
+                println("User posts response -->"+response)
+                println(" response length-->"+response.length())
                 try {
                     for (x in 0 until response.length()) {
                         val post = response.getJSONObject(x)
@@ -514,13 +518,14 @@ object PostService {
                         val donationJSONObject = JSONObject(donationStatus)
                         val status = donationJSONObject.getString("donation_status")
 
-                        println(status)
-
                         //excluding donated and ongoing status posts from user's profile
                         if (status!="Ongoing" && status!="Donated"){
                             posts.add(newPost)
                         }
                     }
+
+                    println("User Posts size after finding all post: "+posts.size)
+
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)
@@ -1078,54 +1083,4 @@ object PostService {
         }
         App.sharedPrefs.requestQueue.add(addInterestedUsers)
     }
-
-    fun reportPost(reported_by: String, post_id: String, feedback:String, reportDate: String, complete: (Boolean) -> Unit
-    ) {
-        val jsonBody = JSONObject()
-
-        //bc it takes object of UserId
-        val userId = JSONObject()
-        userId.put("user_id", reported_by)
-
-        //bc it takes object of PostId
-        val postId = JSONObject()
-        postId.put("post_id", post_id)
-
-        jsonBody.put("reported_by", userId)
-        jsonBody.put("post_id", postId)
-        jsonBody.put("feedback",feedback)
-        jsonBody.put("report_date", reportDate)
-
-        val requestBody = jsonBody.toString()
-        println(requestBody)
-
-        val addReport = object : JsonObjectRequest(
-            Method.POST,
-            URL_ADD_REPORT,
-            null,
-            Response.Listener { response ->
-                println("Add Report Response " + response)
-                complete(true)
-            },
-            Response.ErrorListener { error ->
-                Log.d("ERROR", "Could not add report: $error")
-                complete(false)
-            }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
-            }
-
-            override fun getBody(): ByteArray {
-                return requestBody.toByteArray()
-            }
-
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
-                return headers
-            }
-        }
-        App.sharedPrefs.requestQueue.add(addReport)
-    }
-
 }

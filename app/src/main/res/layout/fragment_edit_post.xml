@@ -8,6 +8,7 @@
     android:id="@+id/editPost_fragment"
     tools:context=".Fragments.EditPostFragment">
 
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout_addPost"
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:id="@+id/addPost_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/roseEbony"
+            android:background="@color/darkGrey"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.NotificationPermissions.PopupOverlay">
 
@@ -33,7 +34,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
-                    android:background="@color/roseEbony"
+                    android:background="@color/darkGrey"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_close_24" />
 
@@ -44,7 +45,7 @@
                     android:layout_marginStart="6dp"
                     android:maxLines="1"
                     android:text="Edit Post"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -55,7 +56,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerInParent="true"
                     android:layout_marginEnd="10dp"
-                    android:background="@color/roseEbony"
+                    android:background="@color/darkGrey"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_check_24" />
             </RelativeLayout>
@@ -64,12 +65,11 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_below="@id/app_bar_layout_addPost"
-        android:layout_marginTop="48dp"
-        android:background="@color/whitisPurple"
         android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@id/app_bar_layout_addPost"
@@ -83,6 +83,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Delivery:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView18" />
@@ -93,6 +94,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothSeason" />
@@ -105,6 +107,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Cloth Condition:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -117,6 +120,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Season: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView17" />
@@ -125,8 +129,9 @@
             android:id="@+id/spinnerClothSeason"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginTop="23dp"
+            android:layout_marginTop="25dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothCondition" />
@@ -137,6 +142,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerClothSize" />
@@ -149,6 +155,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Cloth Size:"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView15" />
@@ -159,6 +166,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerItemCategory" />
@@ -171,6 +179,7 @@
             android:layout_marginTop="12dp"
             android:padding="10dp"
             android:text="Item Category: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView11" />
@@ -181,6 +190,7 @@
             android:layout_height="30dp"
             android:layout_marginTop="23dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/spinnerCategory" />
@@ -188,10 +198,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/locationInputLayout"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
+            android:textColorHint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/picture_to_be_posted">
@@ -200,42 +211,28 @@
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:ems="10"
+                android:background="@color/darkGrey"
                 android:hint="Write a Description"
-                android:inputType="textMultiLine|textPersonName|textImeMultiLine"
-                android:maxLines="6" />
+                android:inputType="textMultiLine|textImeMultiLine"
+                android:maxLines="6"
+                android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
             android:id="@+id/findLocation"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginTop="84dp"
+            android:layout_marginTop="44dp"
             app:layout_constraintStart_toEndOf="@+id/picture_to_be_posted"
             app:layout_constraintTop_toTopOf="@+id/picture_to_be_posted"
-            app:srcCompat="@drawable/ic_baseline_location_on_24" />
-
-        <TextView
-            android:id="@+id/locationText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginRight="12dp"
-            android:text=" Current Location"
-            android:textColor="@color/roseEbony"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/findLocation"
-            app:layout_constraintTop_toTopOf="@+id/findLocation" />
+            app:srcCompat="@drawable/baseline_location_on_24" />
 
         <ImageView
             android:id="@+id/picture_to_be_posted"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_baseline_image_24"
             app:layout_constraintStart_toStartOf="parent"
@@ -245,8 +242,9 @@
             android:id="@+id/spinnerCategory"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView15"
             app:layout_constraintTop_toBottomOf="@+id/locationInputLayout" />
@@ -256,8 +254,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
+            android:layout_marginTop="4dp"
             android:padding="10dp"
             android:text="Category: "
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locationInputLayout" />
@@ -271,7 +271,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locationInputLayout" />
 
+        <EditText
+            android:id="@+id/locationText"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:ems="10"
+            android:hint="Location"
+            android:inputType="textPersonName"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/findLocation"
+            app:layout_constraintTop_toTopOf="@+id/picture_to_be_posted" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

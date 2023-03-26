@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.notificationpermissions.Adapters.TOPIC
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.google.firebase.messaging.FirebaseMessaging
 
@@ -50,13 +51,24 @@ class LoginActivity : AppCompatActivity() {
                         AuthService.findUser(this) { findSuccess ->
                             println(findSuccess)
                             if (findSuccess) {
-                                //When success, it broadcasts to other activities as well that user was found and is logged in
-                                //this is done in authUser
-                                val intent= Intent(this, DashboardActivity::class.java)
-                                startActivity(intent)
+                                //if user is admin, redirect to admin activity
+                                println("is Admin: "+App.sharedPrefs.isAdmin)
+                                if (App.sharedPrefs.isAdmin=="true"){
+                                    println("admin")
+                                    val intent = Intent(this, AdminActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                    finish()
+                                }else {
+                                    //When success, it broadcasts to other activities as well that user was found and is logged in
+                                    //this is done in authUser
+                                    println("user")
+                                    val intent = Intent(this, DashboardActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                    finish()
+                                }
 
-                                /*  FirebaseService.sharedPref= getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
-  */
                                 //get registration token:
                                 FirebaseMessaging.getInstance().token.addOnCompleteListener {
                                     if (it.isComplete) {

@@ -10,7 +10,6 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Models.ChatRoom
 import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
 import java.util.*

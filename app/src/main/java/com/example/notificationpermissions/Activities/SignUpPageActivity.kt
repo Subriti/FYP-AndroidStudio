@@ -315,6 +315,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
                         // we are sending our user to new activity.
                         val i = Intent(this@SignUpPageActivity, DashboardActivity::class.java)
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(i)
                         finish()
                         enableSpinner(false)

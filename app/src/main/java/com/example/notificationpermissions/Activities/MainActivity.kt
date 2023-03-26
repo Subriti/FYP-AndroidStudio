@@ -18,19 +18,30 @@ class MainActivity : AppCompatActivity() {
         //getting user State
         println("isLogged in : ${App.sharedPrefs.isLoggedIn}")
         if (App.sharedPrefs.isLoggedIn) {
-            // Do something for the logged user
-            // AuthService.findUser(this){}
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
+            // Do something for the logged user; open Dashboard Activity
+            if (App.sharedPrefs.isAdmin=="false") {
+                val intent = Intent(this, DashboardActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+            else if (App.sharedPrefs.isAdmin=="true") {
+                //if admin, open adminActivity
+                val intent = Intent(this, AdminActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         } else {
             // Do something for the unlogged user
             setContentView(R.layout.activity_main)
 
             var sliderView = findViewById<SliderView>(R.id.slider)
             var images = arrayOf(
-                R.drawable.donate2,
-                R.drawable.donate3,
-                R.drawable.donate4
+                //R.drawable.donate2,
+                //R.drawable.logocolor,
+                //R.drawable.donate3,
+                R.drawable.donate4,
+                R.drawable.donate,
+                R.drawable.donate5
             )
 
             val sliderAdapter = SliderAdapter(images)

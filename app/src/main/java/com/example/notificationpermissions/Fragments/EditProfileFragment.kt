@@ -49,7 +49,7 @@ class EditProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_profile, container, false)
-        (activity as DashboardActivity?)!!.currentFragment = this
+       // (activity as DashboardActivity?)!!.currentFragment = this
 
         //user display picture
         imgGallery = view.findViewById<ImageView>(R.id.profile_picture)
