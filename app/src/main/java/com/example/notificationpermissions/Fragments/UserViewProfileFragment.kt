@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.isVisible
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -22,12 +22,14 @@ import com.example.notificationpermissions.Models.PostDetails
 import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.MessageService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.example.notificationpermissions.Utilities.EXTRA_USER
+import org.json.JSONObject
 
 
 class UserViewProfileFragment : Fragment() {
@@ -41,20 +43,30 @@ class UserViewProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-       // (activity as DashboardActivity?)!!.currentFragment = this
+        // (activity as DashboardActivity?)!!.currentFragment = this
 
 
         imgGallery = view.findViewById(R.id.profile_image)
         val location = view.findViewById<TextView>(R.id.UserLocation)
         val phoneNumber = view.findViewById<TextView>(R.id.UserPhone)
         val email = view.findViewById<TextView>(R.id.UserEmail)
-        val blockBtn= view.findViewById<Button>(R.id.blockUser)
-        val rating= view.findViewById<TextView>(R.id.userRating)
-        val donations= view.findViewById<TextView>(R.id.userDonations)
+        val blockBtn = view.findViewById<Button>(R.id.blockUser)
+        val rating = view.findViewById<TextView>(R.id.userRating)
+        val donations = view.findViewById<TextView>(R.id.userDonations)
         imgButton = view.findViewById(R.id.editProfile)
         imgButton.text = "Message"
 
         val noDataText = view.findViewById<TextView>(R.id.noDataTextView)
+
+        val blockedUsers = ArrayList<String>()
+
+        //if the selected user has been blocked, give option to unblock/ block him
+        for (username in BlockService.userBlockList) {
+            val userJSONObject = JSONObject(username.blocked_user_id)
+            val userId = userJSONObject.getString("user_id")
+            val username = userJSONObject.getString("user_name")
+            blockedUsers.add(username)
+        }
 
         var postDetails = arguments?.getSerializable(EXTRA_POST) as Post?
         var newPostDetails: PostDetails?
@@ -72,29 +84,70 @@ class UserViewProfileFragment : Fragment() {
 
                     //user display picture
                     context?.let {
-                        Glide.with(it).load(newPostDetails?.user_profile).into(imgGallery)
+                        Glide.with(it).load(newPostDetails.user_profile).into(imgGallery)
                     }
 
-                    if (newPostDetails?.hide_email == "true") {
+                    if (newPostDetails.hide_email == "true") {
                         email.text = "  Confidential"
                     } else {
-                        email.text = "  ${newPostDetails?.user_email}"
+                        email.text = "  ${newPostDetails.user_email}"
                     }
 
-                    if (newPostDetails?.hide_number == "true") {
+                    if (newPostDetails.hide_number == "true") {
                         phoneNumber.text = "  Confidential"
                     } else {
-                        phoneNumber.text = "  ${newPostDetails?.user_phone}"
+                        phoneNumber.text = "  ${newPostDetails.user_phone}"
                     }
 
-                    location.text = "  ${newPostDetails?.location}"
+                    location.text = "  ${newPostDetails.location}"
+
+                    if (blockedUsers.isNotEmpty()) {
+                        for (blockedUser in blockedUsers) {
+                            println(newPostDetails.post_by)
+                            println(blockedUser)
+                            println(AuthService.userList.size)
+                            if (newPostDetails.post_by == blockedUser) {
+                                blockBtn.text="Unblock" //since the user is already blocked
+                            }else{
+                                blockBtn.text="Block"
+                            }
+                        }
+                    }
 
                     blockBtn.setOnClickListener {
                         //write backend code to block the user and store details
+                        if (blockBtn.text == "Unblock") {
+                            BlockService.unblockUser(
+                                newPostDetails.user_id!!,
+                                App.sharedPrefs.userID
+                            ) { complete ->
+                                if (complete) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "User was unblocked",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    blockBtn.text = "Block"
+                                }
+                            }
+                        } else if (blockBtn.text == "Block") {
+                            BlockService.blockUser(
+                                newPostDetails.user_id!!,
+                                App.sharedPrefs.userID
+                            ) { complete ->
+                                if (complete) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "User was blocked",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    blockBtn.text = "Unblock"
+                                }
+                            }
+                        }
                     }
 
-
-                    PostService.getRating(newPostDetails?.user_id!!) { complete ->
+                    PostService.getRating(newPostDetails.user_id!!) { complete ->
                         if (complete) {
                             rating.text = App.sharedPrefs.rating.toString()
                             donations.text = App.sharedPrefs.clothDonated.toString()
@@ -105,7 +158,7 @@ class UserViewProfileFragment : Fragment() {
                         //checking if the user's chatroom already exists
                         MessageService.getChatRoomId(
                             App.sharedPrefs.userName,
-                            newPostDetails?.post_by!!
+                            newPostDetails.post_by!!
                         ) { complete ->
                             println("Get Chat Room Id success $complete")
                             if (complete) {
@@ -113,15 +166,15 @@ class UserViewProfileFragment : Fragment() {
                                 var id = MessageService.chatRoomId
 
                                 if (id == "") {
-                                    id = "${App.sharedPrefs.userName}+ ${newPostDetails?.post_by}"
+                                    id = "${App.sharedPrefs.userName}+ ${newPostDetails.post_by}"
                                 }
 
-                                val recieverUserId = newPostDetails?.user_id
-                                val recieverFCMtoken = newPostDetails?.fcm_token
-                                val recieverProfilePicture = newPostDetails?.user_profile
-                                val recieverUserName = newPostDetails?.post_by
-                                val recieverPhone = newPostDetails?.user_phone
-                                val hidePhone= newPostDetails?.hide_number
+                                val recieverUserId = newPostDetails.user_id
+                                val recieverFCMtoken = newPostDetails.fcm_token
+                                val recieverProfilePicture = newPostDetails.user_profile
+                                val recieverUserName = newPostDetails.post_by
+                                val recieverPhone = newPostDetails.user_phone
+                                val hidePhone = newPostDetails.hide_number
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -144,7 +197,7 @@ class UserViewProfileFragment : Fragment() {
                         }
                     }
 
-                    PostService.getOtherUserPosts(newPostDetails?.user_id.toString()) { complete ->
+                    PostService.getOtherUserPosts(newPostDetails.user_id.toString()) { complete ->
                         if (complete) {
                             if (PostService.posts.isNotEmpty()) {
                                 noDataText.visibility = View.GONE
@@ -189,7 +242,7 @@ class UserViewProfileFragment : Fragment() {
 
         //navigating from search user to profile view (the user might not have any posts, hence a new approach is followed)
         var newUserDetails: User?
-        var userDetails= arguments?.getSerializable(EXTRA_USER) as User?
+        var userDetails = arguments?.getSerializable(EXTRA_USER) as User?
 
         for (details in AuthService.userList) {
             if (userDetails != null) {
@@ -199,29 +252,82 @@ class UserViewProfileFragment : Fragment() {
 
                     //user display picture
                     context?.let {
-                        Glide.with(it).load(newUserDetails?.user_profile).into(imgGallery)
+                        Glide.with(it).load(newUserDetails.user_profile).into(imgGallery)
                     }
 
-                    if (newUserDetails?.hide_email == "true") {
+                    if (newUserDetails.hide_email == "true") {
                         email.text = "  Confidential"
                     } else {
-                        email.text = "  ${newUserDetails?.email}"
+                        email.text = "  ${newUserDetails.email}"
                     }
 
-                    if (newUserDetails?.hide_phone == "true") {
+                    if (newUserDetails.hide_phone == "true") {
                         phoneNumber.text = "  Confidential"
                     } else {
-                        phoneNumber.text = "  ${newUserDetails?.phone_number}"
+                        phoneNumber.text = "  ${newUserDetails.phone_number}"
                     }
 
-                    location.text = "  ${newUserDetails?.location}"
+                    location.text = "  ${newUserDetails.location}"
+
+                    //if user is redirected from dashboard search and the user is blocked; write text to Unblock
+
+                    /*if (DashboardActivity().isBlocked) {
+                        blockBtn.text = "Unblock"
+                    } else {
+                        blockBtn.text = "Block"
+                    }*/
+
+                    println("Blocked Users Size: ${blockedUsers.size}")
+                    if (blockedUsers.isNotEmpty()) {
+                        for (blockedUser in blockedUsers) {
+                            println(newUserDetails.user_name)
+                            println(AuthService.userList.size)
+                            if (newUserDetails.user_name == blockedUser) {
+                                println("User Blocked found")
+                                blockBtn.text="Unblock" //since the user is already blocked
+                            }else{
+                                blockBtn.text="Block"
+                            }
+                        }
+                    }
 
                     blockBtn.setOnClickListener {
                         //write backend code to block the user and store details
+                        if (blockBtn.text == "Unblock") {
+                            println("Blocked User: ${newUserDetails.user_id!!}")
+                            println("Blocked BY: ${App.sharedPrefs.userID}")
+                            BlockService.unblockUser(
+                                newUserDetails.user_id!!,
+                                App.sharedPrefs.userID
+                            ) { complete ->
+                                if (complete) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "User was unblocked",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    blockBtn.text = "Block"
+                                }
+                            }
+                        } else if (blockBtn.text == "Block") {
+                            BlockService.blockUser(
+                                newUserDetails.user_id!!,
+                                App.sharedPrefs.userID
+                            ) { complete ->
+                                if (complete) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "User was blocked",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    blockBtn.text = "Unblock"
+                                }
+                            }
+                        }
                     }
 
 
-                    PostService.getRating(newUserDetails?.user_id!!) { complete ->
+                    PostService.getRating(newUserDetails.user_id!!) { complete ->
                         if (complete) {
                             rating.text = App.sharedPrefs.rating.toString()
                             donations.text = App.sharedPrefs.clothDonated.toString()
@@ -232,7 +338,7 @@ class UserViewProfileFragment : Fragment() {
                         //checking if the user's chatroom already exists
                         MessageService.getChatRoomId(
                             App.sharedPrefs.userName,
-                            newUserDetails?.user_name!!
+                            newUserDetails.user_name!!
                         ) { complete ->
                             if (complete) {
                                 println("Get Char Room Id success " + complete)
@@ -240,15 +346,15 @@ class UserViewProfileFragment : Fragment() {
                                 var id = MessageService.chatRoomId
 
                                 if (id == "") {
-                                    id = "${App.sharedPrefs.userName}+ ${newUserDetails?.user_name}"
+                                    id = "${App.sharedPrefs.userName}+ ${newUserDetails.user_name}"
                                 }
 
-                                val recieverUserId = newUserDetails?.user_id
-                                val recieverFCMtoken = newUserDetails?.fcm_token
-                                val recieverProfilePicture = newUserDetails?.user_profile
-                                val recieverUserName = newUserDetails?.user_name
-                                val recieverPhone = newUserDetails?.phone_number
-                                val hidePhone= newUserDetails?.hide_phone
+                                val recieverUserId = newUserDetails.user_id
+                                val recieverFCMtoken = newUserDetails.fcm_token
+                                val recieverProfilePicture = newUserDetails.user_profile
+                                val recieverUserName = newUserDetails.user_name
+                                val recieverPhone = newUserDetails.phone_number
+                                val hidePhone = newUserDetails.hide_phone
 
                                 val newChatRoom = ChatRoom(
                                     id,
@@ -271,7 +377,7 @@ class UserViewProfileFragment : Fragment() {
                         }
                     }
 
-                    PostService.getOtherUserPosts(newUserDetails?.user_id.toString()) { complete ->
+                    PostService.getOtherUserPosts(newUserDetails.user_id.toString()) { complete ->
                         if (complete) {
                             if (PostService.posts.isNotEmpty()) {
                                 noDataText.visibility = View.GONE
@@ -315,6 +421,7 @@ class UserViewProfileFragment : Fragment() {
 
         return view
     }
+
     override fun onResume() {
         super.onResume()
         // Invalidate the options menu to force onPrepareOptionsMenu to be called again

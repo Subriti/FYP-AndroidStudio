@@ -5,12 +5,10 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -19,14 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.AuthFailureError
 import com.android.volley.NoConnectionError
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Activities.LoginActivity
 import com.example.notificationpermissions.Adapters.FeedGridRecyclerAdapter
 import com.example.notificationpermissions.Adapters.FeedRecyclerAdapter
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.EXTRA_POST
+import org.json.JSONObject
 
 
 class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
@@ -45,7 +44,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
 
     var imageUrlsList = mutableListOf<String>()
-    var filteredPostList= arrayListOf<Post>()
+    var filteredPostList = arrayListOf<Post>()
 
     var initialLoad = true
 
@@ -199,12 +198,78 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         postRV = view.findViewById(R.id.feedRecyclerView)
 
+        val blockedUsers = ArrayList<String>()
+        val blockedFrom = ArrayList<String>()
+
+        //if user is blocked, hide their posts
+        BlockService.getBlockedList { complete ->
+            if (complete) {
+                for (username in BlockService.blockedList) {
+                    val userJSONObject = JSONObject(username.blocked_by_id)
+                    val userId = userJSONObject.getString("user_id")
+                    val username = userJSONObject.getString("user_name")
+                    blockedFrom.add(username)
+                }
+                println("Blocked From size: ${blockedFrom.size}")
+            }
+        }
+
+        //if current user has blocked any user, hide their posts
+        BlockService.getUserBlockList { complete ->
+            if (complete) {
+                for (username in BlockService.userBlockList) {
+                    val userJSONObject = JSONObject(username.blocked_user_id)
+                    val userId = userJSONObject.getString("user_id")
+                    val username = userJSONObject.getString("user_name")
+                    blockedUsers.add(username)
+                }
+                println("Blocked Users size: ${blockedUsers.size}")
+            }
+        }
+
         PostService.getAllPosts { complete ->
             if (complete) {
                 if (PostService.AllPosts.isNotEmpty()) {
-                    for (url in PostService.AllPosts) {
-                        imageUrlsList.add(url.media_file)
-                        filteredPostList.add(url)
+                    println("All Posts in not empty")
+                    for (post in PostService.AllPosts) {
+
+                        if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
+                            for (blockedUser in blockedUsers) {
+                                for (blockedFrom in blockedFrom) {
+                                    // if the post was created by a blocked user; removing the post from a list
+                                    if (post.post_by != blockedUser && post.post_by != blockedFrom) {
+                                        imageUrlsList.add(post.media_file)
+                                        filteredPostList.add(post)
+                                    }
+                                }
+                            }
+                        } else if (blockedUsers.isNotEmpty()) {
+                            for (blockedUser in blockedUsers) {
+                                println(blockedUsers)
+                                if (post.post_by != blockedUser) {
+                                    imageUrlsList.add(post.media_file)
+                                    filteredPostList.add(post)
+                                }
+                            }
+                        } else if (blockedFrom.isNotEmpty()) {
+                            for (blockedFrom in blockedFrom) {
+                                println("Post By: ${post.post_by}")
+                                println("BlockedFrom: $blockedFrom")
+
+                                println(post.post_by != blockedFrom)
+                                // if the post was created by a blocked user; removing the post from a list
+                                if (post.post_by != blockedFrom) {
+                                    imageUrlsList.add(post.media_file)
+                                    filteredPostList.add(post)
+                                }
+                            }
+                        } else {
+                            //if blocked user empty; add all posts
+                            /*imageUrlsList.clear()
+                            filteredPostList.clear()*/
+                            imageUrlsList.add(post.media_file)
+                            filteredPostList.add(post)
+                        }
                     }
                     noDataText.visibility = View.GONE
                     setAdapter(imageUrlsList)
@@ -212,9 +277,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 } else if (PostService.AllPosts.isEmpty()) {
                     noDataText.visibility = View.VISIBLE
                 }
-            }else {
+            } else {
                 noDataText.visibility = View.VISIBLE
-                noDataText.text= "Feed could not be loaded"
+                noDataText.text = "Feed could not be loaded"
             }
 
             if (PostService.getAllPostError is AuthFailureError) {
@@ -226,7 +291,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     }
                 }
             }
-            /*if (PostService.getAllPostError is NoConnectionError) {
+            if (PostService.getAllPostError is NoConnectionError) {
                 progressDialog.dismiss()
                 println("you aren't connected to internet try again later")
                 val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
@@ -236,7 +301,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         view?.findNavController()?.navigate(R.id.action_homeFragment_self)
                     }
                 builder.create().show()
-            }*/
+            }
         }
         PostService.getAllPostError = null
 
@@ -312,8 +377,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 }
                             }
                         }
-                    }
-                     else {
+                    } else {
                         selected_item = (position + 1).toString()
 
                         //sort on the basis of men's, women's or unisex clothing
@@ -327,7 +391,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                     for (p in PostService.AllPosts) {
                                         println("Post Id is " + p.post_id)
                                         for (c in PostService.clothes) {
-                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(
+                                                    p
+                                                )
+                                            ) {
                                                 println("Cloth Id is " + c.cloth_id)
                                                 println("Clothes Category Id is " + c.clothes_category_id)
                                                 println("Selected item is " + selected_item)
@@ -365,7 +432,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                     println("Post Id is " + p.post_id)
                                     println("Location is " + p.post_id)
                                     print("Selected Location is " + spinnerItem.selectedItem.toString())
-                                    if (p.location.contains(spinnerItem.selectedItem.toString()) && !filteredPostList.contains(p)) {
+                                    if (p.location.contains(spinnerItem.selectedItem.toString()) && !filteredPostList.contains(
+                                            p
+                                        )
+                                    ) {
                                         imageUrlsList.add(p.media_file)
                                         filteredPostList.add(p)
                                     }
@@ -391,7 +461,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(
+                                                p
+                                            )
+                                        ) {
                                             println("Cloth Size is " + c.cloth_size)
                                             print("Selected Size is " + spinnerItem.selectedItem.toString())
                                             if (c.cloth_size == spinnerItem.selectedItem.toString()) {
@@ -422,7 +495,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(
+                                                p
+                                            )
+                                        ) {
                                             println("Cloth Condition is " + c.cloth_condition)
                                             print("Selected Condition is " + spinnerItem.selectedItem.toString())
                                             if (c.cloth_condition == spinnerItem.selectedItem.toString()) {
@@ -455,7 +531,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 for (p in PostService.AllPosts) {
                                     println("Post Id is " + p.post_id)
                                     for (c in PostService.clothes) {
-                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                        if (p.media_file == c.cloth_media && !filteredPostList.contains(
+                                                p
+                                            )
+                                        ) {
                                             println("Cloth Season is " + c.cloth_season)
                                             print("Selected Season is " + spinnerItem.selectedItem.toString())
                                             if (c.cloth_season == spinnerItem.selectedItem.toString()) {
@@ -499,12 +578,14 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setGridAdapter(imageUrlsList: List<String>) {
-        gridAdapter = FeedGridRecyclerAdapter(requireContext(), imageUrlsList, filteredPostList) { post ->
-            //do something on click; open full post details
-            view?.findNavController()?.navigate(R.id.action_homeFragment_to_viewFeedItemFragment,
-                Bundle().apply { putSerializable(EXTRA_POST, post) })
-            viewSelected="List"
-        }
+        gridAdapter =
+            FeedGridRecyclerAdapter(requireContext(), imageUrlsList, filteredPostList) { post ->
+                //do something on click; open full post details
+                view?.findNavController()
+                    ?.navigate(R.id.action_homeFragment_to_viewFeedItemFragment,
+                        Bundle().apply { putSerializable(EXTRA_POST, post) })
+                viewSelected = "List"
+            }
         var spanCount = 3
         val orientation = resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {

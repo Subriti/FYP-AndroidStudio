@@ -29,12 +29,14 @@ import com.example.notificationpermissions.Fragments.HomeFragment
 import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.example.notificationpermissions.Utilities.EXTRA_USER
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import org.json.JSONObject
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -51,6 +53,8 @@ class DashboardActivity : AppCompatActivity() {
     lateinit var item: MenuItem
     lateinit var item1: MenuItem
     lateinit var item2: MenuItem
+
+    var isBlocked:Boolean=false
 /*
     lateinit var webSocketClient: WebSocketClient*/
 
@@ -140,8 +144,7 @@ class DashboardActivity : AppCompatActivity() {
                 val navController = Navigation.findNavController(this, R.id.nav_fragment)
                 navController.navigate(R.id.viewPostFragment, Bundle().apply {
                     putSerializable(
-                        EXTRA_POST,
-                        PostService.notificationPost
+                        EXTRA_POST, PostService.notificationPost
                     )
                 })
             }
@@ -186,26 +189,26 @@ class DashboardActivity : AppCompatActivity() {
         val item1 = menu.findItem(R.id.nav_notifications)
         val item2 = menu.findItem(R.id.nav_logout)
 
-        if (currentFragment == "Chat Rooms" || currentFragment == "Donation History" || currentFragment== "User Profile" || currentFragment=="Notifications" || currentFragment=="Post") {
+        if (currentFragment == "Chat Rooms" || currentFragment == "Donation History" || currentFragment == "User Profile" || currentFragment == "Notifications" || currentFragment == "Post") {
             item.isVisible = false
             item1.isVisible = false
             item2.isVisible = false
             supportActionBar!!.show()
         }
 
-       /* if (currentFragment == "Donation History") {
-            item.isVisible = false
-            item1.isVisible = false
-            item2.isVisible = false
-            supportActionBar!!.show()
-        }
+        /* if (currentFragment == "Donation History") {
+             item.isVisible = false
+             item1.isVisible = false
+             item2.isVisible = false
+             supportActionBar!!.show()
+         }
 
-        if (currentFragment== "User Profile") {
-            item.isVisible = false
-            item1.isVisible = false
-            item2.isVisible = false
-            supportActionBar!!.show()
-        }*/
+         if (currentFragment== "User Profile") {
+             item.isVisible = false
+             item1.isVisible = false
+             item2.isVisible = false
+             supportActionBar!!.show()
+         }*/
 
 
         if (currentFragment == App.sharedPrefs.userName) {
@@ -216,7 +219,7 @@ class DashboardActivity : AppCompatActivity() {
             supportActionBar!!.show()
         }
 
-        if (currentFragment != "Add New Post" && currentFragment != App.sharedPrefs.userName && currentFragment != "Individual Chat Room" && currentFragment != App.sharedPrefs.userName && currentFragment != "Chat Rooms" && currentFragment != "Donation History" && currentFragment!= "User Profile" && currentFragment!="Notifications" && currentFragment !="Post") {
+        if (currentFragment != "Add New Post" && currentFragment != App.sharedPrefs.userName && currentFragment != "Individual Chat Room" && currentFragment != App.sharedPrefs.userName && currentFragment != "Chat Rooms" && currentFragment != "Donation History" && currentFragment != "User Profile" && currentFragment != "Notifications" && currentFragment != "Post") {
             item.isVisible = true
             item1.isVisible = true
             item2.isVisible = false
@@ -230,13 +233,41 @@ class DashboardActivity : AppCompatActivity() {
         if (item.itemId == R.id.nav_search) {
             Toast.makeText(this, "Search Icon was clicked.", Toast.LENGTH_SHORT).show()
 
+            //val blockedUsers = ArrayList<String>()
+            val blockedFrom = ArrayList<String>()
+
+            //if user is blocked, hide their profiles from search list
+            BlockService.getBlockedList { complete ->
+                if (complete) {
+                    for (username in BlockService.blockedList) {
+                        val userJSONObject = JSONObject(username.blocked_by_id)
+                        val userId = userJSONObject.getString("user_id")
+                        val username = userJSONObject.getString("user_name")
+                        blockedFrom.add(username)
+                    }
+                    println("Blocked From size: ${blockedFrom.size}")
+                }
+            }
+
+            //if current user has blocked any user, hide their profiles from search list
+            /*BlockService.getUserBlockList { complete ->
+                if (complete) {
+                    for (username in BlockService.userBlockList) {
+                        val userJSONObject = JSONObject(username.blocked_user_id)
+                        val userId = userJSONObject.getString("user_id")
+                        val username = userJSONObject.getString("user_name")
+                        blockedUsers.add(username)
+                    }
+                    println("Blocked Users size: ${blockedUsers.size}")
+                }
+            }*/
+
             AuthService.getAllUsers { complete ->
                 println("Get users success--> $complete")
                 if (complete) {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this)
                     val inflater = LayoutInflater.from(this)
-                    val dialogView: View =
-                        inflater.inflate(R.layout.search_user_dialog, null)
+                    val dialogView: View = inflater.inflate(R.layout.search_user_dialog, null)
                     builder.setView(dialogView)
 
                     val autoCompleteTextView: AutoCompleteTextView =
@@ -246,13 +277,50 @@ class DashboardActivity : AppCompatActivity() {
                     val dialog: AlertDialog = builder.create()
                     dialog.show()
 
+                    val usersToRemove = mutableListOf<User>()
+
+                    for (user in AuthService.userList) {
+                        /*if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
+                            for (blockedUser in blockedUsers) {
+                                for (blockedFrom in blockedFrom) {
+                                    if (user.user_name == blockedUser && user.user_name == blockedFrom) {
+                                        usersToRemove.add(user)
+                                    }
+                                }
+                            }
+                        }*/
+                        //yo pani kaam chaina
+                        // if the user has been blocked; show in the search list but block should be shown as unblock
+                        /*if (blockedUsers.isNotEmpty()) {
+                            for (blockedUser in blockedUsers) {
+                                println(user.user_name)
+                                println(blockedUser)
+                                println(AuthService.userList.size)
+                                if (user.user_name == blockedUser) {
+                                    isBlocked=true
+                                }
+                            }
+                        }*/
+                        // if the user is blocked; hide the user from the search list
+                        if (blockedFrom.isNotEmpty()) {
+                            for (blockedFrom in blockedFrom) {
+                                if (user.user_name == blockedFrom) {
+                                    println("AuthService UserList before deleting blocked users: ${AuthService.userList.size}")
+                                    usersToRemove.add(user)
+                                }
+                            }
+                        }
+                    }
+
+                    AuthService.userList.removeAll(usersToRemove.toSet())
+                    println("AuthService UserList after deleting blocked users: ${AuthService.userList.size}")
+
+
                     val userAdapter = UserAdapter(this, AuthService.userList) { user ->
-                        val navController =
-                            Navigation.findNavController(this, R.id.nav_fragment)
+                        val navController = Navigation.findNavController(this, R.id.nav_fragment)
                         navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
                             putSerializable(
-                                EXTRA_USER,
-                                user
+                                EXTRA_USER, user
                             )
                         })
                         dialog.dismiss()
@@ -265,8 +333,7 @@ class DashboardActivity : AppCompatActivity() {
 
                     adapter = UserAdapter(this, AuthService.userList) { user ->
                         //on Click do something--> open individual user's profile
-                        val navController =
-                            Navigation.findNavController(this, R.id.nav_fragment)
+                        val navController = Navigation.findNavController(this, R.id.nav_fragment)
 
                         //if opened own's profile, open profile fragment
                         if (user.user_name == App.sharedPrefs.userName) {
@@ -276,15 +343,11 @@ class DashboardActivity : AppCompatActivity() {
 
                         } else {
                             //open user profile
-                            navController.navigate(
-                                R.id.userViewProfileFragment2,
-                                Bundle().apply {
-                                    putSerializable(
-                                        EXTRA_USER,
-                                        user
-                                    )
-                                }
-                            )
+                            navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                                putSerializable(
+                                    EXTRA_USER, user
+                                )
+                            })
                         }
 
                         dialog.dismiss()
@@ -294,18 +357,12 @@ class DashboardActivity : AppCompatActivity() {
 
                     autoCompleteTextView.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
+                            s: CharSequence?, start: Int, count: Int, after: Int
                         ) {
                         }
 
                         override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
+                            s: CharSequence?, start: Int, before: Int, count: Int
                         ) {
                             //on Text change, keep searching for users
                             println("On Text Change")
@@ -356,30 +413,23 @@ class DashboardActivity : AppCompatActivity() {
                         println(user.user_name)
                         println(newList.size)
                         //on Click do something--> open individual user's profile
-                        val navController =
-                            Navigation.findNavController(
-                                this@DashboardActivity,
-                                R.id.nav_fragment
+                        val navController = Navigation.findNavController(
+                            this@DashboardActivity, R.id.nav_fragment
+                        )
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(
+                                EXTRA_USER, user
                             )
-                        navController.navigate(
-                            R.id.userViewProfileFragment2,
-                            Bundle().apply {
-                                putSerializable(
-                                    EXTRA_USER,
-                                    user
-                                )
-                            })
+                        })
                         dialog.dismiss()
 
                         //when a specific user's name is typed, redirect to their profile
                         if (user.user_name == selectedUser) {
                             println("Name matches completely")
                             //on Click do something--> open individual user's profile
-                            val navController =
-                                Navigation.findNavController(
-                                    this@DashboardActivity,
-                                    R.id.nav_fragment
-                                )
+                            val navController = Navigation.findNavController(
+                                this@DashboardActivity, R.id.nav_fragment
+                            )
 
                             //if opened own's profile, open profile fragment
                             if (user.user_name == App.sharedPrefs.userName) {
@@ -389,15 +439,12 @@ class DashboardActivity : AppCompatActivity() {
 
                             } else {
                                 //open user profile
-                                navController.navigate(
-                                    R.id.userViewProfileFragment2,
+                                navController.navigate(R.id.userViewProfileFragment2,
                                     Bundle().apply {
                                         putSerializable(
-                                            EXTRA_USER,
-                                            user
+                                            EXTRA_USER, user
                                         )
-                                    }
-                                )
+                                    })
                             }
 
                             dialog.dismiss()

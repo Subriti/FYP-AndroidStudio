@@ -21,6 +21,11 @@ const val URL_FIND_USER_BY_TOKEN= "${BASE_URL}user/findUserByToken/"
 const val URL_FIND_USER_BY_NAME= "${BASE_URL}user/findUserByName"
 const val URL_GET_ALL_USERS= "${BASE_URL}user/showUsers"
 
+const val URL_BLOCK_USER= "${BASE_URL}blockList/blockUser"
+const val URL_UNBLOCK_USER= "${BASE_URL}blockList/unblockUser/"
+const val URL_SHOW_USER_BLOCK_LIST= "${BASE_URL}blockList/showUserBlockList/"
+const val URL_SHOW_BLOCKED_LIST= "${BASE_URL}blockList/showBlockedList/"
+
 const val URL_RESET_PASSWORD= "${BASE_URL}user/resetPassword/"
 const val URL_FORGOT_PASSWORD="${BASE_URL}user/forgotPassword/"
 

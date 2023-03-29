@@ -484,14 +484,11 @@ object PostService {
 
 
     fun getOtherUserPosts(userId: String, complete: (Boolean) -> Unit) {
-        println("User Posts size: "+posts.size)
         posts.clear()
         val getPostRequest = object :
             JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
                 //this is where we parse the json object
                     response ->
-                println("User posts response -->"+response)
-                println(" response length-->"+response.length())
                 try {
                     for (x in 0 until response.length()) {
                         val post = response.getJSONObject(x)
@@ -523,9 +520,6 @@ object PostService {
                             posts.add(newPost)
                         }
                     }
-
-                    println("User Posts size after finding all post: "+posts.size)
-
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)

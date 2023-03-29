@@ -124,7 +124,12 @@ class AddPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         //submit button for adding post
         postPicture = view.findViewById(R.id.post_picture)
         postPicture.setOnClickListener {
-            uploadImage()
+            println("Location is ${locationTxt.text}")
+            if (locationTxt.text.toString().equals(null) || locationTxt.text.toString()==""){
+                Toast.makeText(requireContext(),"Please enter your location to proceed",Toast.LENGTH_LONG).show()
+            }else{
+                uploadImage()
+            }
         }
 
         cancelPost = view.findViewById(R.id.dont_post_picture)
