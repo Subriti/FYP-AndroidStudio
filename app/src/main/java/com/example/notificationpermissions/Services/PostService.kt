@@ -149,28 +149,12 @@ object PostService {
         description: String,
         location: String,
         cloth_id: String,
-        /* category:String,
-         itemCategory:String,
-         clothSize: String,
-         clothCondition:String,
-         clothSeason: String,*/
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
 
         jsonBody.put("description", description)
         jsonBody.put("location", location)
-
-        /*val json= JSONObject(cloth_id)
-        val cloth= json.getString("cloth_id")
-
-        println("Cloth_id: "+cloth_id)
-        println("Cloth: "+cloth)
-
-        //cloth ma yo id le update then balla yo id halne post ma
-        updateCloth(cloth,category,itemCategory,clothSize,clothCondition,clothSeason){
-            updateCloth ->  println("Update Cloth Response $updateCloth")
-        }*/
 
         //bc it takes object of Cloth
         val clothId = JSONObject()
@@ -421,9 +405,6 @@ object PostService {
     }
 
     fun getUserPosts(userId: String, complete: (Boolean) -> Unit) {
-        /*if (posts.size > 0) {
-            complete(true)
-        } else {*/
         posts.clear()
         val getPostRequest = object :
             JsonArrayRequest(Method.GET, "$URL_GET_USER_POSTS$userId", null, Response.Listener {
@@ -686,56 +667,6 @@ object PostService {
         App.sharedPrefs.requestQueue.add(getPostRequest)
     }
 
-    fun getCloth(userId: String, complete: (Boolean) -> Unit) {
-        val getClothRequest =
-            object : JsonArrayRequest(Method.GET, "$URL_GET_CLOTH", null, Response.Listener {
-                //this is where we parse the json object
-                    response ->
-                try {
-                    for (x in 0 until response.length()) {
-                        val cloth = response.getJSONObject(x)
-                        val clothId = cloth.getString("cloth_id")
-                        val clothesCategory = cloth.getString("clothes_category_id")
-                        val itemCategory = cloth.getString("item_category_id")
-                        val clothSize = cloth.getString("cloth_size")
-                        val clothCondition = cloth.getString("cloth_condition")
-                        val clothSeason = cloth.getString("cloth_season")
-
-                        val newCloth = Clothes(
-                            clothId,
-                            clothesCategory,
-                            itemCategory,
-                            clothSize,
-                            clothCondition,
-                            clothSeason,
-                            ""
-                        )
-                        clothes.add(newCloth)
-                    }
-                    complete(true)
-                } catch (e: JSONException) {
-                    Log.d("JSON", "EXC: " + e.localizedMessage)
-                    complete(false)
-                }
-            }, Response.ErrorListener {
-                //this is where we deal with our error
-                    error ->
-                Log.d("ERROR", "Could not retrieve clothes: $error")
-                complete(false)
-            }) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
-                    return headers
-                }
-            }
-        App.sharedPrefs.requestQueue.add(getClothRequest)
-    }
-
     fun updateCloth(
         cloth_id: String,
         clothes_category_id: String,
@@ -845,97 +776,6 @@ object PostService {
             }
         }
         App.sharedPrefs.requestQueue.add(createChannel)
-    }
-
-    fun getCategory(complete: (Boolean) -> Unit) {
-        if (categories.size > 0) {
-            categories.clear()
-            /*  //}
-            complete(true)
-        } else {*/
-        }
-        val getCategoryRequest =
-            object : JsonArrayRequest(Method.GET, URL_GET_CATEGORY, null, Response.Listener {
-                //this is where we parse the json object
-                    response ->
-                try {
-                    for (x in 0 until response.length()) {
-                        val category = response.getJSONObject(x)
-                        val categoryId = category.getString("category_id")
-                        val categoryName = category.getString("category_name")
-                        val categoryType = category.getString("category_type")
-
-                        val newCategory = Category(categoryId, categoryName, categoryType)
-
-                        categories.add(newCategory)
-                        println(categories)
-
-                    }
-                    complete(true)
-                } catch (e: JSONException) {
-                    Log.d("JSON", "EXC: " + e.localizedMessage)
-                    complete(false)
-                }
-            }, Response.ErrorListener {
-                //this is where we deal with our error
-                    error ->
-                Log.d("ERROR", "Could not retrieve categories: $error")
-                complete(false)
-            }) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
-                    return headers
-                }
-            }
-        App.sharedPrefs.requestQueue.add(getCategoryRequest)
-    }
-
-    fun getItemCategory(complete: (Boolean) -> Unit) {
-        if (itemcategory.size > 0) {
-            complete(true)
-        } else {
-            val getItemCategoryRequest = object :
-                JsonArrayRequest(Method.GET, URL_GET_ITEMCATEGORY, null, Response.Listener {
-                    //this is where we parse the json object
-                        response ->
-                    try {
-                        for (x in 0 until response.length()) {
-                            val category = response.getJSONObject(x)
-                            val categoryId = category.getString("category_id")
-                            val categoryName = category.getString("category_name")
-                            val categoryType = category.getString("category_type")
-
-                            val newCategory = Category(categoryId, categoryName, categoryType)
-                            itemcategory.add(newCategory)
-                        }
-                        complete(true)
-                    } catch (e: JSONException) {
-                        Log.d("JSON", "EXC: " + e.localizedMessage)
-                        complete(false)
-                    }
-                }, Response.ErrorListener {
-                    //this is where we deal with our error
-                        error ->
-                    Log.d("ERROR", "Could not retrieve item categories: $error")
-                    complete(false)
-                }) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")
-                    return headers
-                }
-            }
-            App.sharedPrefs.requestQueue.add(getItemCategoryRequest)
-        }
     }
 
     fun getInterestedUserByPosts(postId: String, complete: (Boolean) -> Unit) {

@@ -16,7 +16,7 @@ object ReportService {
     val reports = ArrayList<Reports>()
 
     fun reportPost(
-        reported_by: String, post_id: String, feedback:String, reportDate: String, postDeleted: Boolean, complete: (Boolean) -> Unit
+        reported_by: String, post_id: String, feedback:String, reportDate: String, isReviewed: Boolean, complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
 
@@ -32,6 +32,7 @@ object ReportService {
         jsonBody.put("post_id", postId)
         jsonBody.put("feedback",feedback)
         jsonBody.put("report_date", reportDate)
+        jsonBody.put("is_reviewed", isReviewed)
 
         val requestBody = jsonBody.toString()
         println(requestBody)
@@ -114,37 +115,24 @@ object ReportService {
         App.sharedPrefs.requestQueue.add(getReports)
     }
 
-    /*fun updateDeletionStatus(
-        postId: String,
+    fun reviewReport(
+        reportId: String,
+        isReviewed:Boolean,
         complete: (Boolean) -> Unit
     ) {
-        val jsonBody = JSONObject()
-        jsonBody.put("post_id", postId)
-
-        val requestBody = jsonBody.toString()
-        println("Update Report Status: " + requestBody)
-
         val updateRequest = object :
             JsonObjectRequest(
                 Method.PUT,
-                "$URL_UPDATE_REPORT_STATUS$postId",
+                "$URL_REVIEW_REPORT$reportId/?isReviewed=$isReviewed",
                 null,
                 Response.Listener { response ->
-                    println("Update Report Status Response $response")
+                    println("Report Review Response $response")
                     complete(true)
                 },
                 Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not update report status: $error")
+                    Log.d("ERROR", "Could not review report status: $error")
                     complete(false)
                 }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
-            }
-
-            override fun getBody(): ByteArray {
-                return requestBody.toByteArray()
-            }
-
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
@@ -155,5 +143,5 @@ object ReportService {
             10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(updateRequest)
-    }*/
+    }
 }

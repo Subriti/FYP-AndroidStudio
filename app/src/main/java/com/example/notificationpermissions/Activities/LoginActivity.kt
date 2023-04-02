@@ -61,54 +61,39 @@ class LoginActivity : AppCompatActivity() {
 
         loginBtn.setOnClickListener {
             enableSpinner(true)
-
+            hideKeyboard()
             val email = findViewById<TextView>(R.id.emailText).text.toString()
             val password = findViewById<TextView>(R.id.passwordText).text.toString()
-
-            hideKeyboard()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 AuthService.loginUser(email, password) { loginSuccess ->
                     if (loginSuccess) {
                         AuthService.findUser(this) { findSuccess ->
-                            println(findSuccess)
                             if (findSuccess) {
-                                //if user is admin, redirect to admin activity
-                                println("is Admin: " + App.sharedPrefs.isAdmin)
+                                //if user is admin, redirect to admin activity; else dashboard activity
                                 if (App.sharedPrefs.isAdmin == "true") {
-                                    println("admin")
                                     val intent = Intent(this, AdminActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                                     startActivity(intent)
                                     finish()
                                 } else {
-                                    //When success, it broadcasts to other activities as well that user was found and is logged in
-                                    //this is done in authUser
-                                    println("user")
                                     val intent = Intent(this, DashboardActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                                     startActivity(intent)
                                     finish()
                                 }
-
                                 //get registration token:
                                 FirebaseMessaging.getInstance().token.addOnCompleteListener {
                                     if (it.isComplete) {
                                         val firebaseToken = it.result.toString()
                                         App.sharedPrefs.token = it.result.toString()
                                         //store this token to the database it is device specific.
-                                        AuthService.updateFCMToken(firebaseToken) { response ->
-                                            println("Update response: $response")
-
-                                        }
+                                        AuthService.updateFCMToken(firebaseToken) {}
                                     }
                                 }
-                                //subscribe to the topic:
                                 FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
-
                                 enableSpinner(false)
                                 finish()
-
                             } else {
                                 errorToast()
                             }
@@ -119,8 +104,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(this, "Please fill in both email and password", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(this, "Please fill in both email and password", Toast.LENGTH_LONG).show()
                 enableSpinner(false)
             }
         }

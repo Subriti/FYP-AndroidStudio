@@ -126,5 +126,8 @@ dependencies {
     //scalable size unit (support for different screen sizes)
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'com.intuit.ssp:ssp-android:1.0.6'
+
+    //refresh by swipe
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }
 apply plugin: 'com.google.gms.google-services'

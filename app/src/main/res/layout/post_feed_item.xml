@@ -53,13 +53,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
         android:text="Subriti Aryal"
         android:textAlignment="viewStart"
         android:textColor="#2C2323"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/reportBtn"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintStart_toEndOf="@+id/user_profile"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -74,6 +73,7 @@
         android:id="@+id/markInterested"
         android:layout_width="123dp"
         android:layout_height="40dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postImage"
@@ -84,7 +84,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="24dp"
         android:text="Description"
         android:textColor="#2C2323"
         android:textSize="14sp"
@@ -126,18 +125,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postImage" />
 
-    <Button
+    <ImageView
         android:id="@+id/reportBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="6dp"
-        android:drawableEnd="@drawable/baseline_warning_24"
-        android:text="Report"
-        android:textSize="12sp"
-        app:cornerRadius="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/postImage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_report_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

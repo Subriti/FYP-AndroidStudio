@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     tools:context=".Activities.AdminActivity">
 
 
@@ -24,7 +25,7 @@
             android:elevation="18dp"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.NotificationPermissions.PopupOverlay"
-            app:menu="@menu/admin_appbar"/>
+            app:menu="@menu/admin_appbar" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

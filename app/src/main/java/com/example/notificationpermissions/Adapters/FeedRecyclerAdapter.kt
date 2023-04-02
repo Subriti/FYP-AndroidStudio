@@ -123,7 +123,7 @@ class FeedRecyclerAdapter(
                 createdDatetime?.text = "$seconds seconds ago"
             }
 
-            val reportPost = itemView.findViewById<Button>(R.id.reportBtn)
+            val reportPost = itemView.findViewById<ImageView>(R.id.reportBtn)
             reportPost.setOnClickListener {
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Confirm")
@@ -183,19 +183,6 @@ class FeedRecyclerAdapter(
                 builder.setNegativeButton("No") { dialog, which ->
                     dialog.dismiss()
                 }
-
-                /*// Add a TextView to the dialog
-                val feedbackTextView = TextView(context)
-                feedbackTextView.text = "Please provide feedback:"
-                builder.setView(feedbackTextView)*/
-
-                /*// Add an EditText to the dialog
-                val feedbackEditText = EditText(context)
-                feedbackEditText.hint = "Enter feedback here"
-                feedbackEditText.setPadding(50, 16, 50, 16) // Add padding to the EditText
-                builder.setView(feedbackEditText)*/
-
-
                 val dialog = builder.create()
                 dialog.show()
             }

@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notificationpermissions.Activities.AlertDetails
 import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.NotificationAdapter
 import com.example.notificationpermissions.R
@@ -23,7 +22,6 @@ import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import com.example.notificationpermissions.Utilities.POST_ID_EXTRA
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,9 +36,8 @@ class NotificationFragment : Fragment() {
         //(activity as DashboardActivity?)!!.currentFragment = this
 
         val notificationRV = view.findViewById<RecyclerView>(R.id.notificationRV)
-        println("in notification fragment")
-
         val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
+
         NotificationService.getUserNotifications(App.sharedPrefs.userID) { complete ->
             if (complete) {
                 if (NotificationService.notifications.isNotEmpty()) {
@@ -49,14 +46,29 @@ class NotificationFragment : Fragment() {
                         requireContext(),
                         NotificationService.notifications
                     ) { notification ->
-                        //open post details (eta pachi conditions launa parcha for if post likes ho ki rating ko notif)
+                        //gaining post_id associated to the notification from data
                         println(notification.data)
                         val json = JSONObject(notification.data)
                         val postId = json.getString("post_id")
 
                         if (notification.title == "Please Rate the Donor") {
-                            //create rating Dialog Box
-                            ratingDialog(postId)
+                            //check if user has already rated; if yes a thankyou prompt
+                            PostService.findPost(postId) { success ->
+                                if (success) {
+                                    println("Donation Status is : "+PostService.notificationPost?.donation_status)
+                                    val donation= JSONObject(PostService.notificationPost?.donation_status)
+                                    val status= donation.getString("donation_status")
+                                    if (status =="Donated"){
+                                        Toast.makeText(requireContext(),"You have already rated the donor. Thankyou !",Toast.LENGTH_SHORT).show()
+                                    }
+                                    else{
+                                        //create rating Dialog Box
+                                        ratingDialog(postId)
+                                    }
+                                }else{
+                                    Toast.makeText(requireContext(),"Transaction details could not be loaded !",Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         } else {
                             PostService.findPost(postId) { success ->
                                 println(success)

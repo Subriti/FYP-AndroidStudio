@@ -9,16 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
-import androidx.navigation.findNavController
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
+import com.example.notificationpermissions.Services.ReportService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import org.json.JSONObject
+import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
@@ -164,8 +163,74 @@ class ViewFeedItemFragment : Fragment() {
         }
 
         //hiding the edit menu when viewing from the grid feed
-        val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
-        postOptions.isVisible = false
+        var postOptions = view.findViewById<ImageView>(R.id.postOptions2)
+        postOptions.setImageResource(R.drawable.baseline_report_24)
+        postOptions.maxHeight=30
+        postOptions.maxWidth=30
+        //postOptions.isVisible = false
+
+        postOptions.setOnClickListener {
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Confirm")
+            builder.setMessage("Are you sure you want to report this post?")
+
+            // Add an EditText with TextInputLayout to the dialog
+            val feedbackEditText = EditText(context)
+            feedbackEditText.hint = "Enter feedback here"
+            feedbackEditText.setPadding(16, 16, 16, 16) // Add padding to the EditText
+            val feedbackInputLayout = TextInputLayout(requireContext())
+            feedbackInputLayout.boxBackgroundMode =
+                TextInputLayout.BOX_BACKGROUND_OUTLINE // Set box background mode to outline
+            feedbackInputLayout.addView(feedbackEditText)
+            feedbackInputLayout.hint = "Feedback" // Set hint for the TextInputLayout
+            feedbackInputLayout.setPadding(32, 32, 32, 32) // Add padding to the TextInputLayout
+            feedbackInputLayout.boxBackgroundColor = ContextCompat.getColor(
+                requireContext(),
+                R.color.white
+            ) // Set background color for the box
+            feedbackInputLayout.boxStrokeColor =
+                ContextCompat.getColor(requireContext(), R.color.black) // Set stroke color for the box
+            feedbackInputLayout.boxStrokeWidth = 2 // Set stroke width for the box
+            feedbackInputLayout.isHintEnabled = true // Enable hint for the box
+
+            // Set margins for the TextInputLayout
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams.setMargins(32, 32, 32, 32)
+            feedbackInputLayout.layoutParams = layoutParams
+
+            builder.setView(feedbackInputLayout)
+
+            builder.setPositiveButton("Yes") { dialog, which ->
+                // Perform the reporting of the post
+                println(feedbackEditText.text.toString())
+
+                ReportService.reportPost(
+                    App.sharedPrefs.userID,
+                    postDetails.post_id,
+                    feedbackEditText.text.toString(),
+                    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
+                    false
+                ) { reportPostSuccess ->
+                    println("Report Post success: $reportPostSuccess")
+                    if (reportPostSuccess) {
+                        Toast.makeText(
+                            context,
+                            "Post was reported successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                }
+            }
+            builder.setNegativeButton("No") { dialog, which ->
+                dialog.dismiss()
+            }
+            val dialog = builder.create()
+            dialog.show()
+        }
         return view
     }
     override fun onResume() {

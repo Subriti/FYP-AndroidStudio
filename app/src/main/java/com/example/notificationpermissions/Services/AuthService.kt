@@ -60,11 +60,8 @@ object AuthService {
         jsonBody.put("is_admin", isAdmin)
 
         val requestBody = jsonBody.toString()
-        print(requestBody)
-
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
-                println("Create User Response $response")
                 complete(true)
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not register User: $error")
@@ -73,7 +70,6 @@ object AuthService {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
-
             override fun getBody(): ByteArray {
                 return requestBody.toByteArray()
             }
@@ -89,10 +85,9 @@ object AuthService {
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
         jsonBody.put("password", password)
-        val requestBody =
-            jsonBody.toString()       //bc volley takes byte array so string is easier to be later changed into bytearray
-        val loginRequest =
-            object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
+        val requestBody = jsonBody.toString()
+        //bc volley takes byte array so string is easier to be later changed into bytearray
+        val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
                 //this is where we parse the json object
                     response ->
                 try {
@@ -104,17 +99,10 @@ object AuthService {
                     App.sharedPrefs.phoneNumber = response.getString("phone_number")
                     App.sharedPrefs.dateOfBirth = response.getString("birth_date")
                     App.sharedPrefs.authToken = response.getString("token")
-
                     App.sharedPrefs.isAdmin= response.getString("is_admin")
-
                     App.sharedPrefs.hideUserEmail = response.getString("hide_email")
-                    println("Hide User Email: "+App.sharedPrefs.hideUserEmail)
-
                     App.sharedPrefs.hideUserPhone = response.getString("hide_phone")
-                    println("Hide User Phone: "+App.sharedPrefs.hideUserPhone)
-
                     App.sharedPrefs.isLoggedIn = true
-
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)
@@ -129,7 +117,6 @@ object AuthService {
                 override fun getBodyContentType(): String {
                     return "application/json; charset=utf-8"
                 }
-
                 override fun getBody(): ByteArray {
                     return requestBody.toByteArray()
                 }
@@ -174,44 +161,6 @@ object AuthService {
                     complete(false)
                 }
 
-            },
-            Response.ErrorListener {
-                //this is where we deal with our error
-                    error ->
-                Log.d("ERROR", "Could not find user: $error")
-                complete(false)
-            }) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
-                return headers
-            }
-        }
-        App.sharedPrefs.requestQueue.add(findRequest)
-    }
-
-    fun findUser(token: String, complete: (Boolean) -> Unit) {
-        val findRequest = object : JsonObjectRequest(
-            Method.GET,
-            "$URL_FIND_USER_BY_TOKEN$token",
-            null,
-            Response.Listener { response ->
-                println("Find User Response " + response)
-                try {
-                    userId = response.getString("user_id")
-                    userName = response.getString("user_name")
-                    email = response.getString("email")
-                    birthDate = response.getString("birth_date")
-                    location = response.getString("location")
-                    phoneNumber = response.getString("phone_number")
-                    profilePicture = response.getString("profile_picture")
-                    fcmToken = response.getString("fcm_token")
-
-                    complete(true)
-                } catch (e: JSONException) {
-                    Log.d("JSON", "EXC: " + e.localizedMessage)
-                    complete(false)
-                }
             },
             Response.ErrorListener {
                 //this is where we deal with our error

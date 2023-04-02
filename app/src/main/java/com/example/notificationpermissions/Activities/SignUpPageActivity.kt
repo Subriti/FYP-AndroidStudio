@@ -82,8 +82,8 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
     private lateinit var createSpinner: ProgressBar
 
-    private var hideEmail= false
-    private var hideNumber= false
+    private var hideEmail = false
+    private var hideNumber = false
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.M)
@@ -111,7 +111,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         repassword = findViewById<EditText>(R.id.repasswordText)
         phonecode = findViewById<CountryCodePicker>(R.id.ccp)
 
-        val privateEmail= findViewById<CheckBox>(R.id.privateEmail)
+        val privateEmail = findViewById<CheckBox>(R.id.privateEmail)
         privateEmail.setOnClickListener {
             if (privateEmail.isChecked) {
                 hideEmail = true
@@ -123,7 +123,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             }
         }
 
-        val privateNumber= findViewById<CheckBox>(R.id.privateNumber)
+        val privateNumber = findViewById<CheckBox>(R.id.privateNumber)
         privateNumber.setOnClickListener {
             if (privateNumber.isChecked) {
                 hideNumber = true
@@ -139,9 +139,10 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         indicatorText.visibility = View.GONE
 
         img = findViewById(R.id.profile_picture)
-        imgURL = "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2FuserIconn.jpg?alt=media&token=d314a17d-ec1c-4305-8599-56aef16879a0"
-            //"https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fimg_1.png?alt=media&token=e724fbce-872d-4daa-b82e-3367702e83ce"
-           // "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fprofile_picture.png?alt=media&token=3c31f157-a0a5-42e8-83b4-d27bcac83be6"
+        imgURL =
+            "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2FuserIconn.jpg?alt=media&token=d314a17d-ec1c-4305-8599-56aef16879a0"
+        //"https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fimg_1.png?alt=media&token=e724fbce-872d-4daa-b82e-3367702e83ce"
+        // "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fprofile_picture.png?alt=media&token=3c31f157-a0a5-42e8-83b4-d27bcac83be6"
         Glide.with(this).load(imgURL).into(img)
 
         img.setOnClickListener {
@@ -159,9 +160,9 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        locationTxt = findViewById<TextView>(R.id.locationText)
+        locationTxt = findViewById(R.id.locationText)
         findLocation = findViewById(R.id.findLocation)
+
         findLocation.setOnClickListener {
             if (hasLocationPermissions()) {
                 val progressDialog = ProgressDialog(this)
@@ -169,7 +170,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 progressDialog.show()
 
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                    println(location)
                     val geoCoder = Geocoder(this)
                     val currentLocation =
                         geoCoder.getFromLocation(location.latitude, location.longitude, 1)
@@ -181,8 +181,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                             currentLocation.first().subLocality + ", " + currentLocation.first().locality
                     }
                     progressDialog.dismiss()
-                    Log.d("LOCATION", currentLocation.first().countryCode)
-                    Log.d("LOCATION", currentLocation.first().locality)
                 }
             } else {
                 requestLocationPermission()
@@ -238,16 +236,15 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         }
     }
 
-    private fun register() {
+    private fun uploadImage() {
         if (filePath == null) {
             registerUser()
         }
-        println(filePath)
         if (filePath != null) {
             // Code for showing progressDialog while uploading
             val progressDialog = ProgressDialog(this)
             progressDialog.setTitle("Uploading...")
-            progressDialog.show()                   //later i guess no need to show this progress dialog
+            progressDialog.show()
 
             // Defining the child of storageReference
             val ref = storageReference.child("images/" + UUID.randomUUID().toString())
@@ -255,10 +252,8 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             // adding listeners on upload or failure of image
             ref.putFile(filePath!!)
                 .addOnSuccessListener { taskSnapshot -> // Image uploaded successfully
-                    // Dismiss dialog
                     progressDialog.dismiss()
                     Toast.makeText(this, "Image Uploaded!!", Toast.LENGTH_SHORT).show()
-
                     val downloadUrl: Task<Uri> = taskSnapshot.storage.downloadUrl
                     downloadUrl.addOnCompleteListener { task ->
                         Log.v(ContentValues.TAG, "Media is uploaded")
@@ -267,16 +262,13 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                                 "token"
                             )[0])
                         Log.v(ContentValues.TAG, "downloadURL: $imageUrl")
-
                         //save the imageUrl to the database
                         imgURL = imageUrl
                         registerUser()
                     }
                 }.addOnFailureListener { e -> // Error, Image not uploaded
                     progressDialog.dismiss()
-                    Toast.makeText(
-                        this, "Failed " + e.message, Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Failed " + e.message, Toast.LENGTH_SHORT).show()
                 }.addOnProgressListener { taskSnapshot ->
                     // Progress Listener for loading percentage on the dialog box
                     val progress =
@@ -286,7 +278,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                     )
                 }
         }
-
     }
 
     private fun registerUser() {
@@ -298,7 +289,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             number,
             locationTxt.text.toString(),
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time),
-            //imageUrl //should me imgURL ig bc img selected chaina vane feri error aucha
             imgURL,
             hideEmail,
             hideNumber,
@@ -309,7 +299,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 AuthService.loginUser(
                     email.text.toString(), password.text.toString()
                 ) { loginSuccess ->
-                    println(loginSuccess)
                     if (loginSuccess) {
                         val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
                         LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
@@ -404,7 +393,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         mAuth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 // if the OTP code is correct and the task is successful, storing the user details into the database
-                register()
+                uploadImage()
             }
         }
     }
