@@ -1,6 +1,6 @@
 package com.example.notificationpermissions.Utilities
 
-const val BASE_URL = "http://192.168.1.101:8080/api/"
+const val BASE_URL = "http://192.168.1.100:8080/api/"
 
 const val URL_LOGIN= "${BASE_URL}user/loginUser"
 const val URL_CREATE_USER= "${BASE_URL}user/addUsers"
@@ -42,6 +42,7 @@ const val URL_DELETE_INTERESTED_USERS= "${BASE_URL}interestedUsers/deleteInteres
 
 const val URL_ADD_TRANSACTION= "${BASE_URL}transaction/addTransaction"
 const val URL_UPDATE_RATING= "${BASE_URL}transaction/updateTransaction"
+const val URL_UPDATE_TRANSACTION= "${BASE_URL}transaction/updateTransactionStatus/"
 const val URL_GET_RATING= "${BASE_URL}transaction/getRating/"
 const val URL_GET_RECIEVED_DONATIONS= "${BASE_URL}transaction/showRecievedTransactions/"
 const val URL_GET_GIVEN_DONATIONS= "${BASE_URL}transaction/showGivenTransactions/"

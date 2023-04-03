@@ -166,7 +166,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
             // Connect to local host
             val encodedPath = URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
-            URI("ws://192.168.1.101:8080/api/messageSocket/$encodedPath")
+            URI("ws://192.168.1.100:8080/api/messageSocket/$encodedPath")
             // URI("ws://100.64.219.35:8080/api/messageSocket/$encodedPath")
             // URI("ws://100.64.209.103:8080/api/messageSocket/$encodedPath")
             //URI("ws://192.168.199.41:8080/api/messageSocket/$encodedPath")

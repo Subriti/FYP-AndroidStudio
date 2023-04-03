@@ -4,11 +4,9 @@ import android.util.Log
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
 import com.example.notificationpermissions.Models.Transaction
-import com.example.notificationpermissions.Utilities.App
-import com.example.notificationpermissions.Utilities.URL_GET_GIVEN_DONATIONS
-import com.example.notificationpermissions.Utilities.URL_GET_ONGOING_TRANSACTIONS
-import com.example.notificationpermissions.Utilities.URL_GET_RECIEVED_DONATIONS
+import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
 
 
@@ -165,5 +163,34 @@ object TransactionService {
             30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getOngoingTransactions)
+    }
+
+    fun updateTransactionStatus(
+        transactionId: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val updateRequest = object :
+            JsonObjectRequest(
+                Method.PUT,
+                "$URL_UPDATE_TRANSACTION$transactionId",
+                null,
+                Response.Listener { response ->
+                    println("Update Status Response $response")
+                    complete(true)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("ERROR", "Could not update status: $error")
+                    complete(false)
+                }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
+            }
+        }
+        updateRequest.retryPolicy = DefaultRetryPolicy(
+            10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+        App.sharedPrefs.requestQueue.add(updateRequest)
     }
 }

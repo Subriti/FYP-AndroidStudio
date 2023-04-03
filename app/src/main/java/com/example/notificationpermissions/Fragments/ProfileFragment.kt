@@ -16,12 +16,9 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.PostRecycleAdapter
 import com.example.notificationpermissions.R
-import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
-import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 
@@ -56,20 +53,6 @@ class ProfileFragment : Fragment() {
         email.text = "  ${App.sharedPrefs.userEmail}"
         phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
 
-      /*  println("Email hidden: ${App.sharedPrefs.hideUserEmail}")
-        if (App.sharedPrefs.hideUserEmail=="true") {
-            email.text = "  Confidential"
-        } else {
-            email.text = "  ${App.sharedPrefs.userEmail}"
-        }
-
-        println("Phone hidden: ${App.sharedPrefs.hideUserPhone}")
-        if (App.sharedPrefs.hideUserPhone=="true") {
-            phoneNumber.text = "  Confidential"
-        } else {
-            phoneNumber.text = "  ${App.sharedPrefs.phoneNumber}"
-        }*/
-
         location.text = "  ${App.sharedPrefs.location}"
 
         val blockBtn = view.findViewById<Button>(R.id.blockUser)
@@ -89,10 +72,6 @@ class ProfileFragment : Fragment() {
         imgButton.setOnClickListener {
             view.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
-
-        // val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
-        /* if (postDetails != null) {
-         }*/
 
         val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
         PostService.getUserPosts(App.sharedPrefs.userID) { complete ->

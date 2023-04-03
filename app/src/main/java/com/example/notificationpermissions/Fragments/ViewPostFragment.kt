@@ -1,20 +1,16 @@
 package com.example.notificationpermissions.Fragments
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.Notifications.NotificationData
 import com.example.notificationpermissions.Notifications.PushNotification
@@ -23,6 +19,7 @@ import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
 import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Services.PostService
+import com.example.notificationpermissions.Services.TransactionService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +34,8 @@ import java.util.*
 class ViewPostFragment : Fragment() {
     var recieverId= ""
     var recieverName = ""
+
+    lateinit var postDetails: Post
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -55,27 +54,17 @@ class ViewPostFragment : Fragment() {
         val interestedUsers = view.findViewById<TextView>(R.id.countInterested)
         val createdDatetime = view.findViewById<TextView>(R.id.createdDatetime)
 
-        val postDetails = arguments?.getSerializable(EXTRA_POST) as Post
+        postDetails = arguments?.getSerializable(EXTRA_POST) as Post
 
-        println(postDetails.media_file)
         context?.let {
             Glide.with(it).load(postDetails.media_file).into(postImage)
         }
-/*
-        println(postDetails.post_id)
-        println(postDetails.post_by)
-        println(postDetails.description)
-        println(postDetails.cloth_id)
-        println(postDetails.created_datetime)
-        println(postDetails.donation_status)
-        println(postDetails.location)*/
 
         val userJSONObject = JSONObject(postDetails.post_by)
         val name = userJSONObject.getString("user_name")
         username?.text = name
 
         val profilePicture = userJSONObject.getString("profile_picture")
-        println(postDetails.cloth_id)
         context?.let {
             Glide.with(it).load(profilePicture).into(userProfile)
         }
@@ -213,25 +202,59 @@ class ViewPostFragment : Fragment() {
         }
 
         //hiding and displaying the edit menu
-        println("Post Owner: " + postDetails.post_by)
         val post = JSONObject(postDetails.post_by)
         val postOwner = post.getString("user_name")
-        println("Logged in User: " + App.sharedPrefs.userName)
         val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
 
         postOptions.isVisible = postOwner == App.sharedPrefs.userName
         postOptions?.setOnClickListener {
             val popupMenu = PopupMenu(context, postOptions)
-
-            // Inflating popup menu from popup_menu.xml file
             popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
 
+            val markAsDonatedItem = popupMenu.menu.findItem(R.id.markDonated)
+            val editPostItem= popupMenu.menu.findItem(R.id.editPost)
+
+            val donation = JSONObject(postDetails.donation_status)
+            when (donation.getString("donation_status")) {
+                "Ongoing" -> {
+                    markAsDonatedItem.setTitle("Mark as Available")
+                }
+                "Donated" -> {
+                    markAsDonatedItem.isVisible = false
+                    editPostItem.isVisible=false
+                }
+                else -> {
+                    markAsDonatedItem.setTitle("Mark as Donated")
+                }
+            }
+
+            // Enable options menu handling for the fragment
+            //setHasOptionsMenu(true)
+
             popupMenu.setOnMenuItemClickListener { menuItem ->
-                println(menuItem.title)
                 if (menuItem.title?.equals("Edit Post") == true) {
                     view.findNavController()
                         .navigate(R.id.action_viewPostFragment_to_editPostFragment,
                             Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+                }
+
+                if (menuItem.title == "Mark as Available"){
+                    TransactionService.findOngoingTransactions {complete ->
+                        if (complete){
+                            for (transaction in TransactionService.onGoingTransactions){
+                                val post= JSONObject(transaction.post_id)
+                                val postId= post.getString("post_id")
+                                if (postDetails.post_id==postId){
+                                    TransactionService.updateTransactionStatus(transaction.transaction_id){complete->
+                                        if (complete){
+                                            markAsDonatedItem.setTitle("Mark as Donated")
+                                            Toast.makeText(requireContext(),"Post is now available for donation",Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 if (menuItem.title == "Mark as Donated") {
                     val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -386,7 +409,7 @@ class ViewPostFragment : Fragment() {
                     dialog.show()
                 }
                 // Toast message on menu item clicked
-                Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "You Clicked " + menuItem.title, Toast.LENGTH_SHORT).show()
                 true
             }
             // Showing the popup menu
