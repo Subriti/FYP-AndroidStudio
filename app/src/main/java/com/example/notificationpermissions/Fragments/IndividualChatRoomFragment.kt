@@ -34,6 +34,7 @@ import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.MessageService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
+import com.example.notificationpermissions.Utilities.URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,23 +75,9 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
         backButton.setOnClickListener {
             //get back to chatFragment
-            /*view?.findNavController()
-                ?.navigate(R.id.action_individualChatRoomFragment_to_chatFragment)
-            (activity as DashboardActivity?)!!.supportActionBar!!.show()
-*/
-            //view.findNavController().popBackStack(R.id.homeFragment, false)
-            println(view.findNavController().backQueue.last().destination)
-            println(view.findNavController().findDestination(R.id.individualChatRoomFragment))
-
             if (view.findNavController().backQueue.last().destination == view.findNavController()
                     .findDestination(R.id.individualChatRoomFragment)
             ) {
-                println("user view")
-                //view.findNavController().popBackStack(R.id.individualChatRoomFragment, false)
-                //NavOptions.Builder().setPopUpTo(R.id.individualChatRoomFragment, true).build()
-                //NavOptions.Builder().setPopUpTo(R.id.userViewProfileFragment2, true).build()
-                //NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
-
                 view.findNavController().navigate(
                     R.id.action_individualChatRoomFragment_to_chatFragment,
                     null,
@@ -98,14 +85,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                 )
                 (activity as DashboardActivity?)!!.supportActionBar!!.show()
             }
-            /*  else if (view.findNavController().backQueue.removeLast().destination.parent?.startDestinationId == (R.id.homeFragment)) {
-                  println("chat room")
-                  view.findNavController().navigate(
-                      R.id.action_individualChatRoomFragment_to_chatFragment, null,
-                      NavOptions.Builder().setPopUpTo(R.id.chatFragment, true).build()
-                  )
-                  (activity as DashboardActivity?)!!.supportActionBar!!.show()
-              }*/
         }
 
         val phoneButton = view.findViewById<ImageView>(R.id.recieverPhone)
@@ -127,11 +106,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
             }
         }
 
-        println(chatDetails!!.recieverPhone)
-        println(chatDetails!!.chatRoomId)
-        println(chatDetails!!.receiverUserId)
-        println(chatDetails!!.recieverFCMtoken)
-        println(chatDetails!!.recieverUserName)
         sendMessage.setOnClickListener(this)
 
         recieverName?.text = chatDetails!!.recieverUserName
@@ -166,10 +140,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
             // Connect to local host
             val encodedPath = URLEncoder.encode(chatDetails?.chatRoomId, "UTF-8")
             //URI("ws://192.168.1.109:8080/api/messageSocket/${chatDetails?.chatRoomId}")
-            URI("ws://192.168.1.100:8080/api/messageSocket/$encodedPath")
-            // URI("ws://100.64.219.35:8080/api/messageSocket/$encodedPath")
-            // URI("ws://100.64.209.103:8080/api/messageSocket/$encodedPath")
-            //URI("ws://192.168.199.41:8080/api/messageSocket/$encodedPath")
+            URI("ws://$URL:8080/api/messageSocket/$encodedPath")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             return
@@ -191,29 +162,6 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                         val id = jsonBody.getString("message_id")
                         val messageBody = jsonBody.getString("message_body")
                         var timeStamp = jsonBody.getString("timestamp")
-
-                        /*var date="";
-                        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
-                        try {
-                            val date = inputFormat.parse(timeStamp).toString()
-                            //date= inputFormat.format(dates)
-                            //println(dates)
-                            println(date)
-                        } catch (e: ParseException) {
-                            e.printStackTrace()
-                        }*/
-
-/*
-                        val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
-                        val date = inputFormat.parse(timeStamp)
-
-                        println(date)
-
-                        val outputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-                        timeStamp = outputFormat.format(date)
-
-                        println(timeStamp)*/
 
                         val recieverId = jsonBody.getString("reciever_user_id")
                         val reciever = JSONObject(recieverId)

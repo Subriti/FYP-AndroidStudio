@@ -8,7 +8,6 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
-import com.example.notificationpermissions.Models.Clothes
 import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.Utilities.*
 import org.json.JSONException
@@ -18,8 +17,8 @@ import org.json.JSONObject
 object AuthService {
     var isFound = false
     var recipientToken = ""
-    var newPassword=""
-    var resetPhone=""
+    var newPassword = ""
+    var resetPhone = ""
 
     var userId = ""
     var userName = ""
@@ -29,6 +28,8 @@ object AuthService {
     var phoneNumber = ""
     var profilePicture = ""
     var fcmToken = ""
+
+    var errorMessage = ""
 
     val userList = ArrayList<User>()
 
@@ -41,9 +42,9 @@ object AuthService {
         location: String,
         signup_date: String,
         profile_picture: String,
-        hideEmail:Boolean,
+        hideEmail: Boolean,
         hidePhone: Boolean,
-        isAdmin:Boolean,
+        isAdmin: Boolean,
         complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
@@ -62,7 +63,15 @@ object AuthService {
         val requestBody = jsonBody.toString()
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
-                complete(true)
+                if (response.getString("Error message") == "Username is already taken") {
+                    errorMessage = "Username is already taken"
+                    complete(false)
+                } else if (response.getString("Error message") == "New password doesn't meet required complexity definitions. \\nRequired: minimum of 8characters, 1 numerical, 1 special character, 1capital letter and 1small letter") {
+                    errorMessage = "Password doesn't meet required complexity definitions."
+                    complete(false)
+                } else {
+                    complete(true)
+                }
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not register User: $error")
                 complete(false)
@@ -87,7 +96,8 @@ object AuthService {
         jsonBody.put("password", password)
         val requestBody = jsonBody.toString()
         //bc volley takes byte array so string is easier to be later changed into bytearray
-        val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
+        val loginRequest =
+            object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {
                 //this is where we parse the json object
                     response ->
                 try {
@@ -99,7 +109,7 @@ object AuthService {
                     App.sharedPrefs.phoneNumber = response.getString("phone_number")
                     App.sharedPrefs.dateOfBirth = response.getString("birth_date")
                     App.sharedPrefs.authToken = response.getString("token")
-                    App.sharedPrefs.isAdmin= response.getString("is_admin")
+                    App.sharedPrefs.isAdmin = response.getString("is_admin")
                     App.sharedPrefs.hideUserEmail = response.getString("hide_email")
                     App.sharedPrefs.hideUserPhone = response.getString("hide_phone")
                     App.sharedPrefs.isLoggedIn = true
@@ -117,6 +127,7 @@ object AuthService {
                 override fun getBodyContentType(): String {
                     return "application/json; charset=utf-8"
                 }
+
                 override fun getBody(): ByteArray {
                     return requestBody.toByteArray()
                 }
@@ -255,6 +266,7 @@ object AuthService {
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
                 return headers
             }
+
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -409,7 +421,7 @@ object AuthService {
                 println("Reset Password Response $response")
                 try {
                     newPassword = response.getString("Success Message")
-                    resetPhone= response.getString("phone_number")
+                    resetPhone = response.getString("phone_number")
                     complete(true)
                 } catch (e: JSONException) {
                     Log.d("JSON", "EXC: " + e.localizedMessage)
@@ -461,8 +473,8 @@ object AuthService {
                 if (token != "token") {
                     App.sharedPrefs.authToken = token
                 }
-                App.sharedPrefs.hideUserEmail= hideEmail
-                App.sharedPrefs.hideUserPhone= hidePhone
+                App.sharedPrefs.hideUserEmail = hideEmail
+                App.sharedPrefs.hideUserPhone = hidePhone
                 println("Updated hide email ${App.sharedPrefs.hideUserEmail}")
                 println("Updated hide phone ${App.sharedPrefs.hideUserPhone}")
 
@@ -505,12 +517,12 @@ object AuthService {
                         val userId = user.getString("user_id")
                         val userName = user.getString("user_name")
                         val userProfile = user.getString("profile_picture")
-                        val email= user.getString("email")
-                        val phoneNumber= user.getString("phone_number")
-                        val location= user.getString("location")
-                        val fcmToken= user.getString("fcm_token")
-                        val hideEmail= user.getString("hide_email")
-                        val hidePhone= user.getString("hide_phone")
+                        val email = user.getString("email")
+                        val phoneNumber = user.getString("phone_number")
+                        val location = user.getString("location")
+                        val fcmToken = user.getString("fcm_token")
+                        val hideEmail = user.getString("hide_email")
+                        val hidePhone = user.getString("hide_phone")
 
                         val newUser = User(
                             userId,

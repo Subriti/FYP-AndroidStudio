@@ -170,6 +170,7 @@
             android:background="@color/darkGrey"
             android:hint="Phone number"
             android:inputType="phone"
+            android:maxLength="10"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -269,7 +270,8 @@
         android:id="@+id/passwordIndicatorText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_dark"
+        android:textColor="#DD4141"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="@+id/rePasswordInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/rePasswordInputLayout"
         tools:text="Password didn't match" />

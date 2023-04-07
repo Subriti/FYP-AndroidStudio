@@ -99,8 +99,21 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         context?.let {
             Glide.with(it).load(postDetails.media_file).into(picture)
         }
+
         desc = view.findViewById(R.id.description)
-        desc.text = postDetails.description
+
+        val delivery= postDetails.description.split("\n\n")
+
+        val deliveryy= delivery[delivery.size-1].split(": ")
+        clothDelivery= deliveryy[deliveryy.size-1]
+
+        var description= ""
+        for (i in delivery){
+            if (i != delivery[delivery.size-1]){
+                description+=i
+            }
+        }
+        desc.text =description
 
         locationTxt.text = postDetails.location
 
@@ -164,12 +177,10 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         val clothCategory = clothJSONObject.getString("clothes_category_id")
         val categoryJSONObject = JSONObject(clothCategory)
         val clothesCategoryId = categoryJSONObject.getString("category_id")
-        val clothesCategory = categoryJSONObject.getString("category_name")
 
         val itemCategoryId = clothJSONObject.getString("item_category_id")
         val itemCategoryJSONObject = JSONObject(itemCategoryId)
         val clothesItemCategoryId = itemCategoryJSONObject.getString("category_id")
-        val clothesItemCategory = itemCategoryJSONObject.getString("category_name")
 
 
         val spinnerCategory: Spinner = view.findViewById(R.id.spinnerCategory)
@@ -267,17 +278,6 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     // do nothing
                 }
             }
-
-
-            /*for (i in 0 until spinnerClothSize.count) {
-                println(clothesSize)
-                println(spinnerClothSize.getItemAtPosition(i))
-                if (spinnerClothSize.getItemAtPosition(i) == clothesSize) {
-                    println(i)
-                    spinnerClothSize.setSelection(i)
-                    break
-                }
-            }*/
         }
 
 
@@ -300,13 +300,6 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 }
             }
             spinnerClothCondition.setSelection(position)
-
-            /*for (i in 0 until spinnerClothCondition.count) {
-                if (spinnerClothCondition.getItemAtPosition(i) == clothesCondition) {
-                    spinnerClothCondition.setSelection(i)
-                    break
-                }
-            }*/
         }
         spinnerClothCondition.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -342,13 +335,6 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 }
             }
             spinnerClothSeason.setSelection(position)
-
-            /*for (i in 0 until spinnerClothSeason.count) {
-                if (spinnerClothSeason.getItemAtPosition(i) == clothesSeason) {
-                    spinnerClothSeason.setSelection(i)
-                    break
-                }
-            }*/
         }
         spinnerClothSeason.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -372,7 +358,17 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
             spinnerClothDelivery.adapter = adapter
-            spinnerClothDelivery.setSelection(2)
+
+            val deliveryArray = resources.getStringArray(R.array.clothDelivery_array)
+            var position = 0
+
+            for (i in deliveryArray.indices) {
+                if (deliveryArray[i] == clothDelivery) {
+                    position = i
+                    break
+                }
+            }
+            spinnerClothDelivery.setSelection(position)
         }
         spinnerClothDelivery.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(

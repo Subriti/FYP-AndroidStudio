@@ -16,6 +16,7 @@ import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Utilities.App
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MessageAdapter(
     context: Context, private val messageList: List<Message>
@@ -46,13 +47,7 @@ class MessageAdapter(
         when (holder.itemViewType) {
             SENDER_MESSAGE -> {
                 val senderMessageHolder = holder as SenderMessageViewHolder
-                println(message.timeStamp)
-                //println(SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp))
-                /*if ( Date(message.timeStamp)== SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp)){
-                    senderMessageHolder.timeStamp?.text = message.timeStamp
-                }else{
-                    senderMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
-                }*/
+
                 senderMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
                 senderMessageHolder.messageBody?.text = message.message
             }
@@ -60,13 +55,7 @@ class MessageAdapter(
                 val receiverMessageHolder = holder as ReceiverMessageViewHolder
                 Glide.with(context).load(message.recieverProfilePicture)
                     .into(receiverMessageHolder.userImage!!)
-                //receiverMessageHolder.userName?.text = message.recieverUserName
-/*
-                if ( Date(message.timeStamp)== SimpleDateFormat("E, h:mm a", Locale.ENGLISH).parse(message.timeStamp)){
-                    receiverMessageHolder.timeStamp?.text = message.timeStamp
-                }else{
-                    receiverMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
-                }*/
+
                 receiverMessageHolder.timeStamp?.text = returnDateString(message.timeStamp)
                 receiverMessageHolder.messageBody?.text = message.message
             }
@@ -99,9 +88,23 @@ class ReceiverMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
 @SuppressLint("NewApi")
 @RequiresApi(Build.VERSION_CODES.N)
 fun returnDateString(isoString: String): String {
+
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH)
-    val outputFormat = SimpleDateFormat("E, h:mm a", Locale.ENGLISH)
+    val outputFormatTime = SimpleDateFormat("h:mm a", Locale.ENGLISH)
+    val outputFormatDate = SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH)
 
     val date = inputFormat.parse(isoString)
-    return outputFormat.format(date)
+    val now = Calendar.getInstance().time
+    val diff = TimeUnit.MILLISECONDS.toDays(date.time - now.time)
+
+    val outputFormat = if (diff == 0L) {
+        "Today, " + outputFormatTime.format(date)
+    } else if (diff == -1L) {
+        "Yesterday, " + outputFormatTime.format(date)
+    } else if (diff >= -6L && diff <= 0L) {
+        SimpleDateFormat("EEEE, h:mm a", Locale.ENGLISH).format(date)
+    } else {
+        outputFormatDate.format(date)
+    }
+    return outputFormat
 }

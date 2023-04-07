@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -104,12 +105,12 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         )
         mAuth = FirebaseAuth.getInstance()
 
-        name = findViewById<EditText>(R.id.nameText)
-        email = findViewById<EditText>(R.id.emailText)
-        phone = findViewById<EditText>(R.id.phoneText)
-        password = findViewById<EditText>(R.id.passwordText)
-        repassword = findViewById<EditText>(R.id.repasswordText)
-        phonecode = findViewById<CountryCodePicker>(R.id.ccp)
+        name = findViewById(R.id.nameText)
+        email = findViewById(R.id.emailText)
+        phone = findViewById(R.id.phoneText)
+        password = findViewById(R.id.passwordText)
+        repassword = findViewById(R.id.repasswordText)
+        phonecode = findViewById(R.id.ccp)
 
         val privateEmail = findViewById<CheckBox>(R.id.privateEmail)
         privateEmail.setOnClickListener {
@@ -207,32 +208,37 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             }
         }
 
-        signupbtn = findViewById(R.id.saveChanges)
 
+        fun validEmail(email:String): Boolean {
+            val pattern = Patterns.EMAIL_ADDRESS
+            return pattern.matcher(email).matches();
+        }
+
+        signupbtn = findViewById(R.id.saveChanges)
         signupbtn.setOnClickListener {
-            if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
+            if (name.text.toString() == "" || email.text.toString() =="" || birthDate.text.toString()=="" || locationTxt.text.toString()=="" ||
+                password.text.toString()=="" || repassword.text.toString()=="" || phone.text.toString()==""){
+                Toast.makeText(this, "Please fill all the fields", Toast.LENGTH_LONG).show()
+            }
+            else if (!validEmail(email.text.toString())) {
+                Toast.makeText(this,"Please enter a valid e-mail!",Toast.LENGTH_LONG).show();
+            }
+            else if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() == repassword.text.toString()) {
                 indicatorText.visibility = View.VISIBLE
                 indicatorText.text = "Password Matched"
-                indicatorText.setTextColor(getColor(R.color.darkgreen))
+                indicatorText.setTextColor(getColor(R.color.green))
 
                 val selectedCode = phonecode.selectedCountryCodeAsInt
                 number = "+$selectedCode${phone.text}"
 
                 enableSpinner(true)
-                sendVerificationCode(number)
+                //sendVerificationCode(number)
 
-                //sendVerification is correct: just trying this
-                //register()
             } else if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() != repassword.text.toString()) {
                 indicatorText.visibility = View.VISIBLE
                 indicatorText.text = "Password didn't match"
-                indicatorText.setTextColor(getColor(R.color.falured))
-            } else {
-                Toast.makeText(
-                    this, "Please fill all the fields", Toast.LENGTH_LONG
-                ).show()
+                indicatorText.setTextColor(getColor(R.color.chedarChest))
             }
-
         }
     }
 
@@ -308,15 +314,12 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         startActivity(i)
                         finish()
                         enableSpinner(false)
-                        finish()
                     } else {
                         errorToast()
                     }
                 }
             } else {
-                Toast.makeText(
-                    this, "Make sure all the fields are filled in.", Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, AuthService.errorMessage, Toast.LENGTH_LONG).show()
                 enableSpinner(false)
             }
         }
@@ -329,7 +332,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             if (requestCode == galleryRequestCode) {
                 //for gallery
                 if (data != null) {
-                    //img.setImageURI(data.data)
                     filePath = data.data!!
                     println("OnActivityResult: filePath is : $filePath")
                     try {
@@ -424,6 +426,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 super.onCodeSent(s, forceResendingToken)
                 // when we receive the OTP it contains a unique id which we are storing in our string which we have already created.
                 verificationId = s
+                Toast.makeText(this@SignUpPageActivity, "Verification code has been sent to your phone.",Toast.LENGTH_LONG).show()
             }
 
             // this method is called when user receive OTP from Firebase.

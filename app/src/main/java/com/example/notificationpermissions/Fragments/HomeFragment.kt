@@ -82,58 +82,11 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         //Rough Codes
-
         val searchView = view.findViewById<SearchView>(R.id.searchView)
         searchView.isVisible = false
 
         val searchTextView = searchView.findViewById<AutoCompleteTextView>(R.id.search_src_text)
         searchTextView.isVisible = false
-
-        /* searchView.setOnClickListener {
-             println("Search view clicked")
-         }
-         searchTextView.setOnClickListener {
-             println("Search TextView clicked")
-         }
-         val arrayStrings =
-             arrayOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape")
-         val searchAdapter = ArrayAdapter(
-             requireContext(),
-             android.R.layout.simple_dropdown_item_1line,
-             arrayStrings
-         )
-         searchTextView.setAdapter(searchAdapter)
-         searchTextView.addTextChangedListener(object : TextWatcher {
-             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                 // do nothing
-             }
-
-             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                 // do nothing
-                 println(s.toString())
-             }
-
-             override fun afterTextChanged(s: Editable?) {
-                 // log the text entered in the searchTextView
-                 Log.d("SearchView", "Text entered: ${s.toString()}")
-                 println("Text entered: ${s.toString()}")
-                 // show/hide the auto-completion dropdown based on the text entered
-                 if (s.toString().isEmpty()) {
-                     searchTextView.dismissDropDown()
-                 } else {
-                     searchTextView.showDropDown()
-                 }
-             }
-         })*/
-
-
-        /*val cardview = view.findViewById<CardView>(R.id.cardView3)
-        //now user intentionally wants to filter the data according to some category
-        cardview.setOnClickListener {
-            println(initialLoad)
-            println("Card view selected")
-            initialLoad = false
-        }*/
 
 
         //broad filter
@@ -230,9 +183,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         PostService.getAllPosts { complete ->
             if (complete) {
                 if (PostService.AllPosts.isNotEmpty()) {
-                    println("All Posts in not empty")
                     for (post in PostService.AllPosts) {
-
                         if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
                             for (blockedUser in blockedUsers) {
                                 for (blockedFrom in blockedFrom) {
@@ -245,7 +196,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             }
                         } else if (blockedUsers.isNotEmpty()) {
                             for (blockedUser in blockedUsers) {
-                                println(blockedUsers)
                                 if (post.post_by != blockedUser) {
                                     imageUrlsList.add(post.media_file)
                                     filteredPostList.add(post)
@@ -253,10 +203,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             }
                         } else if (blockedFrom.isNotEmpty()) {
                             for (blockedFrom in blockedFrom) {
-                                println("Post By: ${post.post_by}")
-                                println("BlockedFrom: $blockedFrom")
-
-                                println(post.post_by != blockedFrom)
                                 // if the post was created by a blocked user; removing the post from a list
                                 if (post.post_by != blockedFrom) {
                                     imageUrlsList.add(post.media_file)
@@ -265,8 +211,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             }
                         } else {
                             //if blocked user empty; add all posts
-                            /*imageUrlsList.clear()
-                            filteredPostList.clear()*/
                             imageUrlsList.add(post.media_file)
                             filteredPostList.add(post)
                         }
@@ -350,18 +294,14 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
                         //sort the feed according to selected item category.
                         for (p in PostService.AllPosts) {
-                            println("Post Id is " + p.post_id)
                             for (c in PostService.clothes) {
                                 if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
                                     println("Item Category is " + c.item_category_id)
                                     println("Selected item is " + selected_item)
                                     if (c.item_category_id == selected_item) {
-                                        println("equal")
                                         imageUrlsList.add(p.media_file)
-                                        println(imageUrlsList)
                                         filteredPostList.add(p)
                                     }
-                                    println(viewSelected)
 
                                     if (imageUrlsList.isEmpty()) {
                                         noDataText.visibility = View.VISIBLE
@@ -384,32 +324,21 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         when (selected_filter) {
                             "1" -> {
                                 if (!initialLoad) {
-
                                     imageUrlsList.clear()
                                     filteredPostList.clear()
 
                                     for (p in PostService.AllPosts) {
-                                        println("Post Id is " + p.post_id)
                                         for (c in PostService.clothes) {
-                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(
-                                                    p
-                                                )
-                                            ) {
-                                                println("Cloth Id is " + c.cloth_id)
-                                                println("Clothes Category Id is " + c.clothes_category_id)
-                                                println("Selected item is " + selected_item)
+                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
                                                 if (c.clothes_category_id == selected_item) {
-                                                    //imageUrlsList.add(c.cloth_media)
-                                                    imageUrlsList.add(p.media_file) //post ma loop huda cloth repiting ani post ko mediA FILE
+                                                    imageUrlsList.add(p.media_file)
                                                     filteredPostList.add(p)
                                                 }
-                                                println("View selected: " + viewSelected)
                                                 if (imageUrlsList.isEmpty()) {
                                                     noDataText.visibility = View.VISIBLE
                                                 } else {
                                                     noDataText.visibility = View.GONE
                                                 }
-
                                                 if (viewSelected == "List") {
                                                     setAdapter(imageUrlsList)
                                                 }

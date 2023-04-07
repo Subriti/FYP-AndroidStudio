@@ -20,7 +20,7 @@ object PostService {
 
     val DetailedPosts = ArrayList<PostDetails>()
 
-    val PostHolders= ArrayList<Post>()
+    val PostHolders = ArrayList<Post>()
 
     var InterestedUsers = ArrayList<InterestedUsers>()
     //var InterestedUsers: MutableList<InterestedUsers>()
@@ -40,8 +40,7 @@ object PostService {
     var notificationPost: Post? = null
 
     fun findPost(post_id: String, complete: (Boolean) -> Unit) {
-        val findRequest = object : JsonObjectRequest(
-            Method.GET,
+        val findRequest = object : JsonObjectRequest(Method.GET,
             "$URL_FIND_POST$post_id",
             null,
             Response.Listener { response ->
@@ -49,14 +48,23 @@ object PostService {
                 try {
                     val postId = response.getString("post_id")
                     val postBy = response.getString("post_by")
-                    val media_file=  response.getString("media_file")
-                    val description=  response.getString("description")
-                    val created_datetime= response.getString("created_datetime")
-                    val location= response.getString("location")
-                    val cloth_id= response.getString("cloth_id")
-                    val donation_status= response.getString("donation_status")
+                    val media_file = response.getString("media_file")
+                    val description = response.getString("description")
+                    val created_datetime = response.getString("created_datetime")
+                    val location = response.getString("location")
+                    val cloth_id = response.getString("cloth_id")
+                    val donation_status = response.getString("donation_status")
 
-                    notificationPost= Post(post_id, postBy,media_file, description, created_datetime, location, cloth_id, donation_status)
+                    notificationPost = Post(
+                        post_id,
+                        postBy,
+                        media_file,
+                        description,
+                        created_datetime,
+                        location,
+                        cloth_id,
+                        donation_status
+                    )
 
                     complete(true)
                 } catch (e: JSONException) {
@@ -94,8 +102,6 @@ object PostService {
         val user = JSONObject()
         user.put("user_id", post_by)
         jsonBody.put("post_by", user)
-
-        //jsonBody.put("post_by", post_by) //, App.sharedPrefs.userID)
         jsonBody.put("media_file", media_file)
         jsonBody.put("description", description)
         jsonBody.put("created_datetime", created_datetime)
@@ -112,13 +118,10 @@ object PostService {
         jsonBody.put("donation_status", donationStatus)
 
         val requestBody = jsonBody.toString()
-        print(requestBody)
 
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_POST, null, Response.Listener { response ->
-                println("Create Post Response $response")
                 complete(true)
-
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not add Post: $error")
                 complete(false)
@@ -136,7 +139,6 @@ object PostService {
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
                 return headers
             }
-
         }
         createRequest.retryPolicy = DefaultRetryPolicy(
             10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
@@ -164,20 +166,17 @@ object PostService {
         val requestBody = jsonBody.toString()
         println("Update Post: " + requestBody)
 
-        val updateRequest = object :
-            JsonObjectRequest(
-                Method.PUT,
-                "$URL_UPDATE_POST$postId",
-                null,
-                Response.Listener { response ->
-                    println("Update Post Response $response")
-                    complete(true)
-
-                },
-                Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not update Post: $error")
-                    complete(false)
-                }) {
+        val updateRequest = object : JsonObjectRequest(Method.PUT,
+            "$URL_UPDATE_POST$postId",
+            null,
+            Response.Listener { response ->
+                println("Update Post Response $response")
+                complete(true)
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update Post: $error")
+                complete(false)
+            }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -200,9 +199,7 @@ object PostService {
     }
 
     fun updateDonationStatus(
-        postId: String,
-        donationStatus: String,
-        complete: (Boolean) -> Unit
+        postId: String, donationStatus: String, complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
         jsonBody.put("donation_status_id", donationStatus)
@@ -210,19 +207,17 @@ object PostService {
         val requestBody = jsonBody.toString()
         println("Update Donation Status: " + requestBody)
 
-        val updateRequest = object :
-            JsonObjectRequest(
-                Method.PUT,
-                "$URL_UPDATE_DONATION_STATUS$postId",
-                null,
-                Response.Listener { response ->
-                    println("Update Donation Status Response $response")
-                    complete(true)
-                },
-                Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not update donation status: $error")
-                    complete(false)
-                }) {
+        val updateRequest = object : JsonObjectRequest(Method.PUT,
+            "$URL_UPDATE_DONATION_STATUS$postId",
+            null,
+            Response.Listener { response ->
+                println("Update Donation Status Response $response")
+                complete(true)
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update donation status: $error")
+                complete(false)
+            }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -261,24 +256,31 @@ object PostService {
         jsonBody.put("post_id", post)
 
         jsonBody.put("transaction_date", transaction_datetime)
+        jsonBody.put("status", "ACTIVE")
 
         val requestBody = jsonBody.toString()
         print(requestBody)
 
-        val createRequest = object :
-            JsonObjectRequest(Method.POST, URL_ADD_TRANSACTION, null, Response.Listener { response ->
+        val createRequest = object : JsonObjectRequest(
+            Method.POST,
+            URL_ADD_TRANSACTION,
+            null,
+            Response.Listener { response ->
                 println("Create Transaction Response $response")
                 complete(true)
-            }, Response.ErrorListener { error ->
+            },
+            Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not add Transaction: $error")
                 complete(false)
             }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
+
             override fun getBody(): ByteArray {
                 return requestBody.toByteArray()
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
@@ -292,10 +294,7 @@ object PostService {
     }
 
     fun updateRating(
-        postId: String,
-        rating: Float,
-        transaction_datetime: String,
-        complete: (Boolean) -> Unit
+        postId: String, rating: Float, transaction_datetime: String, complete: (Boolean) -> Unit
     ) {
         val jsonBody = JSONObject()
 
@@ -310,19 +309,17 @@ object PostService {
         val requestBody = jsonBody.toString()
         println("Update Rating Request: " + requestBody)
 
-        val updateRequest = object :
-            JsonObjectRequest(
-                Method.PUT,
-                "$URL_UPDATE_RATING",
-                null,
-                Response.Listener { response ->
-                    println("Update Rating Response $response")
-                    complete(true)
-                },
-                Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not update transaction rating: $error")
-                    complete(false)
-                }) {
+        val updateRequest = object : JsonObjectRequest(Method.PUT,
+            "$URL_UPDATE_RATING",
+            null,
+            Response.Listener { response ->
+                println("Update Rating Response $response")
+                complete(true)
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update transaction rating: $error")
+                complete(false)
+            }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -348,22 +345,21 @@ object PostService {
             JsonObjectRequest(Method.GET, "$URL_GET_RATING$userId", null, Response.Listener {
                 //this is where we parse the json object
                     response ->
-                        println("GET Rating Response " + response)
-                        try {
-                            App.sharedPrefs.clothDonated = response.getInt("cloth_donated")
-                            App.sharedPrefs.rating = response.getDouble("rating").toFloat()
-                            complete(true)
-                        } catch (e: JSONException) {
-                            Log.d("JSON", "EXC: " + e.localizedMessage)
-                            complete(false)
-                        }
-                    },
-                    Response.ErrorListener {
-                        //this is where we deal with our error
-                            error ->
-                        Log.d("ERROR", "Could not get rating: $error")
-                        complete(false)
-                    }) {
+                println("GET Rating Response " + response)
+                try {
+                    App.sharedPrefs.clothDonated = response.getInt("cloth_donated")
+                    App.sharedPrefs.rating = response.getDouble("rating").toFloat()
+                    complete(true)
+                } catch (e: JSONException) {
+                    Log.d("JSON", "EXC: " + e.localizedMessage)
+                    complete(false)
+                }
+            }, Response.ErrorListener {
+                //this is where we deal with our error
+                    error ->
+                Log.d("ERROR", "Could not get rating: $error")
+                complete(false)
+            }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -375,32 +371,26 @@ object PostService {
             }
         }
         getRatingRequest.retryPolicy = DefaultRetryPolicy(
-            30000,
-            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getRatingRequest)
     }
 
     fun deletePost(postId: String, complete: (Boolean) -> Unit) {
-        val deletePostRequest =
-            object : StringRequest(
-                Method.DELETE,
-                "$URL_DELETE_POST$postId",
-                Response.Listener { response ->
-                    println("Delete Post Response $response")
-                    complete(true)
-                },
-                Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not delete post: $error")
-                    complete(false)
-                }) {
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
-                    return headers
-                }
+        val deletePostRequest = object :
+            StringRequest(Method.DELETE, "$URL_DELETE_POST$postId", Response.Listener { response ->
+                println("Delete Post Response $response")
+                complete(true)
+            }, Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not delete post: $error")
+                complete(false)
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer ${App.sharedPrefs.authToken}"
+                return headers
             }
+        }
         App.sharedPrefs.requestQueue.add(deletePostRequest)
     }
 
@@ -456,9 +446,7 @@ object PostService {
             }
         }
         getPostRequest.retryPolicy = DefaultRetryPolicy(
-            30000,
-            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getPostRequest)
     }
@@ -497,7 +485,7 @@ object PostService {
                         val status = donationJSONObject.getString("donation_status")
 
                         //excluding donated and ongoing status posts from user's profile
-                        if (status!="Ongoing" && status!="Donated"){
+                        if (status != "Ongoing" && status != "Donated") {
                             posts.add(newPost)
                         }
                     }
@@ -523,9 +511,7 @@ object PostService {
             }
         }
         getPostRequest.retryPolicy = DefaultRetryPolicy(
-            30000,
-            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getPostRequest)
     }
@@ -561,25 +547,24 @@ object PostService {
                         val clothId = post.getString("cloth_id")
 
                         val clothJSONObject = JSONObject(clothId)
-                        val cloth_Id= clothJSONObject.getString("cloth_id")
+                        val cloth_Id = clothJSONObject.getString("cloth_id")
                         val clothSize = clothJSONObject.getString("cloth_size")
                         val clothCondition = clothJSONObject.getString("cloth_condition")
                         val clothSeason = clothJSONObject.getString("cloth_season")
 
                         val clothCategory = clothJSONObject.getString("clothes_category_id")
                         val categoryJSONObject = JSONObject(clothCategory)
-                        val categoryId= categoryJSONObject.getString("category_id")
+                        val categoryId = categoryJSONObject.getString("category_id")
                         val category = categoryJSONObject.getString("category_name")
 
                         val itemCategoryId = clothJSONObject.getString("item_category_id")
                         val itemCategoryJSONObject = JSONObject(itemCategoryId)
-                        val itemcategoryId= itemCategoryJSONObject.getString("category_id")
+                        val itemcategoryId = itemCategoryJSONObject.getString("category_id")
                         val itemCategory = itemCategoryJSONObject.getString("category_name")
 
                         val donationStatus = post.getString("donation_status")
                         val donationJSONObject = JSONObject(donationStatus)
                         val status = donationJSONObject.getString("donation_status")
-
 
 
                         val customDescription =
@@ -630,7 +615,7 @@ object PostService {
                         )
 
                         //excluding donated and ongoing status posts from feed
-                        if (status!="Ongoing" && status!="Donated"){
+                        if (status != "Ongoing" && status != "Donated") {
                             AllPosts.add(newPosts)
                             clothes.add(newCloth)
                             DetailedPosts.add(newPost)
@@ -645,7 +630,7 @@ object PostService {
                 //this is where we deal with our error
                     error ->
                 Log.d("ERROR", "Could not retrieve posts: $error")
-                getAllPostError= error
+                getAllPostError = error
                 println(getAllPostError)
                 complete(false)
             }) {
@@ -660,9 +645,7 @@ object PostService {
                 }
             }
         getPostRequest.retryPolicy = DefaultRetryPolicy(
-            30000,
-            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         )
         App.sharedPrefs.requestQueue.add(getPostRequest)
     }
@@ -695,19 +678,17 @@ object PostService {
         val requestBody = jsonBody.toString()
         println("Update cloth: " + requestBody)
 
-        val updateClothRequest = object :
-            JsonObjectRequest(
-                Method.PUT,
-                URL_UPDATE_CLOTH + cloth_id,
-                null,
-                Response.Listener { response ->
-                    println("Update Cloth Response " + response)
-                    complete(true)
-                },
-                Response.ErrorListener { error ->
-                    Log.d("ERROR", "Could not update cloth: $error")
-                    complete(false)
-                }) {
+        val updateClothRequest = object : JsonObjectRequest(Method.PUT,
+            URL_UPDATE_CLOTH + cloth_id,
+            null,
+            Response.Listener { response ->
+                println("Update Cloth Response " + response)
+                complete(true)
+            },
+            Response.ErrorListener { error ->
+                Log.d("ERROR", "Could not update cloth: $error")
+                complete(false)
+            }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
@@ -782,8 +763,7 @@ object PostService {
         /*if (InterestedUsers.size > 0) {
             complete(true)
         } else {*/
-        val getInterestedUsersRequest = object : JsonArrayRequest(
-            Method.GET,
+        val getInterestedUsersRequest = object : JsonArrayRequest(Method.GET,
             "$URL_GET_INTERESTED_USERS_BY_POST$postId",
             null,
             Response.Listener {
@@ -889,8 +869,7 @@ object PostService {
         val requestBody = jsonBody.toString()
         println(requestBody)
 
-        val addInterestedUsers = object : JsonObjectRequest(
-            Method.POST,
+        val addInterestedUsers = object : JsonObjectRequest(Method.POST,
             URL_ADD_INTERESTED_USERS,
             null,
             Response.Listener { response ->

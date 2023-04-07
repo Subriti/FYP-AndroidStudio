@@ -45,43 +45,38 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
         //serverMessage.isVisible=false
 
         val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
-        //sendMessage.setOnClickListener(this)
         sendMessage.isVisible=false
 
         val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
 
         fun getUserChatRooms() {
-            MessageService.getChatRooms {
-                    getChatRooms ->
-                println("Get Chat Rooms success: $getChatRooms ${MessageService.userChatRooms.size}")
+            MessageService.getChatRooms {getChatRooms ->
                 if (getChatRooms) {
                     if (MessageService.map.isNotEmpty()) {
                         noDataText.visibility = View.GONE
-                    for (i in MessageService.map)
-                    {
-                        MessageService.findUser(i.key, i.value) { findUser ->
-                            println("Find User success: $findUser")
-                            //adapter ma halera display
-                            checkIfFragmentAttached {
-                                chatRoomAdapter =
-                                    ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
-                                            userchat->
-                                        //on Click do something--> open individual chat room
-                                        view.findNavController()
-                                            .navigate(
-                                                R.id.action_chatFragment_to_individualChatRoomFragment,
-                                                Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
+                        for (i in MessageService.map)
+                        {
+                            MessageService.findUser(i.key, i.value) { findUser ->
+                                checkIfFragmentAttached {
+                                    chatRoomAdapter =
+                                        ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
+                                                userchat->
+                                            //on Click do something--> open individual chat room
+                                            view.findNavController()
+                                                .navigate(
+                                                    R.id.action_chatFragment_to_individualChatRoomFragment,
+                                                    Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
 
-                                    }
-                                val chatRoomList =
-                                    view.findViewById<RecyclerView>(R.id.chatRoomList)
-                                chatRoomList.adapter = chatRoomAdapter
-                                val layoutManager = LinearLayoutManager(context)
-                                chatRoomList.layoutManager = layoutManager
+                                        }
+                                    val chatRoomList =
+                                        view.findViewById<RecyclerView>(R.id.chatRoomList)
+                                    chatRoomList.adapter = chatRoomAdapter
+                                    val layoutManager = LinearLayoutManager(context)
+                                    chatRoomList.layoutManager = layoutManager
+                                }
                             }
                         }
-                    }
-                } else if (MessageService.map.isEmpty()) {
+                    } else if (MessageService.map.isEmpty()) {
                         noDataText.visibility = View.VISIBLE
                     }
                 } else {
@@ -91,7 +86,6 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
             }
         }
         getUserChatRooms()
-       
         return view
     }
     override fun onResume() {
@@ -105,68 +99,6 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
             operation(requireContext())
         }
     }
-
-    /* private fun createWebSocketClient() {
-         val uri: URI = try {
-             // Connect to local host
-             URI("ws://192.168.1.109:8080/api/messageSocket/${FirebaseService.token}")
-         } catch (e: URISyntaxException) {
-             e.printStackTrace()
-             return
-         }
-         webSocketClient = object : WebSocketClient(uri) {
-             override fun onOpen() {
-                 Log.i("WebSocket", "Session is starting")
-                 webSocketClient.send("Hello World!")
-             }
-
-             override fun onTextReceived(s: String) {
-                 Log.i("WebSocket", "Message received")
- *//*
-                try {
-                    serverMessage!!.text = s
-                    println(s)
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                }*//*
-                activity?.runOnUiThread {
-                    serverMessage!!.text = s
-                    println(s)
-                }
-
-                *//*val handler = Handler(Looper.getMainLooper())
-                handler.post {
-                    serverMessage!!.text = s
-                    println(s)
-                }*//*
-            }
-
-            override fun onBinaryReceived(data: ByteArray) {}
-            override fun onPingReceived(data: ByteArray) {}
-            override fun onPongReceived(data: ByteArray) {}
-            override fun onException(e: Exception) {
-                println(e.message)
-            }
-
-            override fun onCloseReceived() {
-                Log.i("WebSocket", "Connection Closed ")
-                println("onCloseReceived")
-            }
-        }
-        webSocketClient.setConnectTimeout(10000)
-        webSocketClient.setReadTimeout(60000)
-        webSocketClient.enableAutomaticReconnection(5000)
-        webSocketClient.connect()
-    }*/
-    /*override fun onClick(view: View?) {
-        Toast.makeText(context, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
-        Log.i("WebSocket", "Send Button was clicked")
-        when (view?.id) {
-            R.id.sendMessage -> webSocketClient.send(messageText?.text.toString())
-        }
-        messageText?.text=""
-        hideKeyboard()
-    }*/
 
     fun hideKeyboard() {
         val inputManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager

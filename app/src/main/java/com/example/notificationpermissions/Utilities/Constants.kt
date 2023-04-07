@@ -1,6 +1,7 @@
 package com.example.notificationpermissions.Utilities
 
-const val BASE_URL = "http://192.168.1.100:8080/api/"
+const val URL= "192.168.1.102"
+const val BASE_URL = "http://$URL:8080/api/"
 
 const val URL_LOGIN= "${BASE_URL}user/loginUser"
 const val URL_CREATE_USER= "${BASE_URL}user/addUsers"

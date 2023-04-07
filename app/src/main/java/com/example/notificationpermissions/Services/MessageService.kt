@@ -20,17 +20,14 @@ object MessageService {
     fun getChatRooms(complete: (Boolean) -> Unit) {
         userChatRooms.clear()
         val chatRoomRequest = object :
-            JsonArrayRequest(Method.GET, "$URL_GET_USER_CHAT_ROOMS${App.sharedPrefs.userID}/?userName=${App.sharedPrefs.userName}", null, Response.Listener { response ->
+            JsonArrayRequest(Method.GET, "$URL_GET_USER_CHAT_ROOMS${App.sharedPrefs.userID}/?userName=${App.sharedPrefs.userName}",
+                null, Response.Listener { response ->
                 try {
-                    println(response)
                     val id= response.toString().split("[\"","\",\"",",","\"]")
-
                     val arrayList= ArrayList(id)
-
                     if(arrayList.size>1) {
                         arrayList.removeAt(0)
                         arrayList.removeAt(arrayList.lastIndex)
-
                         for (i in 0 until arrayList.size step 2) {
                             map[arrayList[i]] = arrayList[i + 1]
                         }
@@ -47,7 +44,6 @@ object MessageService {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
-
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 headers.put("Authorization", "Bearer ${App.sharedPrefs.authToken}")

@@ -54,24 +54,11 @@ class DashboardActivity : AppCompatActivity() {
     lateinit var item1: MenuItem
     lateinit var item2: MenuItem
 
-    var isBlocked:Boolean=false
-/*
-    lateinit var webSocketClient: WebSocketClient*/
+    var isBlocked: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
-
-        //createWebSocketClient()
-
-        /*socket = IO.socket("http://localhost:9090")
-        socket.connect()
-        socket.on("message") {
-            val data = it[0] as String
-            Log.d("SocketIO", "received message: $data")
-        }
-        socket.emit("message", "Connected to a client")
-*/
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -113,30 +100,6 @@ class DashboardActivity : AppCompatActivity() {
 
         //gives back arrow
         toolbar.setupWithNavController(navController)
-
-        /*val networkTask = NetworkTask()
-        networkTask.execute()*/
-
-        /*runOnUiThread {
-            val SERVER_IP = "localhost"
-            val SERVER_PORT = 9090
-
-            val clientSocket = java.net.Socket(SERVER_IP, SERVER_PORT)
-            val outToServer = DataOutputStream(clientSocket.getOutputStream())
-            val inFromServer = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
-
-            // Send the message to the server
-            val message = "client_1: Hello from Android Studio!"
-            outToServer.writeBytes(
-                """
-                $message
-                """.trimIndent()
-            )
-            // Receive a response from the server
-            val response: String = inFromServer.readLine()
-            println("FROM SERVER: $response")
-            clientSocket.close()
-        }*/
 
         try {
             val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
@@ -196,21 +159,6 @@ class DashboardActivity : AppCompatActivity() {
             supportActionBar!!.show()
         }
 
-        /* if (currentFragment == "Donation History") {
-             item.isVisible = false
-             item1.isVisible = false
-             item2.isVisible = false
-             supportActionBar!!.show()
-         }
-
-         if (currentFragment== "User Profile") {
-             item.isVisible = false
-             item1.isVisible = false
-             item2.isVisible = false
-             supportActionBar!!.show()
-         }*/
-
-
         if (currentFragment == App.sharedPrefs.userName) {
             item.isVisible = false
             item1.isVisible = false
@@ -230,171 +178,121 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_search) {
-            Toast.makeText(this, "Search Icon was clicked.", Toast.LENGTH_SHORT).show()
-
-            //val blockedUsers = ArrayList<String>()
-            val blockedFrom = ArrayList<String>()
-
-            //if user is blocked, hide their profiles from search list
-            BlockService.getBlockedList { complete ->
-                if (complete) {
-                    for (username in BlockService.blockedList) {
-                        val userJSONObject = JSONObject(username.blocked_by_id)
-                        val userId = userJSONObject.getString("user_id")
-                        val username = userJSONObject.getString("user_name")
-                        blockedFrom.add(username)
+        when (item.itemId) {
+            R.id.nav_search -> {
+                val blockedFrom = ArrayList<String>()
+                //if user is blocked, hide their profiles from search list
+                BlockService.getBlockedList { complete ->
+                    if (complete) {
+                        for (username in BlockService.blockedList) {
+                            val userJSONObject = JSONObject(username.blocked_by_id)
+                            val username = userJSONObject.getString("user_name")
+                            blockedFrom.add(username)
+                        }
                     }
-                    println("Blocked From size: ${blockedFrom.size}")
                 }
-            }
+                AuthService.getAllUsers { complete ->
+                    if (complete) {
+                        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                        val inflater = LayoutInflater.from(this)
+                        val dialogView: View = inflater.inflate(R.layout.search_user_dialog, null)
+                        builder.setView(dialogView)
 
-            //if current user has blocked any user, hide their profiles from search list
-            /*BlockService.getUserBlockList { complete ->
-                if (complete) {
-                    for (username in BlockService.userBlockList) {
-                        val userJSONObject = JSONObject(username.blocked_user_id)
-                        val userId = userJSONObject.getString("user_id")
-                        val username = userJSONObject.getString("user_name")
-                        blockedUsers.add(username)
-                    }
-                    println("Blocked Users size: ${blockedUsers.size}")
-                }
-            }*/
+                        val autoCompleteTextView: AutoCompleteTextView =
+                            dialogView.findViewById(R.id.spinner_search2)
+                        val userRV: RecyclerView = dialogView.findViewById(R.id.usersRV)
 
-            AuthService.getAllUsers { complete ->
-                println("Get users success--> $complete")
-                if (complete) {
-                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-                    val inflater = LayoutInflater.from(this)
-                    val dialogView: View = inflater.inflate(R.layout.search_user_dialog, null)
-                    builder.setView(dialogView)
+                        val dialog: AlertDialog = builder.create()
+                        dialog.show()
 
-                    val autoCompleteTextView: AutoCompleteTextView =
-                        dialogView.findViewById(R.id.spinner_search2)
-                    val userRV: RecyclerView = dialogView.findViewById(R.id.usersRV)
-
-                    val dialog: AlertDialog = builder.create()
-                    dialog.show()
-
-                    val usersToRemove = mutableListOf<User>()
-
-                    for (user in AuthService.userList) {
-                        /*if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
-                            for (blockedUser in blockedUsers) {
+                        val usersToRemove = mutableListOf<User>()
+                        for (user in AuthService.userList) {
+                            // if the user is blocked; remove the user from userList
+                            if (blockedFrom.isNotEmpty()) {
                                 for (blockedFrom in blockedFrom) {
-                                    if (user.user_name == blockedUser && user.user_name == blockedFrom) {
+                                    if (user.user_name == blockedFrom) {
                                         usersToRemove.add(user)
                                     }
                                 }
                             }
-                        }*/
-                        //yo pani kaam chaina
-                        // if the user has been blocked; show in the search list but block should be shown as unblock
-                        /*if (blockedUsers.isNotEmpty()) {
-                            for (blockedUser in blockedUsers) {
-                                println(user.user_name)
-                                println(blockedUser)
-                                println(AuthService.userList.size)
-                                if (user.user_name == blockedUser) {
-                                    isBlocked=true
-                                }
-                            }
-                        }*/
-                        // if the user is blocked; hide the user from the search list
-                        if (blockedFrom.isNotEmpty()) {
-                            for (blockedFrom in blockedFrom) {
-                                if (user.user_name == blockedFrom) {
-                                    println("AuthService UserList before deleting blocked users: ${AuthService.userList.size}")
-                                    usersToRemove.add(user)
-                                }
-                            }
                         }
-                    }
+                        AuthService.userList.removeAll(usersToRemove.toSet())
 
-                    AuthService.userList.removeAll(usersToRemove.toSet())
-                    println("AuthService UserList after deleting blocked users: ${AuthService.userList.size}")
-
-
-                    val userAdapter = UserAdapter(this, AuthService.userList) { user ->
-                        val navController = Navigation.findNavController(this, R.id.nav_fragment)
-                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
-                            putSerializable(
-                                EXTRA_USER, user
-                            )
-                        })
-                        dialog.dismiss()
-                    }
-                    autoCompleteTextView.setAdapter(userAdapter)
-
-
-                    val layoutManager = LinearLayoutManager(this)
-                    userRV.layoutManager = layoutManager
-
-                    adapter = UserAdapter(this, AuthService.userList) { user ->
-                        //on Click do something--> open individual user's profile
-                        val navController = Navigation.findNavController(this, R.id.nav_fragment)
-
-                        //if opened own's profile, open profile fragment
-                        if (user.user_name == App.sharedPrefs.userName) {
-                            navController.navigate(
-                                R.id.profileFragment
-                            )
-
-                        } else {
-                            //open user profile
+                        val userAdapter = UserAdapter(this, AuthService.userList) { user ->
+                            val navController =
+                                Navigation.findNavController(this, R.id.nav_fragment)
                             navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
                                 putSerializable(
                                     EXTRA_USER, user
                                 )
                             })
+                            dialog.dismiss()
                         }
+                        autoCompleteTextView.setAdapter(userAdapter)
 
-                        dialog.dismiss()
+                        val layoutManager = LinearLayoutManager(this)
+                        userRV.layoutManager = layoutManager
+
+                        adapter = UserAdapter(this, AuthService.userList) { user ->
+                            //on Click do something--> open individual user's profile
+                            val navController =
+                                Navigation.findNavController(this, R.id.nav_fragment)
+
+                            //if opened own's profile, open profile fragment
+                            if (user.user_name == App.sharedPrefs.userName) {
+                                navController.navigate(
+                                    R.id.profileFragment
+                                )
+                            } else {
+                                //open user profile
+                                navController.navigate(
+                                    R.id.userViewProfileFragment2,
+                                    Bundle().apply {
+                                        putSerializable(
+                                            EXTRA_USER, user
+                                        )
+                                    })
+                            }
+                            dialog.dismiss()
+                        }
+                        userRV.adapter = adapter
+
+                        autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence?, start: Int, count: Int, after: Int
+                            ) {
+                            }
+
+                            override fun onTextChanged(
+                                s: CharSequence?, start: Int, before: Int, count: Int
+                            ) {
+                                //on Text change, keep searching for users
+                                onUserSearch(s.toString(), dialog, userRV)
+                            }
+
+                            override fun afterTextChanged(s: Editable?) {
+                                val selectedUser = s.toString()
+                                // do something with searchText
+                                //onUserSearch(selectedUser, dialog, userRV)
+                                autoCompleteTextView.setAdapter(userAdapter)
+                            }
+                        })
                     }
-                    userRV.adapter = adapter
-
-
-                    autoCompleteTextView.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?, start: Int, count: Int, after: Int
-                        ) {
-                        }
-
-                        override fun onTextChanged(
-                            s: CharSequence?, start: Int, before: Int, count: Int
-                        ) {
-                            //on Text change, keep searching for users
-                            println("On Text Change")
-                            onUserSearch(s.toString(), dialog, userRV)
-                        }
-
-                        override fun afterTextChanged(s: Editable?) {
-                            val selectedUser = s.toString()
-                            println("After Text Change")
-
-                            // do something with searchText
-                            onUserSearch(selectedUser, dialog, userRV)
-                        }
-                    })
                 }
             }
+            R.id.nav_notifications -> {
+                //open notification fragment; Initialize NavController
+                val navController = Navigation.findNavController(this, R.id.nav_fragment)
+                navController.navigate(R.id.notificationFragment)
+            }
 
-        } else if (item.itemId == R.id.nav_notifications) {
-            Toast.makeText(this, "Clicked Notifications Icon..", Toast.LENGTH_SHORT).show()
-            //ShowNotification()
-
-            //open notification fragment
-            // Initialize NavController
-            val navController = Navigation.findNavController(this, R.id.nav_fragment)
-            navController.navigate(R.id.notificationFragment)
-        }
-        //when logout pressed
-        else if (item.itemId == R.id.nav_logout) {
-            UserDataService.logout()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+            //when logout pressed
+            R.id.nav_logout -> {
+                UserDataService.logout()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -402,58 +300,36 @@ class DashboardActivity : AppCompatActivity() {
     fun onUserSearch(selectedUser: String, dialog: AlertDialog, userRV: RecyclerView) {
         if (selectedUser != "") {
             var newList = mutableListOf<User>()
+            val navController =
+                Navigation.findNavController(this@DashboardActivity, R.id.nav_fragment)
             for (user in AuthService.userList) {
                 //when multiple user names matches with the typed name; show a list of matching names
                 if (user.user_name.contains(selectedUser)) {
-                    println("Name contains substring")
                     newList.add(user)
-                    println(newList.size)
-                    println(user.user_name)
                     adapter = UserAdapter(applicationContext, newList as ArrayList<User>) { user ->
-                        println(user.user_name)
-                        println(newList.size)
                         //on Click do something--> open individual user's profile
-                        val navController = Navigation.findNavController(
-                            this@DashboardActivity, R.id.nav_fragment
-                        )
                         navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
-                            putSerializable(
-                                EXTRA_USER, user
-                            )
+                            putSerializable(EXTRA_USER, user)
                         })
                         dialog.dismiss()
-
-                        //when a specific user's name is typed, redirect to their profile
-                        if (user.user_name == selectedUser) {
-                            println("Name matches completely")
-                            //on Click do something--> open individual user's profile
-                            val navController = Navigation.findNavController(
-                                this@DashboardActivity, R.id.nav_fragment
-                            )
-
-                            //if opened own's profile, open profile fragment
-                            if (user.user_name == App.sharedPrefs.userName) {
-                                navController.navigate(
-                                    R.id.profileFragment
-                                )
-
-                            } else {
-                                //open user profile
-                                navController.navigate(R.id.userViewProfileFragment2,
-                                    Bundle().apply {
-                                        putSerializable(
-                                            EXTRA_USER, user
-                                        )
-                                    })
-                            }
-
-                            dialog.dismiss()
-                        }
                     }
                     userRV.adapter = adapter
                 }
-
-
+                //when a specific user's name is typed, redirect to their profile
+                if (user.user_name == selectedUser) {
+                    //if opened own's profile, open profile fragment
+                    if (user.user_name == App.sharedPrefs.userName) {
+                        navController.navigate(R.id.profileFragment)
+                    } else {
+                        //open user profile
+                        navController.navigate(R.id.userViewProfileFragment2, Bundle().apply {
+                            putSerializable(EXTRA_USER, user)
+                        })
+                    }
+                    dialog.dismiss()
+                } else {
+                    newList.clear()
+                }
             }
         }
     }

@@ -5,11 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.RatingBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -33,10 +29,9 @@ class NotificationFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_notification, container, false)
-        //(activity as DashboardActivity?)!!.currentFragment = this
 
         val notificationRV = view.findViewById<RecyclerView>(R.id.notificationRV)
-        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
+        val noDataText = view.findViewById<TextView>(R.id.noDataTextView)
 
         NotificationService.getUserNotifications(App.sharedPrefs.userID) { complete ->
             if (complete) {
@@ -55,18 +50,25 @@ class NotificationFragment : Fragment() {
                             //check if user has already rated; if yes a thankyou prompt
                             PostService.findPost(postId) { success ->
                                 if (success) {
-                                    println("Donation Status is : "+PostService.notificationPost?.donation_status)
-                                    val donation= JSONObject(PostService.notificationPost?.donation_status)
-                                    val status= donation.getString("donation_status")
-                                    if (status =="Donated"){
-                                        Toast.makeText(requireContext(),"You have already rated the donor. Thankyou !",Toast.LENGTH_SHORT).show()
-                                    }
-                                    else{
+                                    val donation =
+                                        JSONObject(PostService.notificationPost?.donation_status!!)
+                                    val status = donation.getString("donation_status")
+                                    if (status == "Donated") {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "You have already rated the donor. Thankyou !",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
                                         //create rating Dialog Box
                                         ratingDialog(postId)
                                     }
-                                }else{
-                                    Toast.makeText(requireContext(),"Transaction details could not be loaded !",Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Transaction details could not be loaded !",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         } else {
@@ -94,11 +96,12 @@ class NotificationFragment : Fragment() {
                 }
             } else {
                 noDataText.visibility = View.VISIBLE
-                noDataText.text= "Notifications could not be loaded"
+                noDataText.text = "Notifications could not be loaded"
             }
         }
         return view
     }
+
     override fun onResume() {
         super.onResume()
         // Invalidate the options menu to force onPrepareOptionsMenu to be called again
@@ -126,21 +129,25 @@ class NotificationFragment : Fragment() {
                             val builder = AlertDialog.Builder(requireContext())
                             val dialogView = layoutInflater.inflate(R.layout.rating_prompt, null)
 
-                            val ratingBar= dialogView.findViewById<RatingBar>(R.id.ratingBar)
+                            val ratingBar = dialogView.findViewById<RatingBar>(R.id.ratingBar)
 
                             if (builder != null) {
                                 builder.setView(dialogView)
                                     .setPositiveButton("Rate") { _, _ ->
                                         //access the rating and use PostService.updateTrasaction rating to update the rating
-                                        val rating= ratingBar.rating
+                                        val rating = ratingBar.rating
                                         println(rating)
                                         println(ratingBar.numStars)
 
                                         //how to uniquely identify which notification belongs to which post
                                         if (postId != null) {
                                             PostService.updateRating(
-                                                postId, rating, SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
-                                                    Calendar.getInstance().time)){ updateSuccess ->
+                                                postId,
+                                                rating,
+                                                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
+                                                    Calendar.getInstance().time
+                                                )
+                                            ) { updateSuccess ->
                                                 println("Update Transaction Rating success: $updateSuccess")
                                                 if (updateSuccess) {
                                                     PostService.updateDonationStatus(
@@ -155,13 +162,16 @@ class NotificationFragment : Fragment() {
                                                             ).show()
 
                                                             //remove post from feed
-                                                            for (i in PostService.AllPosts){
-                                                                if (i.post_id== postId){
+                                                            for (i in PostService.AllPosts) {
+                                                                if (i.post_id == postId) {
                                                                     PostService.AllPosts.remove(i)
-                                                                    println("AllPost size is "+PostService.AllPosts.size)
+                                                                    println("AllPost size is " + PostService.AllPosts.size)
                                                                 }
                                                             }
-                                                            val intent = Intent(requireContext(), DashboardActivity::class.java)
+                                                            val intent = Intent(
+                                                                requireContext(),
+                                                                DashboardActivity::class.java
+                                                            )
                                                             startActivity(intent)
                                                         }
                                                     }
@@ -174,8 +184,7 @@ class NotificationFragment : Fragment() {
                                     }
                                     .show()
                             }
-                        }
-                        else{
+                        } else {
                             val intent = Intent(requireContext(), DashboardActivity::class.java)
                             startActivity(intent)
                         }

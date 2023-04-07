@@ -73,41 +73,36 @@ class ProfileFragment : Fragment() {
             view.findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
 
-        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
+        val noDataText = view.findViewById<TextView>(R.id.noDataTextView)
         PostService.getUserPosts(App.sharedPrefs.userID) { complete ->
             if (complete) {
                 if (PostService.posts.isNotEmpty()) {
                     noDataText.visibility = View.GONE
-                var imageUrlsList = mutableListOf<String>()
-                for (url in PostService.posts) {
-                    imageUrlsList.add(url.media_file)
-                }
-
-                adapter = PostRecycleAdapter(
-                    requireContext(), imageUrlsList//, postDetails
-                ) { post ->
-                    //do something on click; open full post details
-                    view.findNavController()
-                        .navigate(
-                            R.id.action_profileFragment_to_viewPostFragment,
-                            Bundle().apply { putSerializable(EXTRA_POST, post) })
-                }
-                var spanCount = 2
-                val orientation = resources.configuration.orientation
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    spanCount = 3
-                }
-
-                val layoutManager = GridLayoutManager(context, spanCount)
-                val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                postRV.layoutManager = layoutManager
-                postRV.adapter = adapter
-            }else if (PostService.posts.isEmpty()) {
+                    var imageUrlsList = mutableListOf<String>()
+                    for (url in PostService.posts) {
+                        imageUrlsList.add(url.media_file)
+                    }
+                    adapter = PostRecycleAdapter(requireContext(), imageUrlsList) { post ->
+                        //do something on click; open full post details
+                        view.findNavController()
+                            .navigate(R.id.action_profileFragment_to_viewPostFragment,
+                                Bundle().apply { putSerializable(EXTRA_POST, post) })
+                    }
+                    var spanCount = 2
+                    val orientation = resources.configuration.orientation
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        spanCount = 3
+                    }
+                    val layoutManager = GridLayoutManager(context, spanCount)
+                    val postRV = view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                    postRV.layoutManager = layoutManager
+                    postRV.adapter = adapter
+                } else if (PostService.posts.isEmpty()) {
                     noDataText.visibility = View.VISIBLE
                 }
             } else {
                 noDataText.visibility = View.VISIBLE
-                noDataText.text= "Posts could not be loaded"
+                noDataText.text = "Posts could not be loaded"
             }
         }
         return view
