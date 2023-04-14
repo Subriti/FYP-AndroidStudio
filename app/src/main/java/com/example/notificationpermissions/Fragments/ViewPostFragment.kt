@@ -32,7 +32,7 @@ import java.util.*
 
 
 class ViewPostFragment : Fragment() {
-    var recieverId= ""
+    var recieverId = ""
     var recieverName = ""
 
     lateinit var postDetails: Post
@@ -44,7 +44,7 @@ class ViewPostFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.view_user_post_item, container, false)
-       // (activity as DashboardActivity?)!!.currentFragment = this
+        // (activity as DashboardActivity?)!!.currentFragment = this
 
         val postImage = view.findViewById<ImageView>(R.id.postImage)
         val username = view.findViewById<TextView>(R.id.username)
@@ -168,9 +168,9 @@ class ViewPostFragment : Fragment() {
 
                 //check if the user already liked, or is newly liked
                 if (!alreadyLiked) {
-                    println("view post: postby "+postDetails.post_by)
-                    val json=JSONObject(postDetails.post_by)
-                    val postBy= json.getString("user_name")
+                    println("view post: postby " + postDetails.post_by)
+                    val json = JSONObject(postDetails.post_by)
+                    val postBy = json.getString("user_name")
                     println(postBy)
                     if (postBy != App.sharedPrefs.userName) {
                         PostService.addInterestedUser(
@@ -185,7 +185,7 @@ class ViewPostFragment : Fragment() {
                     }
                 }
             } else {
-               // markInterested.setImageResource(R.drawable.unliked)
+                // markInterested.setImageResource(R.drawable.unliked)
                 markInterested.setImageResource(R.drawable.notinterested)
                 isLiked = false
                 //else check if the photo is liked, if yes dislike it
@@ -206,25 +206,39 @@ class ViewPostFragment : Fragment() {
         val postOwner = post.getString("user_name")
         val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
 
+        val donation = JSONObject(postDetails.donation_status)
+        if (donation.getString("donation_status") == "Donated") {
+
+        }
+
+
         postOptions.isVisible = postOwner == App.sharedPrefs.userName
         postOptions?.setOnClickListener {
             val popupMenu = PopupMenu(context, postOptions)
             popupMenu.menuInflater.inflate(R.menu.post_menu, popupMenu.menu)
 
             val markAsDonatedItem = popupMenu.menu.findItem(R.id.markDonated)
-            val editPostItem= popupMenu.menu.findItem(R.id.editPost)
+            val editPostItem = popupMenu.menu.findItem(R.id.editPost)
+            val deletePostItem = popupMenu.menu.findItem(R.id.deletePost)
 
-            val donation = JSONObject(postDetails.donation_status)
             when (donation.getString("donation_status")) {
                 "Ongoing" -> {
-                    markAsDonatedItem.setTitle("Mark as Available")
+                    markAsDonatedItem.title = "Mark as Available"
                 }
                 "Donated" -> {
                     markAsDonatedItem.isVisible = false
-                    editPostItem.isVisible=false
+                    editPostItem.isVisible = false
+                    deletePostItem.setOnMenuItemClickListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Donated Posts cannot be deleted",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        true
+                    }
                 }
                 else -> {
-                    markAsDonatedItem.setTitle("Mark as Donated")
+                    markAsDonatedItem.title = "Mark as Donated"
                 }
             }
 
@@ -238,17 +252,21 @@ class ViewPostFragment : Fragment() {
                             Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
                 }
 
-                if (menuItem.title == "Mark as Available"){
-                    TransactionService.findOngoingTransactions {complete ->
-                        if (complete){
-                            for (transaction in TransactionService.onGoingTransactions){
-                                val post= JSONObject(transaction.post_id)
-                                val postId= post.getString("post_id")
-                                if (postDetails.post_id==postId){
-                                    TransactionService.updateTransactionStatus(transaction.transaction_id){complete->
-                                        if (complete){
-                                            markAsDonatedItem.setTitle("Mark as Donated")
-                                            Toast.makeText(requireContext(),"Post is now available for donation",Toast.LENGTH_LONG).show()
+                if (menuItem.title == "Mark as Available") {
+                    TransactionService.findOngoingTransactions { complete ->
+                        if (complete) {
+                            for (transaction in TransactionService.onGoingTransactions) {
+                                val post = JSONObject(transaction.post_id)
+                                val postId = post.getString("post_id")
+                                if (postDetails.post_id == postId) {
+                                    TransactionService.updateTransactionStatus(transaction.transaction_id) { complete ->
+                                        if (complete) {
+                                            markAsDonatedItem.title = "Mark as Donated"
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Post is now available for donation",
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     }
                                 }
@@ -302,10 +320,11 @@ class ViewPostFragment : Fragment() {
                                     ) {
                                         recieverNameSpinner.setSelection(position)
                                         recieverId = idReceiver[position]
-                                        recieverName= items[position]
+                                        recieverName = items[position]
                                         println("Selected reciever : $recieverId")
                                         println("Selected reciever name : $recieverName")
                                     }
+
                                     override fun onNothingSelected(parent: AdapterView<*>?) {
                                         // do nothing
                                     }
@@ -338,7 +357,7 @@ class ViewPostFragment : Fragment() {
                                             val data = mapOf("post_id" to postDetails.post_id)
 
                                             println("Reciever Id $recieverId")
-                                            println("RecieverName: $recieverName")        
+                                            println("RecieverName: $recieverName")
 
                                             AuthService.getFCMToken(recieverName) { response ->
                                                 println("Get FCM Token success: $response")
@@ -346,7 +365,7 @@ class ViewPostFragment : Fragment() {
                                                 PushNotification(
                                                     NotificationData(title, message, data),
                                                     AuthService.recipientToken
-                                                ) .also { sendNotification(it) }
+                                                ).also { sendNotification(it) }
 
                                                 //add notification to the database
                                                 NotificationService.addNotification(
@@ -359,12 +378,13 @@ class ViewPostFragment : Fragment() {
                                                 ) { createSuccess ->
                                                     println("Create Notification success: $createSuccess")
                                                     if (createSuccess) {
-                                                       println("Notification added")
+                                                        println("Notification added")
                                                     }
                                                 }
                                                 //go to profile
                                                 view.findNavController()
-                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment) }
+                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment)
+                                            }
                                         }
                                     }
                                 }

@@ -97,7 +97,7 @@ class ChangePasswordFragment : Fragment() {
         resetPassword.setOnClickListener {
             //reset password by sending OTP?
             //sendVerificationCode(number)
-            Toast.makeText(requireContext(), "Reset Clicked.", Toast.LENGTH_LONG).show()
+            //Toast.makeText(requireContext(), "Reset Clicked.", Toast.LENGTH_LONG).show()
             //sendCustomMessage("+9779843346520")
 
             AuthService.resetPassword(App.sharedPrefs.userEmail) { resetPasswordSuccess ->
@@ -156,7 +156,7 @@ class ChangePasswordFragment : Fragment() {
                 null,
                 null
             ) // send the message to the user's phone number
-            println("PASSWORD RESET MESSAGE SENT")
+            Toast.makeText(requireContext(),"Message has been sent to your registered Mobile No.",Toast.LENGTH_SHORT).show()
         } catch (ex: SecurityException) {
             // handle SecurityException when the app does not have permission to send SMS
             ex.printStackTrace()

@@ -156,6 +156,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         //if user is blocked, hide their posts
         BlockService.getBlockedList { complete ->
+            blockedFrom.clear()
             if (complete) {
                 for (username in BlockService.blockedList) {
                     val userJSONObject = JSONObject(username.blocked_by_id)
@@ -169,6 +170,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         //if current user has blocked any user, hide their posts
         BlockService.getUserBlockList { complete ->
+            blockedUsers.clear()
             if (complete) {
                 for (username in BlockService.userBlockList) {
                     val userJSONObject = JSONObject(username.blocked_user_id)
@@ -189,6 +191,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 for (blockedFrom in blockedFrom) {
                                     // if the post was created by a blocked user; removing the post from a list
                                     if (post.post_by != blockedUser && post.post_by != blockedFrom) {
+                                        println(post.post_by)
                                         imageUrlsList.add(post.media_file)
                                         filteredPostList.add(post)
                                     }
@@ -197,6 +200,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         } else if (blockedUsers.isNotEmpty()) {
                             for (blockedUser in blockedUsers) {
                                 if (post.post_by != blockedUser) {
+                                    println(post.post_by)
                                     imageUrlsList.add(post.media_file)
                                     filteredPostList.add(post)
                                 }
@@ -205,15 +209,19 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                             for (blockedFrom in blockedFrom) {
                                 // if the post was created by a blocked user; removing the post from a list
                                 if (post.post_by != blockedFrom) {
+                                    println(post.post_by)
                                     imageUrlsList.add(post.media_file)
                                     filteredPostList.add(post)
                                 }
                             }
                         } else {
                             //if blocked user empty; add all posts
+                            println(post.post_by)
                             imageUrlsList.add(post.media_file)
                             filteredPostList.add(post)
                         }
+                        println(imageUrlsList.size)
+                        println(filteredPostList.size)
                     }
                     noDataText.visibility = View.GONE
                     setAdapter(imageUrlsList)

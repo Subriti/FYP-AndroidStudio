@@ -1,5 +1,6 @@
 package com.example.notificationpermissions.Fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ class HistoryFragment : Fragment(){
     lateinit var GivenAdapter: DonationGivenAdapter
     lateinit var OngoingTransactionsAdapter: DonationGivenAdapter
     lateinit var RecieverAdapter: DonationRecievedAdapter
+    lateinit var mContext: Context
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +46,8 @@ class HistoryFragment : Fragment(){
                 if (TransactionService.givenTransaction.isNotEmpty()) {
                     noDataGiven.visibility = View.GONE
                     GivenAdapter = DonationGivenAdapter(
-                        requireContext().applicationContext,
+                        //requireContext().applicationContext,
+                        mContext,
                         TransactionService.givenTransaction
                     )
                     val layoutManager = LinearLayoutManager(context)
@@ -64,7 +67,8 @@ class HistoryFragment : Fragment(){
                 if (TransactionService.recievedTransactions.isNotEmpty()) {
                     noDataRecieved.visibility = View.GONE
                 RecieverAdapter = DonationRecievedAdapter(
-                    requireContext().applicationContext,
+                    //requireContext().applicationContext,
+                    mContext,
                     TransactionService.recievedTransactions
                 )
                 val layoutManager = LinearLayoutManager(context)
@@ -84,7 +88,8 @@ class HistoryFragment : Fragment(){
                 if (TransactionService.onGoingTransactions.isNotEmpty()) {
                     noDataOngoing.visibility = View.GONE
                 OngoingTransactionsAdapter = DonationGivenAdapter(
-                    requireActivity().applicationContext,
+                    //requireActivity().applicationContext,
+                    mContext,
                     TransactionService.onGoingTransactions
                 )
                 val layoutManager = LinearLayoutManager(context)
@@ -100,6 +105,12 @@ class HistoryFragment : Fragment(){
         }
         return view
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext= context
+    }
+
     override fun onResume() {
         super.onResume()
         // Invalidate the options menu to force onPrepareOptionsMenu to be called again

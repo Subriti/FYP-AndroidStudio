@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.telephony.SmsManager
+import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -38,14 +39,26 @@ class LoginActivity : AppCompatActivity() {
             //reset password by sending OTP? then redirect to change password fragment
             //sendVerificationCode(number)
             val email = findViewById<TextView>(R.id.emailText).text.toString()
+            fun validEmail(email:String): Boolean {
+                val pattern = Patterns.EMAIL_ADDRESS
+                return pattern.matcher(email).matches();
+            }
 
-            println(email)
             if (email.isNotEmpty()) {
-                println("email not empty")
-                AuthService.resetPassword(email) { resetPasswordSuccess ->
-                    println("Reset Password Success: " + resetPasswordSuccess)
-                    if (resetPasswordSuccess) {
-                        checkSmsPermission()
+                if (!validEmail(email)) {
+                    Toast.makeText(this,"Please enter a valid e-mail!",Toast.LENGTH_LONG).show();
+                }else {
+                    //even though email, is wrong ; check the phone message is sent
+                    Toast.makeText(
+                        this,
+                        "Your request for password reset has been initiated.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    AuthService.resetPassword(email) { resetPasswordSuccess ->
+                        println("Reset Password Success: " + resetPasswordSuccess)
+                        if (resetPasswordSuccess) {
+                            checkSmsPermission()
+                        }
                     }
                 }
             } else {
@@ -157,7 +170,7 @@ class LoginActivity : AppCompatActivity() {
                 null
             )
             // send the message to the user's phone number
-            Toast.makeText(this,"Password has been sent to your registered mobile number.",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"Message has been sent to your registered Mobile No.",Toast.LENGTH_SHORT).show()
         } catch (ex: SecurityException) {
             // handle SecurityException when the app does not have permission to send SMS
             ex.printStackTrace()

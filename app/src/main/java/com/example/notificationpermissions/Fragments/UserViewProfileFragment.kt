@@ -70,169 +70,170 @@ class UserViewProfileFragment : Fragment() {
 
         var postDetails = arguments?.getSerializable(EXTRA_POST) as Post?
         var newPostDetails: PostDetails?
-
+        var exists=false
 
         //two approaches to land to this page; from feed i.e. posts made by the user and when user is specifically searched.
 
         for (details in PostService.DetailedPosts) {
             if (postDetails != null) {
-                if (details.post_by == postDetails.post_by) {
-                    //using the full post details to build the user profile
-                    newPostDetails = details
-                    println(newPostDetails)
+                if (!exists) {
+                    if (details.post_by == postDetails.post_by) {
+                        //using the full post details to build the user profile
+                        var newPostDetails = details
+                        exists = true
 
-
-                    //user display picture
-                    context?.let {
-                        Glide.with(it).load(newPostDetails.user_profile).into(imgGallery)
-                    }
-
-                    if (newPostDetails.hide_email == "true") {
-                        email.text = "  Confidential"
-                    } else {
-                        email.text = "  ${newPostDetails.user_email}"
-                    }
-
-                    if (newPostDetails.hide_number == "true") {
-                        phoneNumber.text = "  Confidential"
-                    } else {
-                        phoneNumber.text = "  ${newPostDetails.user_phone}"
-                    }
-
-                    location.text = "  ${newPostDetails.location}"
-
-                    if (blockedUsers.isNotEmpty()) {
-                        for (blockedUser in blockedUsers) {
-                            println(newPostDetails.post_by)
-                            println(blockedUser)
-                            println(AuthService.userList.size)
-                            if (newPostDetails.post_by == blockedUser) {
-                                blockBtn.text="Unblock" //since the user is already blocked
-                            }else{
-                                blockBtn.text="Block"
-                            }
+                        //user display picture
+                        context?.let {
+                            Glide.with(it).load(newPostDetails.user_profile).into(imgGallery)
                         }
-                    }
 
-                    blockBtn.setOnClickListener {
-                        //write backend code to block the user and store details
-                        if (blockBtn.text == "Unblock") {
-                            BlockService.unblockUser(
-                                newPostDetails.user_id!!,
-                                App.sharedPrefs.userID
-                            ) { complete ->
-                                if (complete) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "User was unblocked",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                        if (newPostDetails.hide_email == "true") {
+                            email.text = "  Confidential"
+                        } else {
+                            email.text = "  ${newPostDetails.user_email}"
+                        }
+
+                        if (newPostDetails.hide_number == "true") {
+                            phoneNumber.text = "  Confidential"
+                        } else {
+                            phoneNumber.text = "  ${newPostDetails.user_phone}"
+                        }
+
+                        location.text = "  ${newPostDetails.location}"
+
+                        if (blockedUsers.isNotEmpty()) {
+                            for (blockedUser in blockedUsers) {
+                                println(newPostDetails.post_by)
+                                println(blockedUser)
+                                println(AuthService.userList.size)
+                                if (newPostDetails.post_by == blockedUser) {
+                                    blockBtn.text = "Unblock" //since the user is already blocked
+                                } else {
                                     blockBtn.text = "Block"
                                 }
                             }
-                        } else if (blockBtn.text == "Block") {
-                            BlockService.blockUser(
-                                newPostDetails.user_id!!,
-                                App.sharedPrefs.userID
-                            ) { complete ->
-                                if (complete) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "User was blocked",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    blockBtn.text = "Unblock"
+                        }
+
+                        blockBtn.setOnClickListener {
+                            //write backend code to block the user and store details
+                            if (blockBtn.text == "Unblock") {
+                                BlockService.unblockUser(
+                                    newPostDetails.user_id!!,
+                                    App.sharedPrefs.userID
+                                ) { complete ->
+                                    if (complete) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "User was unblocked",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        blockBtn.text = "Block"
+                                    }
+                                }
+                            } else if (blockBtn.text == "Block") {
+                                BlockService.blockUser(
+                                    newPostDetails.user_id!!,
+                                    App.sharedPrefs.userID
+                                ) { complete ->
+                                    if (complete) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "User was blocked",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        blockBtn.text = "Unblock"
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    PostService.getRating(newPostDetails.user_id!!) { complete ->
-                        if (complete) {
-                            rating.text = "Rating: "+App.sharedPrefs.rating.toString()+" "
-                            donations.text = "Clothes Donated: "+App.sharedPrefs.clothDonated.toString()+" "
-                        }
-                    }
-
-                    imgButton.setOnClickListener {
-                        //checking if the user's chatroom already exists
-                        MessageService.getChatRoomId(
-                            App.sharedPrefs.userName,
-                            newPostDetails.post_by!!
-                        ) { complete ->
-                            println("Get Chat Room Id success $complete")
+                        PostService.getRating(newPostDetails.user_id!!) { complete ->
                             if (complete) {
-                                println(MessageService.chatRoomId)
-                                var id = MessageService.chatRoomId
-
-                                if (id == "") {
-                                    id = "${App.sharedPrefs.userName}+ ${newPostDetails.post_by}"
-                                }
-
-                                val recieverUserId = newPostDetails.user_id
-                                val recieverFCMtoken = newPostDetails.fcm_token
-                                val recieverProfilePicture = newPostDetails.user_profile
-                                val recieverUserName = newPostDetails.post_by
-                                val recieverPhone = newPostDetails.user_phone
-                                val hidePhone = newPostDetails.hide_number
-
-                                val newChatRoom = ChatRoom(
-                                    id,
-                                    recieverUserId!!,
-                                    recieverUserName!!,
-                                    recieverProfilePicture!!,
-                                    recieverFCMtoken!!,
-                                    recieverPhone!!,
-                                    hidePhone!!
-                                )
-                                view.findNavController()
-                                    .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
-                                        Bundle().apply {
-                                            putSerializable(
-                                                EXTRA_CHAT_ROOM,
-                                                newChatRoom
-                                            )
-                                        })
+                                rating.text = "Rating: " + App.sharedPrefs.rating.toString() + " "
+                                donations.text = "Clothes Donated: " + App.sharedPrefs.clothDonated.toString() + " "
                             }
                         }
-                    }
 
-                    PostService.getOtherUserPosts(newPostDetails.user_id.toString()) { complete ->
-                        if (complete) {
-                            if (PostService.posts.isNotEmpty()) {
-                                noDataText.visibility = View.GONE
-                                var imageUrlsList = mutableListOf<String>()
-                                for (url in PostService.posts) {
-                                    imageUrlsList.add(url.media_file)
+                        imgButton.setOnClickListener {
+                            //checking if the user's chatroom already exists
+                            MessageService.getChatRoomId(
+                                App.sharedPrefs.userName,
+                                newPostDetails.post_by!!
+                            ) { complete ->
+                                println("Get Chat Room Id success $complete")
+                                if (complete) {
+                                    println(MessageService.chatRoomId)
+                                    var id = MessageService.chatRoomId
+
+                                    if (id == "") {
+                                        id = "${App.sharedPrefs.userName}+ ${newPostDetails.post_by}"
+                                    }
+
+                                    val recieverUserId = newPostDetails.user_id
+                                    val recieverFCMtoken = newPostDetails.fcm_token
+                                    val recieverProfilePicture = newPostDetails.user_profile
+                                    val recieverUserName = newPostDetails.post_by
+                                    val recieverPhone = newPostDetails.user_phone
+                                    val hidePhone = newPostDetails.hide_number
+
+                                    val newChatRoom = ChatRoom(
+                                        id,
+                                        recieverUserId!!,
+                                        recieverUserName!!,
+                                        recieverProfilePicture!!,
+                                        recieverFCMtoken!!,
+                                        recieverPhone!!,
+                                        hidePhone!!
+                                    )
+                                    view.findNavController()
+                                        .navigate(R.id.action_userViewProfileFragment2_to_individualChatRoomFragment,
+                                            Bundle().apply {
+                                                putSerializable(
+                                                    EXTRA_CHAT_ROOM,
+                                                    newChatRoom
+                                                )
+                                            })
                                 }
-
-                                adapter = PostRecycleAdapter(
-                                    requireContext(),
-                                    imageUrlsList
-                                ) { post ->
-                                    //do something on click; open full post details
-                                    view.findNavController().navigate(
-                                        R.id.action_userViewProfileFragment2_to_viewPostFragment,
-                                        Bundle().apply { putSerializable(EXTRA_POST, post) })
-                                }
-
-                                var spanCount = 2
-                                val orientation = resources.configuration.orientation
-                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                    spanCount = 3
-                                }
-
-                                val layoutManager = GridLayoutManager(context, spanCount)
-                                val postRV =
-                                    view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
-                                postRV.layoutManager = layoutManager
-                                postRV.adapter = adapter
-                            } else if (PostService.posts.isEmpty()) {
-                                noDataText.visibility = View.VISIBLE
                             }
-                        } else {
-                            noDataText.visibility = View.VISIBLE
-                            noDataText.text = "Posts could not be loaded"
+                        }
+
+                        PostService.getOtherUserPosts(newPostDetails.user_id.toString()) { complete ->
+                            if (complete) {
+                                if (PostService.posts.isNotEmpty()) {
+                                    noDataText.visibility = View.GONE
+                                    var imageUrlsList = mutableListOf<String>()
+                                    for (url in PostService.posts) {
+                                        imageUrlsList.add(url.media_file)
+                                    }
+
+                                    adapter = PostRecycleAdapter(
+                                        requireContext(),
+                                        imageUrlsList
+                                    ) { post ->
+                                        //do something on click; open full post details
+                                        view.findNavController().navigate(
+                                            R.id.action_userViewProfileFragment2_to_viewPostFragment,
+                                            Bundle().apply { putSerializable(EXTRA_POST, post) })
+                                    }
+
+                                    var spanCount = 2
+                                    val orientation = resources.configuration.orientation
+                                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                        spanCount = 3
+                                    }
+
+                                    val layoutManager = GridLayoutManager(context, spanCount)
+                                    val postRV =
+                                        view.findViewById<RecyclerView>(R.id.userPostsRecyclerView)
+                                    postRV.layoutManager = layoutManager
+                                    postRV.adapter = adapter
+                                } else if (PostService.posts.isEmpty()) {
+                                    noDataText.visibility = View.VISIBLE
+                                }
+                            } else {
+                                noDataText.visibility = View.VISIBLE
+                                noDataText.text = "Posts could not be loaded"
+                            }
                         }
                     }
                 }

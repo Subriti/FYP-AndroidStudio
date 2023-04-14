@@ -135,6 +135,9 @@
         <action
             android:id="@+id/action_viewFeedItemFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_viewFeedItemFragment_to_userViewProfileFragment2"
+            app:destination="@id/userViewProfileFragment2" />
     </fragment>
     <fragment
         android:id="@+id/notificationFragment"

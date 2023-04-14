@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
@@ -97,6 +98,24 @@ class ViewFeedItemFragment : Fragment() {
             return alreadyLiked
         }
         getUsers(postDetails)
+
+        userProfile.setOnClickListener {
+            //if opened own's profile, open profile fragment
+            if (postDetails.post_by == App.sharedPrefs.userName) {
+                //itemView.findNavController().popBackStack(R.id.homeFragment, false)
+                view.findNavController()
+                    .navigate(
+                        R.id.action_homeFragment_to_profileFragment, null//,
+                        //NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                    )
+            } else {
+                //open user profile with posts
+                view.findNavController().navigate(
+                    R.id.action_viewFeedItemFragment_to_userViewProfileFragment2,
+                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+            }
+        }
+
 
         interestedUsers.setOnClickListener {
             val items = arrayListOf<String>()

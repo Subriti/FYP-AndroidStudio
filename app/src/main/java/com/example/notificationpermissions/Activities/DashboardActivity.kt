@@ -114,6 +114,15 @@ class DashboardActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.d("Notification Intent", "EXC: " + e.localizedMessage)
         }
+
+        try{
+            if(AuthService.newPassword!=""){
+                navController.navigate(R.id.changePasswordFragment2)
+                }
+            }
+        catch (e:Exception){
+            Log.d("Change Password Intent", "EXC: " + e.localizedMessage)
+        }
     }
 
     private var doubleBackToExitPressedOnce = false

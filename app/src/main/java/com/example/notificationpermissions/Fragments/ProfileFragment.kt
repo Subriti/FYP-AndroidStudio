@@ -1,6 +1,7 @@
 package com.example.notificationpermissions.Fragments
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -31,6 +32,7 @@ class ProfileFragment : Fragment() {
     private lateinit var imgView: ImageView
 
     lateinit var adapter: PostRecycleAdapter
+    lateinit var mContext: Context
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -82,7 +84,7 @@ class ProfileFragment : Fragment() {
                     for (url in PostService.posts) {
                         imageUrlsList.add(url.media_file)
                     }
-                    adapter = PostRecycleAdapter(requireContext(), imageUrlsList) { post ->
+                    adapter = PostRecycleAdapter(mContext, imageUrlsList) { post ->
                         //do something on click; open full post details
                         view.findNavController()
                             .navigate(R.id.action_profileFragment_to_viewPostFragment,
@@ -106,6 +108,11 @@ class ProfileFragment : Fragment() {
             }
         }
         return view
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext= context
     }
 
     override fun onResume() {

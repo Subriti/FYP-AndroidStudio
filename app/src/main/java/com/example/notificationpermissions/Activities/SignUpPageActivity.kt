@@ -22,8 +22,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
+import com.example.notificationpermissions.Adapters.TOPIC
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
+import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -38,6 +40,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.hbb20.CountryCodePicker
@@ -312,8 +315,21 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                         val i = Intent(this@SignUpPageActivity, DashboardActivity::class.java)
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(i)
-                        finish()
+                        //finish()
+                        //enableSpinner(false)
+
+                        //get registration token:
+                        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+                            if (it.isComplete) {
+                                val firebaseToken = it.result.toString()
+                                App.sharedPrefs.token = it.result.toString()
+                                //store this token to the database it is device specific.
+                                AuthService.updateFCMToken(firebaseToken) {}
+                            }
+                        }
+                        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
                         enableSpinner(false)
+                        finish()
                     } else {
                         errorToast()
                     }
