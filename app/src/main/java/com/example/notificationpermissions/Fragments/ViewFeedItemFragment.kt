@@ -105,7 +105,7 @@ class ViewFeedItemFragment : Fragment() {
                 //itemView.findNavController().popBackStack(R.id.homeFragment, false)
                 view.findNavController()
                     .navigate(
-                        R.id.action_homeFragment_to_profileFragment, null//,
+                        R.id.action_viewFeedItemFragment_to_profileFragment, null//,
                         //NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
                     )
             } else {

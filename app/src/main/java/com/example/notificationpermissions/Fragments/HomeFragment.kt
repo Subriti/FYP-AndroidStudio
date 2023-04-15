@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -22,13 +23,14 @@ import com.example.notificationpermissions.Adapters.FeedGridRecyclerAdapter
 import com.example.notificationpermissions.Adapters.FeedRecyclerAdapter
 import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
-import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.EXTRA_POST
+import com.example.notificationpermissions.Utilities.OnCardVisibilityChangeListener
 import org.json.JSONObject
 
 
-class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
+    OnCardVisibilityChangeListener {
 
     lateinit var feedAdapter: FeedRecyclerAdapter
     lateinit var gridAdapter: FeedGridRecyclerAdapter
@@ -41,6 +43,8 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     lateinit var postRV: RecyclerView
     lateinit var noDataText: TextView
+
+    lateinit var filterCard: CardView
 
 
     var imageUrlsList = mutableListOf<String>()
@@ -55,10 +59,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         //(activity as DashboardActivity?)!!.currentFragment = this
 
-        // Code for showing progressDialog while getting posts from server
-        val progressDialog = ProgressDialog(context)
-        progressDialog.setTitle("Refreshing your feed...")
-        progressDialog.show()
 
         //gives a spinner search text for searching in array
         val spinnerSearch = view.findViewById<AutoCompleteTextView>(R.id.spinner_search)
@@ -88,6 +88,13 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val searchTextView = searchView.findViewById<AutoCompleteTextView>(R.id.search_src_text)
         searchTextView.isVisible = false
 
+
+        filterCard= view.findViewById(R.id.filterCard)
+        filterCard.isVisible=false
+
+        getAllPost()
+
+        //val layoutChooser= view.findViewById<LinearLayout>(R.id.linearLayout)
 
         //broad filter
         val spinnerFilter: Spinner = view.findViewById(R.id.spinner)
@@ -151,10 +158,30 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         postRV = view.findViewById(R.id.feedRecyclerView)
 
+        
+        val listView = view.findViewById<ImageView>(R.id.listView)
+        val gridView = view.findViewById<ImageView>(R.id.gridView)
+
+        listView.setOnClickListener {
+            listView.setImageResource(R.drawable.selected_list)
+            gridView.setImageResource(R.drawable.unselected_grid)
+            viewSelected = "List"
+
+            setAdapter(imageUrlsList)
+        }
+
+        gridView.setOnClickListener {
+            gridView.setImageResource(R.drawable.selected_grid)
+            listView.setImageResource(R.drawable.unselected_list)
+            viewSelected = "Grid"
+
+            setGridAdapter(imageUrlsList)
+        }
+
         val blockedUsers = ArrayList<String>()
         val blockedFrom = ArrayList<String>()
 
-        //if user is blocked, hide their posts
+       /* //if user is blocked, hide their posts
         BlockService.getBlockedList { complete ->
             blockedFrom.clear()
             if (complete) {
@@ -180,13 +207,56 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
                 println("Blocked Users size: ${blockedUsers.size}")
             }
+        }*/
+
+        
+       /* if (!filterCard.isVisible){
+            println("invisible")
+            getAllPost()
+
+            selected_filter="1"
+            initialLoad=true
+        }*/
+
+
+
+        return view
+    }
+    override fun onCardVisibilityChanged(isVisible: Boolean) {
+        println("Card is visible: $isVisible")
+        if (isVisible) {
+            getAllPost()
         }
+    }
+   /* override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        var count= DashboardActivity().count
+        println(count)
+        if (count%2 == 0){
+            getAllPost()
+        }
+    }*/
+
+    private fun getAllPost() {
+        imageUrlsList.clear()
+        filteredPostList.clear()
+       selected_filter="1"
+       initialLoad=true
+        selected_item = "1"
+
+        filterAdapterItem= R.array.clothCategory_array
+        println("in getAll Post")
+
+        // Code for showing progressDialog while getting posts from server
+        val progressDialog = ProgressDialog(context)
+        progressDialog.setTitle("Refreshing your feed...")
+        progressDialog.show()
 
         PostService.getAllPosts { complete ->
             if (complete) {
                 if (PostService.AllPosts.isNotEmpty()) {
                     for (post in PostService.AllPosts) {
-                        if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
+                        /*if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
                             for (blockedUser in blockedUsers) {
                                 for (blockedFrom in blockedFrom) {
                                     // if the post was created by a blocked user; removing the post from a list
@@ -215,11 +285,11 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 }
                             }
                         } else {
-                            //if blocked user empty; add all posts
+                            //if blocked user empty; add all posts*/
                             println(post.post_by)
                             imageUrlsList.add(post.media_file)
                             filteredPostList.add(post)
-                        }
+                        //}
                         println(imageUrlsList.size)
                         println(filteredPostList.size)
                     }
@@ -256,27 +326,6 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
         PostService.getAllPostError = null
-
-        val listView = view.findViewById<ImageView>(R.id.listView)
-        val gridView = view.findViewById<ImageView>(R.id.gridView)
-
-        listView.setOnClickListener {
-            listView.setImageResource(R.drawable.selected_list)
-            gridView.setImageResource(R.drawable.unselected_grid)
-            viewSelected = "List"
-
-            setAdapter(imageUrlsList)
-        }
-
-        gridView.setOnClickListener {
-            gridView.setImageResource(R.drawable.selected_grid)
-            listView.setImageResource(R.drawable.unselected_list)
-            viewSelected = "Grid"
-
-            setGridAdapter(imageUrlsList)
-        }
-
-        return view
     }
 
     private fun loadAdapterItem(spinnerItem: Spinner, filterAdapterItem: Int) {

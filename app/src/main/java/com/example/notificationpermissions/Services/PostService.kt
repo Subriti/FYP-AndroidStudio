@@ -521,7 +521,7 @@ object PostService {
         DetailedPosts.clear()
         clothes.clear()
         val getPostRequest =
-            object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST, null, Response.Listener {
+            object : JsonArrayRequest(Method.GET, URL_GET_ALL_POST+"/"+App.sharedPrefs.userID, null, Response.Listener {
                 //this is where we parse the json object
                     response ->
                 try {

@@ -16,6 +16,8 @@ import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
+import androidx.core.view.isVisible
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
@@ -35,6 +37,7 @@ import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.example.notificationpermissions.Utilities.EXTRA_USER
+import com.example.notificationpermissions.Utilities.OnCardVisibilityChangeListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.json.JSONObject
 
@@ -53,6 +56,10 @@ class DashboardActivity : AppCompatActivity() {
     lateinit var item: MenuItem
     lateinit var item1: MenuItem
     lateinit var item2: MenuItem
+    lateinit var item3: MenuItem
+
+    var count=0
+    var listener: OnCardVisibilityChangeListener? = null
 
     var isBlocked: Boolean = false
 
@@ -100,6 +107,13 @@ class DashboardActivity : AppCompatActivity() {
 
         //gives back arrow
         toolbar.setupWithNavController(navController)
+
+
+        //for filter card
+        listener = supportFragmentManager.findFragmentById(R.id.home_fragment) as? OnCardVisibilityChangeListener
+
+        //preparing the blockeduserList from blockservice
+        BlockService.getUserBlockList { }
 
         try {
             val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
@@ -152,6 +166,7 @@ class DashboardActivity : AppCompatActivity() {
         item = menu.findItem(R.id.nav_search)
         item1 = menu.findItem(R.id.nav_notifications)
         item2 = menu.findItem(R.id.nav_logout)
+        item3= menu.findItem(R.id.nav_filter)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -160,11 +175,13 @@ class DashboardActivity : AppCompatActivity() {
         val item = menu.findItem(R.id.nav_search)
         val item1 = menu.findItem(R.id.nav_notifications)
         val item2 = menu.findItem(R.id.nav_logout)
+        val item3= menu.findItem(R.id.nav_filter)
 
         if (currentFragment == "Chat Rooms" || currentFragment == "Donation History" || currentFragment == "User Profile" || currentFragment == "Notifications" || currentFragment == "Post") {
             item.isVisible = false
             item1.isVisible = false
             item2.isVisible = false
+            item3.isVisible=false
             supportActionBar!!.show()
         }
 
@@ -172,6 +189,7 @@ class DashboardActivity : AppCompatActivity() {
             item.isVisible = false
             item1.isVisible = false
             item2.isVisible = true
+            item3.isVisible=false
 
             supportActionBar!!.show()
         }
@@ -180,6 +198,7 @@ class DashboardActivity : AppCompatActivity() {
             item.isVisible = true
             item1.isVisible = true
             item2.isVisible = false
+            item3.isVisible=true
 
             supportActionBar!!.show()
         }
@@ -293,6 +312,27 @@ class DashboardActivity : AppCompatActivity() {
                 //open notification fragment; Initialize NavController
                 val navController = Navigation.findNavController(this, R.id.nav_fragment)
                 navController.navigate(R.id.notificationFragment)
+            }
+
+            R.id.nav_filter -> {
+                count+=1
+                Toast.makeText(this,"Filter clicked",Toast.LENGTH_SHORT).show()
+                val filterCard= findViewById<CardView>(R.id.filterCard)
+                filterCard.isVisible = count%2 != 0
+                println(count%2 != 0)
+                listener?.onCardVisibilityChanged(count%2 != 0)
+/*
+                if (!filterCard.isVisible) {
+                    println("invisible")
+                    //(supportFragmentManager.findFragmentById(R.id.home_fragment) as HomeFragment?)?.getAllPost()
+                    //println((supportFragmentManager.findFragmentById(R.id.home_fragment) as HomeFragment?)?.getAllPost())
+                    HomeFragment().GetInstance()?.getAllPost()
+                    println(HomeFragment().GetInstance()?.getAllPost())
+                    println("reference accessed of home frag")
+                    *//*fragmentH.getAllPost()
+                    fragmentH.selected_filter="1"
+                    fragmentH.initialLoad=true*//*
+                }*/
             }
 
             //when logout pressed

@@ -69,7 +69,6 @@ class UserViewProfileFragment : Fragment() {
         }
 
         var postDetails = arguments?.getSerializable(EXTRA_POST) as Post?
-        var newPostDetails: PostDetails?
         var exists=false
 
         //two approaches to land to this page; from feed i.e. posts made by the user and when user is specifically searched.
@@ -101,17 +100,19 @@ class UserViewProfileFragment : Fragment() {
 
                         location.text = "  ${newPostDetails.location}"
 
+                        var userFound= false
                         if (blockedUsers.isNotEmpty()) {
                             for (blockedUser in blockedUsers) {
-                                println(newPostDetails.post_by)
                                 println(blockedUser)
-                                println(AuthService.userList.size)
                                 if (newPostDetails.post_by == blockedUser) {
-                                    blockBtn.text = "Unblock" //since the user is already blocked
-                                } else {
-                                    blockBtn.text = "Block"
+                                    userFound=true
                                 }
                             }
+                        }
+                        if (userFound){
+                            blockBtn.text = "Unblock" //since the user is already blocked
+                        }else{
+                            blockBtn.text = "Block"
                         }
 
                         blockBtn.setOnClickListener {
@@ -129,6 +130,8 @@ class UserViewProfileFragment : Fragment() {
                                         ).show()
                                         blockBtn.text = "Block"
                                     }
+                                    //refresh list after unblocking user
+                                    BlockService.getUserBlockList { }
                                 }
                             } else if (blockBtn.text == "Block") {
                                 BlockService.blockUser(
@@ -143,6 +146,8 @@ class UserViewProfileFragment : Fragment() {
                                         ).show()
                                         blockBtn.text = "Unblock"
                                     }
+                                    //refresh list after blocking user
+                                    BlockService.getUserBlockList { }
                                 }
                             }
                         }
@@ -278,18 +283,20 @@ class UserViewProfileFragment : Fragment() {
                         blockBtn.text = "Block"
                     }*/
 
-                    println("Blocked Users Size: ${blockedUsers.size}")
+                    var userFound= false
                     if (blockedUsers.isNotEmpty()) {
                         for (blockedUser in blockedUsers) {
                             println(newUserDetails.user_name)
-                            println(AuthService.userList.size)
                             if (newUserDetails.user_name == blockedUser) {
+                                userFound=true
                                 println("User Blocked found")
-                                blockBtn.text="Unblock" //since the user is already blocked
-                            }else{
-                                blockBtn.text="Block"
                             }
                         }
+                    }
+                    if (userFound){
+                        blockBtn.text = "Unblock" //since the user is already blocked
+                    }else{
+                        blockBtn.text = "Block"
                     }
 
                     blockBtn.setOnClickListener {
@@ -309,6 +316,8 @@ class UserViewProfileFragment : Fragment() {
                                     ).show()
                                     blockBtn.text = "Block"
                                 }
+                                //refresh list after unblocking user
+                                BlockService.getUserBlockList { }
                             }
                         } else if (blockBtn.text == "Block") {
                             BlockService.blockUser(
@@ -323,6 +332,8 @@ class UserViewProfileFragment : Fragment() {
                                     ).show()
                                     blockBtn.text = "Unblock"
                                 }
+                                //refresh list after blocking user
+                                BlockService.getUserBlockList { }
                             }
                         }
                     }
