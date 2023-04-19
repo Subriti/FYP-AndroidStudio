@@ -25,7 +25,6 @@ class ChatRoomAdapter(val context: Context, val chatRoom: ArrayList<ChatRoom>,
         fun bindMessage(context: Context, chatRoom: ChatRoom){
             Glide.with(context).load(chatRoom.recieverProfilePicture).into(userImage!!)
             userName?.text= chatRoom.recieverUserName
-            /*messageBody?.text=chatRoom.message*/
 
             itemView.setOnClickListener { itemClick(chatRoom) }
         }

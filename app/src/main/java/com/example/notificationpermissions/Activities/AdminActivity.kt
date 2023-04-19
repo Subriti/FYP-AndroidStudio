@@ -30,9 +30,7 @@ class AdminActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val reportFragment= ReportFragment()
-/*
-        val viewReports= findViewById<Button>(R.id.viewReports)
-        viewReports.setOnClickListener {*/
+
         supportFragmentManager.beginTransaction().apply {
                 replace(R.id.replaceLayout, reportFragment)
                 addToBackStack(null)

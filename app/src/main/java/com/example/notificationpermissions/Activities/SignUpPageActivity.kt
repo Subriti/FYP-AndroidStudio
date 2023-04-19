@@ -101,7 +101,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        FirebaseApp.initializeApp(/*context=*/this)
+        FirebaseApp.initializeApp(this)
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(
             SafetyNetAppCheckProviderFactory.getInstance()
@@ -145,9 +145,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         img = findViewById(R.id.profile_picture)
         imgURL =
             "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2FuserIconn.jpg?alt=media&token=d314a17d-ec1c-4305-8599-56aef16879a0"
-        //"https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fimg_1.png?alt=media&token=e724fbce-872d-4daa-b82e-3367702e83ce"
-        // "https://firebasestorage.googleapis.com/v0/b/notificationpermissions.appspot.com/o/images%2Fprofile_picture.png?alt=media&token=3c31f157-a0a5-42e8-83b4-d27bcac83be6"
-        Glide.with(this).load(imgURL).into(img)
+            Glide.with(this).load(imgURL).into(img)
 
         img.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -158,9 +156,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         }
 
         storage = FirebaseStorage.getInstance()
-        println(storage)
         storageReference = storage.reference
-        println(storageReference)
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)

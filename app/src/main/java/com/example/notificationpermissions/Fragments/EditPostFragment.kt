@@ -3,7 +3,6 @@ package com.example.notificationpermissions.Fragments
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
-import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Activities.DashboardActivity
@@ -119,12 +119,12 @@ class EditPostFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
         cancelPost = view.findViewById(R.id.dont_post_picture)
         cancelPost.setOnClickListener {
-            //val intent = Intent(context, DashboardActivity::class.java)
-            //startActivity(intent)
             //get back to viewPostFragment
+            view.findNavController().popBackStack(R.id.editPostFragment, false)
             view.findNavController()
                 .navigate(R.id.action_editPostFragment_to_viewPostFragment,
-                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) })
+                    Bundle().apply { putSerializable(EXTRA_POST, postDetails) },
+                NavOptions.Builder().setPopUpTo(R.id.editPostFragment, true).build())
         }
 
         //submit button for adding post

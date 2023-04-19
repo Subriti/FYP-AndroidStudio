@@ -95,11 +95,7 @@ class ChangePasswordFragment : Fragment() {
         }
 
         resetPassword.setOnClickListener {
-            //reset password by sending OTP?
-            //sendVerificationCode(number)
-            //Toast.makeText(requireContext(), "Reset Clicked.", Toast.LENGTH_LONG).show()
-            //sendCustomMessage("+9779843346520")
-
+            //reset password by sendingSMS
             AuthService.resetPassword(App.sharedPrefs.userEmail) { resetPasswordSuccess ->
                 println("Reset Password Success: "+resetPasswordSuccess)
                 if (resetPasswordSuccess) {
@@ -164,6 +160,12 @@ class ChangePasswordFragment : Fragment() {
             // handle other exceptions that may occur
             ex.printStackTrace()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
     }
 
     private fun enableSpinner(enable: Boolean) {

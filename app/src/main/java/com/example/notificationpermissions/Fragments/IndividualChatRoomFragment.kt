@@ -13,10 +13,12 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -31,6 +33,7 @@ import com.example.notificationpermissions.Notifications.NotificationData
 import com.example.notificationpermissions.Notifications.PushNotification
 import com.example.notificationpermissions.Notifications.RetrofitInstance
 import com.example.notificationpermissions.R
+import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.MessageService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
@@ -73,6 +76,40 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
         val backButton = view.findViewById<ImageView>(R.id.backButton)
         // backButton.isVisible=false
 
+
+        var isBlocked= false
+
+        //if the selected user has been blocked, disable the messaging option
+        for (username in BlockService.userBlockList) {
+            val userJSONObject = JSONObject(username.blocked_user_id)
+            val username = userJSONObject.getString("user_name")
+            if(chatDetails!!.recieverUserName==username){
+                isBlocked=true
+            }
+        }
+
+        //if the selected user has blocked the current user, disable the messaging option
+        for (username in BlockService.blockedList) {
+            val userJSONObject = JSONObject(username.blocked_by_id)
+            val username = userJSONObject.getString("user_name")
+            if(chatDetails!!.recieverUserName==username){
+                isBlocked=true
+            }
+        }
+
+        val text =view.findViewById<TextView>(R.id.messageText)
+        if (isBlocked){
+            text.text="The user is currently unavailable"
+            text.isEnabled=false
+            sendMessage.isVisible=false
+        }else{
+            text.isVisible=true
+            sendMessage.isVisible=true
+            text.isEnabled=true
+        }
+
+
+
         backButton.setOnClickListener {
             //get back to chatFragment
             if (view.findNavController().backQueue.last().destination == view.findNavController()
@@ -89,20 +126,28 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
         val phoneButton = view.findViewById<ImageView>(R.id.recieverPhone)
         phoneButton.setOnClickListener {
-            //if the user wants to keep their number confidential; restrict call
-            if (chatDetails?.hidePhone == "true") {
+            if (!isBlocked) {
+                //if the user wants to keep their number confidential; restrict call
+                if (chatDetails?.hidePhone == "true") {
+                    Toast.makeText(
+                        requireContext(),
+                        "Restricted action: User's number is confidential",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    //get receiver's phone number: intent to call the number
+                    val phoneNumber = chatDetails!!.recieverPhone
+                    val dial = Intent(Intent.ACTION_DIAL)
+                    dial.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    dial.data = Uri.parse("tel:$phoneNumber")
+                    startActivity(dial)
+                }
+            }else{
                 Toast.makeText(
                     requireContext(),
-                    "Restricted action: User's number is confidential",
+                    "The user is currently unavailable",
                     Toast.LENGTH_LONG
                 ).show()
-            } else {
-                //get receiver's phone number: intent to call the number
-                val phoneNumber = chatDetails!!.recieverPhone
-                val dial = Intent(Intent.ACTION_DIAL)
-                dial.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                dial.data = Uri.parse("tel:$phoneNumber")
-                startActivity(dial)
             }
         }
 

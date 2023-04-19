@@ -37,7 +37,6 @@ import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.example.notificationpermissions.Utilities.EXTRA_USER
-import com.example.notificationpermissions.Utilities.OnCardVisibilityChangeListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.json.JSONObject
 
@@ -59,7 +58,7 @@ class DashboardActivity : AppCompatActivity() {
     lateinit var item3: MenuItem
 
     var count=0
-    var listener: OnCardVisibilityChangeListener? = null
+    //var listener: OnCardVisibilityChangeListener? = null
 
     var isBlocked: Boolean = false
 
@@ -110,10 +109,12 @@ class DashboardActivity : AppCompatActivity() {
 
 
         //for filter card
-        listener = supportFragmentManager.findFragmentById(R.id.home_fragment) as? OnCardVisibilityChangeListener
+        //listener = supportFragmentManager.findFragmentById(R.id.home_fragment) as? OnCardVisibilityChangeListener
 
         //preparing the blockeduserList from blockservice
         BlockService.getUserBlockList { }
+
+        BlockService.getBlockedList {  }
 
         try {
             val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
@@ -177,7 +178,7 @@ class DashboardActivity : AppCompatActivity() {
         val item2 = menu.findItem(R.id.nav_logout)
         val item3= menu.findItem(R.id.nav_filter)
 
-        if (currentFragment == "Chat Rooms" || currentFragment == "Donation History" || currentFragment == "User Profile" || currentFragment == "Notifications" || currentFragment == "Post") {
+        if (currentFragment == "Chat Rooms" || currentFragment == "Donation History" || currentFragment == "User Profile" || currentFragment == "Notifications" || currentFragment == "Post" || currentFragment=="Edit Profile" || currentFragment == "Change Password") {
             item.isVisible = false
             item1.isVisible = false
             item2.isVisible = false
@@ -194,7 +195,7 @@ class DashboardActivity : AppCompatActivity() {
             supportActionBar!!.show()
         }
 
-        if (currentFragment != "Add New Post" && currentFragment != App.sharedPrefs.userName && currentFragment != "Individual Chat Room" && currentFragment != App.sharedPrefs.userName && currentFragment != "Chat Rooms" && currentFragment != "Donation History" && currentFragment != "User Profile" && currentFragment != "Notifications" && currentFragment != "Post") {
+        if (currentFragment != "Add New Post" && currentFragment != App.sharedPrefs.userName && currentFragment != "Individual Chat Room" && currentFragment != App.sharedPrefs.userName && currentFragment != "Chat Rooms" && currentFragment != "Donation History" && currentFragment != "User Profile" && currentFragment != "Notifications" && currentFragment != "Post" && currentFragment !="Edit Profile" && currentFragment != "Change Password") {
             item.isVisible = true
             item1.isVisible = true
             item2.isVisible = false
@@ -320,19 +321,7 @@ class DashboardActivity : AppCompatActivity() {
                 val filterCard= findViewById<CardView>(R.id.filterCard)
                 filterCard.isVisible = count%2 != 0
                 println(count%2 != 0)
-                listener?.onCardVisibilityChanged(count%2 != 0)
-/*
-                if (!filterCard.isVisible) {
-                    println("invisible")
-                    //(supportFragmentManager.findFragmentById(R.id.home_fragment) as HomeFragment?)?.getAllPost()
-                    //println((supportFragmentManager.findFragmentById(R.id.home_fragment) as HomeFragment?)?.getAllPost())
-                    HomeFragment().GetInstance()?.getAllPost()
-                    println(HomeFragment().GetInstance()?.getAllPost())
-                    println("reference accessed of home frag")
-                    *//*fragmentH.getAllPost()
-                    fragmentH.selected_filter="1"
-                    fragmentH.initialLoad=true*//*
-                }*/
+                //listener?.onCardVisibilityChanged(count%2 != 0)
             }
 
             //when logout pressed

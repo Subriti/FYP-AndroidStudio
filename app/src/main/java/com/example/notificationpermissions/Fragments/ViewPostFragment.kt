@@ -207,10 +207,8 @@ class ViewPostFragment : Fragment() {
         val postOptions = view.findViewById<ImageView>(R.id.postOptions2)
 
         val donation = JSONObject(postDetails.donation_status)
-        if (donation.getString("donation_status") == "Donated") {
 
-        }
-
+        var isEmpty=false
 
         postOptions.isVisible = postOwner == App.sharedPrefs.userName
         postOptions?.setOnClickListener {
@@ -220,6 +218,15 @@ class ViewPostFragment : Fragment() {
             val markAsDonatedItem = popupMenu.menu.findItem(R.id.markDonated)
             val editPostItem = popupMenu.menu.findItem(R.id.editPost)
             val deletePostItem = popupMenu.menu.findItem(R.id.deletePost)
+
+            PostService.getInterestedUserByPosts(postDetails.post_id) { getInterestedUsers ->
+                println("Get Interested User success: $getInterestedUsers")
+                if (getInterestedUsers) {
+                    if (PostService.InterestedUsers.size==0){
+                        isEmpty=true
+                    }
+                }
+            }
 
             when (donation.getString("donation_status")) {
                 "Ongoing" -> {
@@ -275,126 +282,132 @@ class ViewPostFragment : Fragment() {
                     }
                 }
                 if (menuItem.title == "Mark as Donated") {
-                    val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    val dialogView = layoutInflater.inflate(R.layout.donation_ongoing_layout, null)
+                    if (isEmpty) {
+                        Toast.makeText(
+                            requireContext(),
+                            "The post does not have any interested receiver",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        val dialogView =
+                            layoutInflater.inflate(R.layout.donation_ongoing_layout, null)
 
-                    val recieverNameSpinner = dialogView.findViewById<Spinner>(R.id.receiverNames)
+                        val recieverNameSpinner =
+                            dialogView.findViewById<Spinner>(R.id.receiverNames)
 
-                    fun View?.removeSelf() {
-                        this ?: return
-                        val parentView = parent as? ViewGroup ?: return
-                        parentView.removeView(this)
-                    }
-
-                    println(postDetails.post_id)
-                    println(PostService.InterestedUsersMapList[postDetails.post_id])
-                    //get Interested Users of the Post
-                    val items = arrayListOf<String>()
-                    val idReceiver = arrayListOf<String>()
-                    if (PostService.InterestedUsersMapList.containsKey(postDetails.post_id)) {
-                        for (i in PostService.InterestedUsersMapList[postDetails.post_id]!!) {
-                            items.add(i.user_name)
-                            idReceiver.add(i.user_id)
+                        fun View?.removeSelf() {
+                            this ?: return
+                            val parentView = parent as? ViewGroup ?: return
+                            parentView.removeView(this)
                         }
 
-                        println(items.size)
-                        if (items.size == 0) {
-                            Toast.makeText(
-                                requireContext(),
-                                "The post does not have any interested receiver",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            dialogView.removeSelf()
-                        }
-                        if (items.size > 0) {
-                            val adapter = ArrayAdapter(
-                                requireContext(), android.R.layout.simple_spinner_item, items
-                            )
-                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                            recieverNameSpinner.adapter = adapter
-                            recieverNameSpinner.setSelection(0)
-                            recieverNameSpinner.onItemSelectedListener =
-                                object : AdapterView.OnItemSelectedListener {
-                                    override fun onItemSelected(
-                                        parent: AdapterView<*>, view: View?, position: Int, id: Long
-                                    ) {
-                                        recieverNameSpinner.setSelection(position)
-                                        recieverId = idReceiver[position]
-                                        recieverName = items[position]
-                                        println("Selected reciever : $recieverId")
-                                        println("Selected reciever name : $recieverName")
+                        println(postDetails.post_id)
+                        println(PostService.InterestedUsersMapList[postDetails.post_id])
+                        //get Interested Users of the Post
+                        val items = arrayListOf<String>()
+                        val idReceiver = arrayListOf<String>()
+                        if (PostService.InterestedUsersMapList.containsKey(postDetails.post_id)) {
+                            for (i in PostService.InterestedUsersMapList[postDetails.post_id]!!) {
+                                items.add(i.user_name)
+                                idReceiver.add(i.user_id)
+                            }
+
+                            if (items.size > 0) {
+                                val adapter = ArrayAdapter(
+                                    requireContext(), android.R.layout.simple_spinner_item, items
+                                )
+                                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                                recieverNameSpinner.adapter = adapter
+                                recieverNameSpinner.setSelection(0)
+                                recieverNameSpinner.onItemSelectedListener =
+                                    object : AdapterView.OnItemSelectedListener {
+                                        override fun onItemSelected(
+                                            parent: AdapterView<*>,
+                                            view: View?,
+                                            position: Int,
+                                            id: Long
+                                        ) {
+                                            recieverNameSpinner.setSelection(position)
+                                            recieverId = idReceiver[position]
+                                            recieverName = items[position]
+                                            println("Selected reciever : $recieverId")
+                                            println("Selected reciever name : $recieverName")
+                                        }
+
+                                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                                            // do nothing
+                                        }
                                     }
-
-                                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                                        // do nothing
-                                    }
-                                }
+                            }
                         }
-                    }
 
-                    if (builder != null) {
-                        builder.setView(dialogView).setPositiveButton("Verify") { _, i ->
-                            //call service to update donation status; write backend code for transactions and record it
-                            PostService.updateDonationStatus(
-                                postDetails.post_id, "2"
-                            ) {// 2 -> ongoing status
-                                    updateSuccess ->
-                                println("Update Donation status success: $updateSuccess")
-                                if (updateSuccess) {
-                                    PostService.createTransaction(
-                                        postDetails.post_id,
-                                        recieverId,
-                                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Calendar.getInstance().time)
-                                    ) { createSuccess ->
-                                        println("Create Transaction success: $createSuccess")
-                                        if (createSuccess) {
-                                            //send Notification to the reciever of the clothes for rating
-                                            val title = "Please Rate the Donor"
-                                            val message =
-                                                "Share your experience on the donation process with ${App.sharedPrefs.userName} :)"
+                        if (builder != null) {
+                            builder.setView(dialogView).setPositiveButton("Verify") { _, i ->
+                                //call service to update donation status; write backend code for transactions and record it
+                                PostService.updateDonationStatus(
+                                    postDetails.post_id, "2"
+                                ) {// 2 -> ongoing status
+                                        updateSuccess ->
+                                    println("Update Donation status success: $updateSuccess")
+                                    if (updateSuccess) {
+                                        PostService.createTransaction(
+                                            postDetails.post_id,
+                                            recieverId,
+                                            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
+                                                Calendar.getInstance().time
+                                            )
+                                        ) { createSuccess ->
+                                            println("Create Transaction success: $createSuccess")
+                                            if (createSuccess) {
+                                                //send Notification to the reciever of the clothes for rating
+                                                val title = "Please Rate the Donor"
+                                                val message =
+                                                    "Share your experience on the donation process with ${App.sharedPrefs.userName} :)"
 
-                                            // Pass the ID along with the notification payload
-                                            val data = mapOf("post_id" to postDetails.post_id)
+                                                // Pass the ID along with the notification payload
+                                                val data = mapOf("post_id" to postDetails.post_id)
 
-                                            println("Reciever Id $recieverId")
-                                            println("RecieverName: $recieverName")
+                                                println("Reciever Id $recieverId")
+                                                println("RecieverName: $recieverName")
 
-                                            AuthService.getFCMToken(recieverName) { response ->
-                                                println("Get FCM Token success: $response")
-                                                println("Recipient Token during notification sending is:${AuthService.recipientToken}")
-                                                PushNotification(
-                                                    NotificationData(title, message, data),
-                                                    AuthService.recipientToken
-                                                ).also { sendNotification(it) }
+                                                AuthService.getFCMToken(recieverName) { response ->
+                                                    println("Get FCM Token success: $response")
+                                                    println("Recipient Token during notification sending is:${AuthService.recipientToken}")
+                                                    PushNotification(
+                                                        NotificationData(title, message, data),
+                                                        AuthService.recipientToken
+                                                    ).also { sendNotification(it) }
 
-                                                //add notification to the database
-                                                NotificationService.addNotification(
-                                                    title,
-                                                    message,
-                                                    postDetails.post_id,
-                                                    App.sharedPrefs.userID,
-                                                    AuthService.recipientToken,
-                                                    recieverId
-                                                ) { createSuccess ->
-                                                    println("Create Notification success: $createSuccess")
-                                                    if (createSuccess) {
-                                                        println("Notification added")
+                                                    //add notification to the database
+                                                    NotificationService.addNotification(
+                                                        title,
+                                                        message,
+                                                        postDetails.post_id,
+                                                        App.sharedPrefs.userID,
+                                                        AuthService.recipientToken,
+                                                        recieverId
+                                                    ) { createSuccess ->
+                                                        println("Create Notification success: $createSuccess")
+                                                        if (createSuccess) {
+                                                            println("Notification added")
+                                                        }
                                                     }
+                                                    //go to profile
+                                                    view.findNavController()
+                                                        .navigate(R.id.action_viewPostFragment_to_profileFragment)
                                                 }
-                                                //go to profile
-                                                view.findNavController()
-                                                    .navigate(R.id.action_viewPostFragment_to_profileFragment)
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                        builder.setNegativeButton("Cancel") { dialog, which ->
-                            dialog.dismiss()
-                        }
+                            builder.setNegativeButton("Cancel") { dialog, which ->
+                                dialog.dismiss()
+                            }
 
-                        builder.setView(dialogView).show()
+                            builder.setView(dialogView).show()
+                        }
                     }
                 }
                 if (menuItem.title == "Delete Post") {

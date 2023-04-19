@@ -36,9 +36,6 @@ class MainActivity : AppCompatActivity() {
 
             var sliderView = findViewById<SliderView>(R.id.slider)
             var images = arrayOf(
-                //R.drawable.donate2,
-                //R.drawable.logocolor,
-                //R.drawable.donate3,
                 R.drawable.donate4,
                 R.drawable.donate,
                 R.drawable.donate5

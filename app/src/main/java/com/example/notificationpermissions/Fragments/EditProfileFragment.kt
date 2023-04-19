@@ -1,5 +1,6 @@
 package com.example.notificationpermissions.Fragments
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.content.ContentValues
@@ -14,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.notificationpermissions.Activities.DashboardActivity
@@ -185,7 +187,11 @@ class EditProfileFragment : Fragment() {
         }
         return view
     }
-
+    override fun onResume() {
+        super.onResume()
+        // Invalidate the options menu to force onPrepareOptionsMenu to be called again
+        activity?.invalidateOptionsMenu()
+    }
     private fun updateUser(name:TextView,email:TextView,dateOfBirth:TextView,phoneNumber:TextView,location:TextView) {
         AuthService.updateUser(
             name.text.toString(),
@@ -199,8 +205,13 @@ class EditProfileFragment : Fragment() {
         ) { updateSuccess ->
             println("Update User success: $updateSuccess")
             if (updateSuccess) {
-                //App.shared.prefs ma ni update
+                //also update in App.sharedPrefs
                 App.sharedPrefs.userName = name.text.toString()
+
+                //changing label to user name in profile
+                val destination = view?.findNavController()?.graph?.findNode(R.id.profileFragment)!!
+                destination!!.label = "${App.sharedPrefs.userName}"
+
                 App.sharedPrefs.userEmail = email.text.toString()
                 App.sharedPrefs.dateOfBirth = dateOfBirth.text.toString()
                 App.sharedPrefs.phoneNumber = phoneNumber.text.toString()
@@ -209,13 +220,6 @@ class EditProfileFragment : Fragment() {
 
                 imgButton.isVisible = false
                 saveChanges.isVisible = false
-
-                //changing label to user name in profile
-                /*DashboardActivity().destination!!.label =
-                    "${App.sharedPrefs.userName}"*/
-
-                /*val intent = Intent(activity, DashboardActivity::class.java)
-                startActivity(intent)*/
 
                 //back to profile fragment
                 view?.findNavController()?.navigate(R.id.action_editProfileFragment_to_profileFragment)

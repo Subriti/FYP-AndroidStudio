@@ -24,13 +24,6 @@ class AlertDetails : AppCompatActivity() {
         val postId = intent.getStringExtra(POST_ID_EXTRA)
         println(postId)
 
-        /*val post = intent.getStringExtra(EXTRA_POST)
-        println(post)
-
-        val json= JSONObject(post)
-        val postId= json.getString("post_id")
-        println(postId)*/
-
         val userName = findViewById<TextView>(R.id.postBy)
         val media = findViewById<ImageView>(R.id.postMedia)
 

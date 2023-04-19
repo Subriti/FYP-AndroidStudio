@@ -275,14 +275,6 @@ class UserViewProfileFragment : Fragment() {
 
                     location.text = "  ${newUserDetails.location}"
 
-                    //if user is redirected from dashboard search and the user is blocked; write text to Unblock
-
-                    /*if (DashboardActivity().isBlocked) {
-                        blockBtn.text = "Unblock"
-                    } else {
-                        blockBtn.text = "Block"
-                    }*/
-
                     var userFound= false
                     if (blockedUsers.isNotEmpty()) {
                         for (blockedUser in blockedUsers) {

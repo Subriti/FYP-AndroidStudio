@@ -25,12 +25,9 @@ import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Utilities.EXTRA_POST
-import com.example.notificationpermissions.Utilities.OnCardVisibilityChangeListener
-import org.json.JSONObject
 
 
-class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
-    OnCardVisibilityChangeListener {
+class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     lateinit var feedAdapter: FeedRecyclerAdapter
     lateinit var gridAdapter: FeedGridRecyclerAdapter
@@ -89,8 +86,8 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
         searchTextView.isVisible = false
 
 
-        filterCard= view.findViewById(R.id.filterCard)
-        filterCard.isVisible=false
+        filterCard = view.findViewById(R.id.filterCard)
+        filterCard.isVisible = false
 
         getAllPost()
 
@@ -158,7 +155,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
 
         postRV = view.findViewById(R.id.feedRecyclerView)
 
-        
+
         val listView = view.findViewById<ImageView>(R.id.listView)
         val gridView = view.findViewById<ImageView>(R.id.gridView)
 
@@ -177,74 +174,17 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
 
             setGridAdapter(imageUrlsList)
         }
-
-        val blockedUsers = ArrayList<String>()
-        val blockedFrom = ArrayList<String>()
-
-       /* //if user is blocked, hide their posts
-        BlockService.getBlockedList { complete ->
-            blockedFrom.clear()
-            if (complete) {
-                for (username in BlockService.blockedList) {
-                    val userJSONObject = JSONObject(username.blocked_by_id)
-                    val userId = userJSONObject.getString("user_id")
-                    val username = userJSONObject.getString("user_name")
-                    blockedFrom.add(username)
-                }
-                println("Blocked From size: ${blockedFrom.size}")
-            }
-        }
-
-        //if current user has blocked any user, hide their posts
-        BlockService.getUserBlockList { complete ->
-            blockedUsers.clear()
-            if (complete) {
-                for (username in BlockService.userBlockList) {
-                    val userJSONObject = JSONObject(username.blocked_user_id)
-                    val userId = userJSONObject.getString("user_id")
-                    val username = userJSONObject.getString("user_name")
-                    blockedUsers.add(username)
-                }
-                println("Blocked Users size: ${blockedUsers.size}")
-            }
-        }*/
-
-        
-       /* if (!filterCard.isVisible){
-            println("invisible")
-            getAllPost()
-
-            selected_filter="1"
-            initialLoad=true
-        }*/
-
-
-
         return view
     }
-    override fun onCardVisibilityChanged(isVisible: Boolean) {
-        println("Card is visible: $isVisible")
-        if (isVisible) {
-            getAllPost()
-        }
-    }
-   /* override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        var count= DashboardActivity().count
-        println(count)
-        if (count%2 == 0){
-            getAllPost()
-        }
-    }*/
 
     private fun getAllPost() {
         imageUrlsList.clear()
         filteredPostList.clear()
-       selected_filter="1"
-       initialLoad=true
+        selected_filter = "1"
+        initialLoad = true
         selected_item = "1"
 
-        filterAdapterItem= R.array.clothCategory_array
+        filterAdapterItem = R.array.clothCategory_array
         println("in getAll Post")
 
         // Code for showing progressDialog while getting posts from server
@@ -256,40 +196,8 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
             if (complete) {
                 if (PostService.AllPosts.isNotEmpty()) {
                     for (post in PostService.AllPosts) {
-                        /*if (blockedUsers.isNotEmpty() && blockedFrom.isNotEmpty()) {
-                            for (blockedUser in blockedUsers) {
-                                for (blockedFrom in blockedFrom) {
-                                    // if the post was created by a blocked user; removing the post from a list
-                                    if (post.post_by != blockedUser && post.post_by != blockedFrom) {
-                                        println(post.post_by)
-                                        imageUrlsList.add(post.media_file)
-                                        filteredPostList.add(post)
-                                    }
-                                }
-                            }
-                        } else if (blockedUsers.isNotEmpty()) {
-                            for (blockedUser in blockedUsers) {
-                                if (post.post_by != blockedUser) {
-                                    println(post.post_by)
-                                    imageUrlsList.add(post.media_file)
-                                    filteredPostList.add(post)
-                                }
-                            }
-                        } else if (blockedFrom.isNotEmpty()) {
-                            for (blockedFrom in blockedFrom) {
-                                // if the post was created by a blocked user; removing the post from a list
-                                if (post.post_by != blockedFrom) {
-                                    println(post.post_by)
-                                    imageUrlsList.add(post.media_file)
-                                    filteredPostList.add(post)
-                                }
-                            }
-                        } else {
-                            //if blocked user empty; add all posts*/
-                            println(post.post_by)
-                            imageUrlsList.add(post.media_file)
-                            filteredPostList.add(post)
-                        //}
+                        imageUrlsList.add(post.media_file)
+                        filteredPostList.add(post)
                         println(imageUrlsList.size)
                         println(filteredPostList.size)
                     }
@@ -386,7 +294,10 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener,
 
                                     for (p in PostService.AllPosts) {
                                         for (c in PostService.clothes) {
-                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(p)) {
+                                            if (p.media_file == c.cloth_media && !filteredPostList.contains(
+                                                    p
+                                                )
+                                            ) {
                                                 if (c.clothes_category_id == selected_item) {
                                                     imageUrlsList.add(p.media_file)
                                                     filteredPostList.add(p)

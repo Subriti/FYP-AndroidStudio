@@ -1,4 +1,4 @@
-package com.example. notificationpermissions.Fragments
+package com.example.notificationpermissions.Fragments
 
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
@@ -7,26 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notificationpermissions.Activities.DashboardActivity
 import com.example.notificationpermissions.Adapters.ChatRoomAdapter
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.MessageService
-import com.example.notificationpermissions.Services.NotificationService
 import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
 
-class ChatFragment : Fragment()/*, OnClickListener*/{
-    //var serverMessage: TextView? =null
-    //var messageText: TextView? =null
-    //lateinit var webSocketClient: WebSocketClient
-
-
+class ChatFragment : Fragment() {
     lateinit var chatRoomAdapter: ChatRoomAdapter
 
     override fun onCreateView(
@@ -36,36 +27,31 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_chat, container, false)
 
-        //(activity as DashboardActivity?)!!.currentFragment = this
-
-        //createWebSocketClient()
-        val messageText= view.findViewById<TextView>(R.id.messageText)
-        messageText.isVisible=false
-        //val serverMessage= view.findViewById<TextView>(R.id.serverMsg)
-        //serverMessage.isVisible=false
-
-        val sendMessage= view.findViewById<ImageView>(R.id.sendMessage)
-        sendMessage.isVisible=false
-
-        val noDataText= view.findViewById<TextView>(R.id.noDataTextView)
+        val noDataText = view.findViewById<TextView>(R.id.noDataTextView)
 
         fun getUserChatRooms() {
-            MessageService.getChatRooms {getChatRooms ->
+            MessageService.getChatRooms { getChatRooms ->
                 if (getChatRooms) {
                     if (MessageService.map.isNotEmpty()) {
                         noDataText.visibility = View.GONE
-                        for (i in MessageService.map)
-                        {
+                        for (i in MessageService.map) {
                             MessageService.findUser(i.key, i.value) { findUser ->
                                 checkIfFragmentAttached {
                                     chatRoomAdapter =
-                                        ChatRoomAdapter(requireContext().applicationContext, MessageService.userChatRooms){
-                                                userchat->
+                                        ChatRoomAdapter(
+                                            requireContext().applicationContext,
+                                            MessageService.userChatRooms
+                                        ) { userchat ->
                                             //on Click do something--> open individual chat room
                                             view.findNavController()
                                                 .navigate(
                                                     R.id.action_chatFragment_to_individualChatRoomFragment,
-                                                    Bundle().apply { putSerializable(EXTRA_CHAT_ROOM, userchat) })
+                                                    Bundle().apply {
+                                                        putSerializable(
+                                                            EXTRA_CHAT_ROOM,
+                                                            userchat
+                                                        )
+                                                    })
 
                                         }
                                     val chatRoomList =
@@ -81,13 +67,14 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
                     }
                 } else {
                     noDataText.visibility = View.VISIBLE
-                    noDataText.text= "Chat Rooms could not be loaded"
+                    noDataText.text = "Chat Rooms could not be loaded"
                 }
             }
         }
         getUserChatRooms()
         return view
     }
+
     override fun onResume() {
         super.onResume()
         // Invalidate the options menu to force onPrepareOptionsMenu to be called again
@@ -99,13 +86,4 @@ class ChatFragment : Fragment()/*, OnClickListener*/{
             operation(requireContext())
         }
     }
-
-    fun hideKeyboard() {
-        val inputManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-
-        if (inputManager.isAcceptingText) {
-            inputManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
-        }
-    }
-
 }
