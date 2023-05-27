@@ -28,6 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notificationpermissions.Adapters.UserAdapter
 import com.example.notificationpermissions.Fragments.HomeFragment
+import com.example.notificationpermissions.Models.ChatRoom
+import com.example.notificationpermissions.Models.Post
 import com.example.notificationpermissions.Models.User
 import com.example.notificationpermissions.R
 import com.example.notificationpermissions.Services.AuthService
@@ -35,6 +37,7 @@ import com.example.notificationpermissions.Services.BlockService
 import com.example.notificationpermissions.Services.PostService
 import com.example.notificationpermissions.Services.UserDataService
 import com.example.notificationpermissions.Utilities.App
+import com.example.notificationpermissions.Utilities.EXTRA_CHAT_ROOM
 import com.example.notificationpermissions.Utilities.EXTRA_POST
 import com.example.notificationpermissions.Utilities.EXTRA_USER
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -117,17 +120,31 @@ class DashboardActivity : AppCompatActivity() {
         BlockService.getBlockedList {  }
 
         try {
-            val notificationDetails = intent.getSerializableExtra(EXTRA_POST)
-            if (notificationDetails != null) {
-                val navController = Navigation.findNavController(this, R.id.nav_fragment)
-                navController.navigate(R.id.viewPostFragment, Bundle().apply {
-                    putSerializable(
-                        EXTRA_POST, PostService.notificationPost
-                    )
-                })
+            if (intent.hasExtra(EXTRA_POST)) {
+                val notificationDetails = intent.getSerializableExtra(EXTRA_POST) as? Post
+                if (notificationDetails != null) {
+                    val navController = Navigation.findNavController(this, R.id.nav_fragment)
+                    navController.navigate(R.id.viewPostFragment, Bundle().apply {
+                        putSerializable(EXTRA_POST, notificationDetails)
+                    })
+                }
             }
         } catch (e: Exception) {
             Log.d("Notification Intent", "EXC: " + e.localizedMessage)
+        }
+
+        try {
+            if (intent.hasExtra(EXTRA_CHAT_ROOM)) {
+                val chatRoomDetails = intent.getSerializableExtra(EXTRA_CHAT_ROOM) as? ChatRoom
+                if (chatRoomDetails != null) {
+                    val navController = Navigation.findNavController(this, R.id.nav_fragment)
+                    navController.navigate(R.id.individualChatRoomFragment, Bundle().apply {
+                        putSerializable(EXTRA_CHAT_ROOM, chatRoomDetails)
+                    })
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("Chat Room Intent", "EXC: " + e.localizedMessage)
         }
 
         try{
@@ -317,19 +334,24 @@ class DashboardActivity : AppCompatActivity() {
 
             R.id.nav_filter -> {
                 count+=1
-                Toast.makeText(this,"Filter clicked",Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this,"Filter clicked",Toast.LENGTH_SHORT).show()
                 val filterCard= findViewById<CardView>(R.id.filterCard)
                 filterCard.isVisible = count%2 != 0
-                println(count%2 != 0)
+                //println(count%2 != 0)
                 //listener?.onCardVisibilityChanged(count%2 != 0)
             }
 
             //when logout pressed
             R.id.nav_logout -> {
-                UserDataService.logout()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                println("logout clicked")
+                AuthService.updateFCMToken("null") {success ->
+                    if(success){
+                        UserDataService.logout()
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             }
         }
         return super.onOptionsItemSelected(item)

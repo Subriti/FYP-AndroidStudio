@@ -51,6 +51,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 
 
 class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
@@ -89,7 +90,7 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
     private var hideEmail = false
     private var hideNumber = false
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,7 +159,6 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
         storage = FirebaseStorage.getInstance()
         storageReference = storage.reference
 
-
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         locationTxt = findViewById(R.id.locationText)
         findLocation = findViewById(R.id.findLocation)
@@ -213,6 +213,13 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
             return pattern.matcher(email).matches();
         }
 
+        fun validPassword(password:String): Boolean{
+            // digit + lowercase char + uppercase char + punctuation + symbol
+            val PASSWORD_PATTERN=  "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$"
+            val pattern= Pattern.compile(PASSWORD_PATTERN)
+            return pattern.matcher(password).matches()
+        }
+
         signupbtn = findViewById(R.id.saveChanges)
         signupbtn.setOnClickListener {
             if (name.text.toString() == "" || email.text.toString() =="" || birthDate.text.toString()=="" || locationTxt.text.toString()=="" ||
@@ -227,11 +234,16 @@ class SignUpPageActivity : AppCompatActivity(), EasyPermissions.PermissionCallba
                 indicatorText.text = "Password Matched"
                 indicatorText.setTextColor(getColor(R.color.green))
 
-                val selectedCode = phonecode.selectedCountryCodeAsInt
-                number = "+$selectedCode${phone.text}"
+                if (!validPassword(password.text.toString())) {
+                    Toast.makeText(this,"Invalid password format: 1 number, symbol, capital letter required!",Toast.LENGTH_LONG).show();
+                }
+                else{
+                    val selectedCode = phonecode.selectedCountryCodeAsInt
+                    number = "+$selectedCode${phone.text}"
 
-                enableSpinner(true)
-                //sendVerificationCode(number)
+                    enableSpinner(true)
+                    sendVerificationCode(number)
+                }
 
             } else if (password.text.toString() != "" && repassword.text.toString() != "" && password.text.toString() != repassword.text.toString()) {
                 indicatorText.visibility = View.VISIBLE

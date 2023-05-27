@@ -34,6 +34,7 @@ object UserDataService {
         App.sharedPrefs.hideUserPhone="false"
         App.sharedPrefs.isAdmin= "false"
 
+        AuthService.newPassword==""
         PostService.posts.clear()
         MessageService.clearMessages()
         MessageService.clearChatRooms()

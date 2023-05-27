@@ -43,6 +43,4 @@ class ChatRoomAdapter(val context: Context, val chatRoom: ArrayList<ChatRoom>,
     override fun getItemCount(): Int {
         return  chatRoom.count()
     }
-
-
 }

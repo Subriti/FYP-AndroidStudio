@@ -231,7 +231,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
                             val title = "Message from ${App.sharedPrefs.userName}"
                             val message = "Message: ${messageBody}"
-                            val data = mapOf("token" to token)
+                            val data = mapOf("chat_room_id" to chatRoomId, "user_id" to sID)
                             PushNotification(
                                 NotificationData(title, message, data),
                                 chatDetails?.recieverFCMtoken.toString()
@@ -246,7 +246,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
                             val title = "Message from ${chatDetails?.recieverUserName.toString()}"
                             val message = "Message: ${messageBody}"
 
-                            val data = mapOf("token" to token)
+                            val data = mapOf("chat_room_id" to chatRoomId, "user_id" to rID)
                             PushNotification(
                                 NotificationData(title, message, data), App.sharedPrefs.token
                             ).also { sendNotification(it) }
@@ -315,7 +315,7 @@ class IndividualChatRoomFragment : Fragment(), OnClickListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onClick(view: View) {
-        Toast.makeText(context, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(context, "Button clicked: Message Sent", Toast.LENGTH_SHORT).show()
         Log.i("WebSocket", "Send Button was clicked")
 
         val sdf = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

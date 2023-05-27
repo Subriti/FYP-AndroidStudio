@@ -333,8 +333,8 @@ class UserViewProfileFragment : Fragment() {
 
                     PostService.getRating(newUserDetails.user_id!!) { complete ->
                         if (complete) {
-                            rating.text = App.sharedPrefs.rating.toString()
-                            donations.text = App.sharedPrefs.clothDonated.toString()
+                            rating.text = "Rating: " + App.sharedPrefs.rating.toString() + " "
+                            donations.text = "Clothes Donated: " + App.sharedPrefs.clothDonated.toString() + " "
                         }
                     }
 

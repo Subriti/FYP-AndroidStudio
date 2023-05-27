@@ -76,7 +76,7 @@ class ChangePasswordFragment : Fragment() {
                     } else {
                         Toast.makeText(
                             requireContext(),
-                            "Something went wrong. Password Change Unsuccessful",
+                            AuthService.errorMessage,
                             Toast.LENGTH_LONG
                         ).show()
                         enableSpinner(false)
@@ -142,7 +142,7 @@ class ChangePasswordFragment : Fragment() {
 
     private fun sendCustomMessage(phone: String) {
         val message =
-            "Your newly generated password is: ${AuthService.newPassword}\nYou are requested to change your password again." // create a custom message to send
+            "Your newly generated password is: \n${AuthService.newPassword}\nYou are requested to change your password again." // create a custom message to send
         try {
             val smsManager = SmsManager.getDefault() // get the default SMS manager
             smsManager.sendTextMessage(

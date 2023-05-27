@@ -63,10 +63,11 @@ object AuthService {
         val requestBody = jsonBody.toString()
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
-                if (response.getString("Error message") == "Username is already taken") {
+                val error = response.optString("Error message", null)
+                if (error == "Username is already taken") {
                     errorMessage = "Username is already taken"
                     complete(false)
-                } else if (response.getString("Error message") == "New password doesn't meet required complexity definitions. \\nRequired: minimum of 8characters, 1 numerical, 1 special character, 1capital letter and 1small letter") {
+                } else if (error == "New password doesn't meet required complexity definitions. \\nRequired: minimum of 8characters, 1 numerical, 1 special character, 1capital letter and 1small letter") {
                     errorMessage = "Password doesn't meet required complexity definitions."
                     complete(false)
                 } else {
@@ -387,7 +388,14 @@ object AuthService {
             null,
             Response.Listener { response ->
                 println("Change Password Response $response")
-                complete(true)
+                val error = response.optString("Error", null)
+                if(error!=null){
+                    errorMessage= error
+                    complete(false)
+                }
+                else {
+                    complete(true)
+                }
             },
             Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not change password: $error")
